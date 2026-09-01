@@ -1,5 +1,5 @@
 ---
-import {PortableText} from 'astro-portabletext'
+import PortableTextBody from '../../components/PortableTextBody.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getResearchStaticPaths} from '../../lib/research'
 
@@ -11,7 +11,7 @@ const {article} = Astro.props
 const slug = article.slug ?? Astro.params.slug ?? ''
 ---
 
-<Layout title={article.title ?? slug}>
+<Layout title={article.title ?? slug} ogType="article">
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/research" class="text-on-surface-variant no-underline hover:text-primary">Research</a>
 	</p>
@@ -19,7 +19,7 @@ const slug = article.slug ?? Astro.params.slug ?? ''
 	{
 		article.body?.length ? (
 			<div class="prose mt-8 max-w-3xl font-sans">
-				<PortableText value={article.body} />
+				<PortableTextBody value={article.body} />
 			</div>
 		) : null
 	}
@@ -28,7 +28,7 @@ const slug = article.slug ?? Astro.params.slug ?? ''
 			<section class="mt-16 bg-surface-dim p-8">
 				<h2 class="text-2xl">Notes and references</h2>
 				<div class="prose mt-4 max-w-3xl font-sans">
-					<PortableText value={article.notesAndReferences} />
+					<PortableTextBody value={article.notesAndReferences} />
 				</div>
 			</section>
 		) : null

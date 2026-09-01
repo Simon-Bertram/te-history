@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'bun:test'
 
-import {hrefFor, isExternalHref} from './href'
+import {archiveIdStaticPaths, hrefFor, hubStaticPaths, isExternalHref, slugStaticPaths} from './href'
 
 describe('hrefFor', () => {
 	test('maps each catalog type to one path', () => {
@@ -12,15 +12,63 @@ describe('hrefFor', () => {
 		expect(hrefFor({_type: 'quarterlyArticle', sourceUrl: 'https://tehistory.org/q'})).toBe(
 			'https://tehistory.org/q',
 		)
+		expect(hrefFor({_type: 'person', slug: 'croasdale-john', _id: 'p1'})).toBe(
+			'/people/croasdale-john',
+		)
+		expect(hrefFor({_type: 'township', slug: 'tredyffrin', _id: 't1'})).toBe('/places/tredyffrin')
+		expect(hrefFor({_type: 'location', slug: 'paoli', _id: 'l1'})).toBe('/places/paoli')
+		expect(hrefFor({_type: 'category', slug: 'schools', _id: 'c1'})).toBe('/subjects/schools')
+	})
+
+	test('falls back to _id when slug is missing', () => {
 		expect(hrefFor({_type: 'person', _id: 'p1'})).toBe('/people/p1')
 		expect(hrefFor({_type: 'township', _id: 't1'})).toBe('/places/t1')
-		expect(hrefFor({_type: 'location', _id: 'l1'})).toBe('/places/l1')
 		expect(hrefFor({_type: 'category', _id: 'c1'})).toBe('/subjects/c1')
 	})
 
 	test('falls back when the type is unknown or the key is missing', () => {
 		expect(hrefFor({_type: 'historicalImage'})).toBe('/search')
 		expect(hrefFor({_type: 'unknown'}, '/images')).toBe('/images')
+	})
+})
+
+describe('hubStaticPaths', () => {
+	test('emits a slug path and an _id redirect when they differ', () => {
+		expect(
+			hubStaticPaths([{_id: 'p1', slug: 'croasdale-john'}], '/people', (row) => ({person: row})),
+		).toEqual([
+			{params: {slug: 'croasdale-john'}, props: {person: {_id: 'p1', slug: 'croasdale-john'}}},
+			{params: {slug: 'p1'}, redirect: '/people/croasdale-john'},
+		])
+	})
+
+	test('emits only _id when that is the slug', () => {
+		expect(hubStaticPaths([{_id: 'p1', slug: 'p1'}], '/people', (row) => ({person: row}))).toEqual([
+			{params: {slug: 'p1'}, props: {person: {_id: 'p1', slug: 'p1'}}},
+		])
+	})
+})
+
+describe('archiveIdStaticPaths and slugStaticPaths', () => {
+	test('uses archiveId or slug as the route param and skips missing keys', () => {
+		expect(
+			archiveIdStaticPaths(
+				[{archiveId: 'MF37', title: 'Mill'}, {archiveId: null, title: 'Skip'}],
+				(image) => ({image}),
+			),
+		).toEqual([{params: {archiveId: 'MF37'}, props: {image: {archiveId: 'MF37', title: 'Mill'}}}])
+
+		expect(
+			slugStaticPaths(
+				[{slug: 'my-people-the-sioux', title: 'Sioux'}, {slug: '', title: 'Skip'}],
+				(article) => ({article}),
+			),
+		).toEqual([
+			{
+				params: {slug: 'my-people-the-sioux'},
+				props: {article: {slug: 'my-people-the-sioux', title: 'Sioux'}},
+			},
+		])
 	})
 })
 

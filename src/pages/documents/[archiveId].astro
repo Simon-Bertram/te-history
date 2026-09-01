@@ -1,5 +1,5 @@
 ---
-import {PortableText} from 'astro-portabletext'
+import PortableTextBody from '../../components/PortableTextBody.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getDocumentStaticPaths} from '../../lib/documents'
 import {
@@ -21,7 +21,7 @@ const srcset = scan ? srcsetFromWidths(scan, DETAIL_IMAGE_WIDTHS, catalogDetailS
 const size = scan ? intrinsicSize(scan, 1200) : undefined
 ---
 
-<Layout title={doc.title ?? archiveId}>
+<Layout title={doc.title ?? archiveId} ogImage={src} ogType="article">
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/documents" class="text-on-surface-variant no-underline hover:text-primary">
 			Documents
@@ -49,7 +49,7 @@ const size = scan ? intrinsicSize(scan, 1200) : undefined
 	{
 		doc.transcription?.length ? (
 			<div class="prose mt-8 max-w-2xl font-sans">
-				<PortableText value={doc.transcription} />
+				<PortableTextBody value={doc.transcription} />
 			</div>
 		) : null
 	}

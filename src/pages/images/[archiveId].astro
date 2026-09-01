@@ -21,7 +21,12 @@ const srcset = file ? srcsetFromWidths(file, DETAIL_IMAGE_WIDTHS, catalogDetailS
 const size = file ? intrinsicSize(file, 1600) : undefined
 ---
 
-<Layout title={image.title ?? archiveId} description={image.description ?? undefined}>
+<Layout
+	title={image.title ?? archiveId}
+	description={image.description ?? undefined}
+	ogImage={src}
+	ogType="article"
+>
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/images" class="text-on-surface-variant no-underline hover:text-primary">Images</a>
 		{' / '}
@@ -59,7 +64,7 @@ const size = file ? intrinsicSize(file, 1600) : undefined
 				<dt class="text-on-surface-variant">Place</dt>
 				<dd>
 					{image.location ? (
-						<a href={hrefFor({_type: 'location', _id: image.location._id})} class="text-primary no-underline">
+						<a href={hrefFor({_type: 'location', slug: image.location.slug, _id: image.location._id})} class="text-primary no-underline">
 							{image.location.name}
 						</a>
 					) : null}
@@ -82,7 +87,7 @@ const size = file ? intrinsicSize(file, 1600) : undefined
 				<ul class="mt-2 list-none p-0">
 					{image.people.map((person) => (
 						<li>
-							<a href={hrefFor({_type: 'person', _id: person._id})} class="text-primary no-underline">
+							<a href={hrefFor({_type: 'person', slug: person.slug, _id: person._id})} class="text-primary no-underline">
 								{[person.firstName, person.lastName].filter(Boolean).join(' ')}
 							</a>
 						</li>
@@ -99,7 +104,7 @@ const size = file ? intrinsicSize(file, 1600) : undefined
 					{image.subjects.map((item) => (
 						<li>
 							<a
-								href={hrefFor({_type: 'category', _id: item._id})}
+								href={hrefFor({_type: 'category', slug: item.slug, _id: item._id})}
 								class="bg-secondary-fixed px-3 py-1 font-sans text-sm text-on-secondary-fixed no-underline"
 							>
 								{item.title}

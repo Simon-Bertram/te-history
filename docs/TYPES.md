@@ -29,7 +29,9 @@ export const TOWNSHIPS_QUERY = defineQuery(/* groq */ `
 
 Inline `sanityClient.fetch(\`*[_type == ...]\`)` is invisible. Generated names are `{VARIABLE}_RESULT` (for example `TOWNSHIPS_QUERY_RESULT`).
 
-Interpolating a **static** GROQ fragment into `defineQuery` is fine. Shared fragments live in [`src/lib/groq.ts`](../src/lib/groq.ts) (`IMAGE_PROJECTION`, `HAS_PUBLIC_INCOMING`, `DOCUMENT_LIST_PROJECTION`).
+Interpolating a **static** GROQ fragment into `defineQuery` is fine. Shared fragments live in [`src/lib/groq.ts`](../src/lib/groq.ts) (`IMAGE_PROJECTION`, `HAS_PUBLIC_INCOMING`, `DOCUMENT_LIST_PROJECTION`, `ENTITY_SLUG`, `PORTABLE_TEXT_WITH_EMBEDS`).
+
+People, place, and subject URLs use `"slug": coalesce(slug.current, _id)`. Hub lookups match `_id` or `slug.current` so Archive `_id` links keep resolving after a Studio slug is added.
 
 List pages that only need “this person appears in the catalog” use `HAS_PUBLIC_INCOMING` (`defined(*[...][0]._id)`), not `count(...)`. Hub pages still `count` photographs when the UI shows “See all N”.
 
@@ -78,5 +80,6 @@ GROQ optional fields are `string | null`, not `string?`. Helpers that sort or co
 1. Add or change fields in the GROQ projection in `src/lib`.
 2. Run `bun run typegen`.
 3. Use the field on the page. If TypeScript complains, the query and the page disagree.
+4. `bun run check` (`astro check`) after TypeGen so pages and lib stay aligned.
 
 Commit `schema.json` and `sanity.types.ts` so CI and clones type-check without a Studio extract.

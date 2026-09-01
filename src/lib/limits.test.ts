@@ -3,9 +3,22 @@ import {describe, expect, test} from 'bun:test'
 import {
 	isFuzzySubject,
 	parseImageSort,
+	parsePage,
 	sortSubjectsDemoteFuzzy,
 	sortTownshipsFirst,
 } from './limits'
+
+describe('parsePage', () => {
+	test('keeps positive integers and otherwise returns 1', () => {
+		expect(parsePage('2')).toBe(2)
+		expect(parsePage('1')).toBe(1)
+		expect(parsePage(undefined)).toBe(1)
+		expect(parsePage('0')).toBe(1)
+		expect(parsePage('-3')).toBe(1)
+		expect(parsePage('1.5')).toBe(1)
+		expect(parsePage('nope')).toBe(1)
+	})
+})
 
 describe('parseImageSort', () => {
 	test('accepts known sorts and defaults to newest date', () => {

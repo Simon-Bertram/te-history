@@ -402,6 +402,14 @@
 					"type": "string"
 				},
 				"optional": true
+			},
+			"slug": {
+				"type": "objectAttribute",
+				"value": {
+					"type": "inline",
+					"name": "slug"
+				},
+				"optional": true
 			}
 		}
 	},
@@ -444,6 +452,14 @@
 				"type": "objectAttribute",
 				"value": {
 					"type": "string"
+				},
+				"optional": true
+			},
+			"slug": {
+				"type": "objectAttribute",
+				"value": {
+					"type": "inline",
+					"name": "slug"
 				},
 				"optional": true
 			},
@@ -520,6 +536,14 @@
 				},
 				"optional": true
 			},
+			"slug": {
+				"type": "objectAttribute",
+				"value": {
+					"type": "inline",
+					"name": "slug"
+				},
+				"optional": true
+			},
 			"born": {
 				"type": "objectAttribute",
 				"value": {
@@ -577,6 +601,14 @@
 				"type": "objectAttribute",
 				"value": {
 					"type": "string"
+				},
+				"optional": true
+			},
+			"slug": {
+				"type": "objectAttribute",
+				"value": {
+					"type": "inline",
+					"name": "slug"
 				},
 				"optional": true
 			},

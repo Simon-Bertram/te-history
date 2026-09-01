@@ -9,6 +9,7 @@ import type {
 } from '../../sanity.types'
 import {buildFacetQuery} from './facets'
 import {IMAGE_DETAIL_PROJECTION, IMAGE_PROJECTION} from './groq'
+import {archiveIdStaticPaths} from './href'
 import type {CatalogImage} from './imageHighlights'
 import {mergeFeaturedWithFallback} from './imageHighlights'
 import {
@@ -126,9 +127,7 @@ export async function getImageByArchiveId(archiveId: string): Promise<ImageDetai
 
 export async function getImageStaticPaths() {
 	const rows = await sanityClient.fetch(IMAGE_STATIC_PATHS_QUERY)
-	return (rows ?? [])
-		.filter((row): row is typeof row & {archiveId: string} => Boolean(row.archiveId))
-		.map((row) => ({params: {archiveId: row.archiveId}, props: {image: row}}))
+	return archiveIdStaticPaths(rows, (image) => ({image}))
 }
 
 export async function getTownships(): Promise<TownshipOption[]> {

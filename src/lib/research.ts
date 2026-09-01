@@ -6,6 +6,8 @@ import type {
 	RESEARCH_ARTICLES_QUERY_RESULT,
 	RESEARCH_BY_SLUG_QUERY_RESULT,
 } from '../../sanity.types'
+import {PORTABLE_TEXT_WITH_EMBEDS} from './groq'
+import {slugStaticPaths} from './href'
 import {FEATURED_RESEARCH_LIMIT} from './limits'
 
 export type FeaturedResearchArticle = FEATURED_RESEARCH_FALLBACK_QUERY_RESULT[number]
@@ -32,13 +34,18 @@ export const RESEARCH_ARTICLES_QUERY = defineQuery(/* groq */ `
 
 export const RESEARCH_BY_SLUG_QUERY = defineQuery(/* groq */ `
 	*[_type == "researchArticle" && slug.current == $slug][0]{
-		_id, title, body, notesAndReferences
+		_id, title,
+		"body": body${PORTABLE_TEXT_WITH_EMBEDS},
+		"notesAndReferences": notesAndReferences${PORTABLE_TEXT_WITH_EMBEDS}
 	}
 `)
 
 export const RESEARCH_PATHS_QUERY = defineQuery(/* groq */ `
 	*[_type == "researchArticle" && defined(slug.current)]{
-		_id, title, body, notesAndReferences, "slug": slug.current
+		_id, title,
+		"body": body${PORTABLE_TEXT_WITH_EMBEDS},
+		"notesAndReferences": notesAndReferences${PORTABLE_TEXT_WITH_EMBEDS},
+		"slug": slug.current
 	}
 `)
 
@@ -66,7 +73,5 @@ export async function getResearchBySlug(
 
 export async function getResearchStaticPaths() {
 	const rows = await sanityClient.fetch(RESEARCH_PATHS_QUERY)
-	return (rows ?? [])
-		.filter((row): row is typeof row & {slug: string} => Boolean(row.slug))
-		.map((row) => ({params: {slug: row.slug}, props: {article: row}}))
+	return slugStaticPaths(rows, (article) => ({article}))
 }

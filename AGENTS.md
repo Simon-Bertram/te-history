@@ -11,7 +11,7 @@ This is not a Next.js app, not a React SPA, and not a shadcn project. Do not int
 ## Stack
 
 - **Astro 7** pages and components, adapter `@astrojs/cloudflare`
-- **Sanity** via `@sanity/astro` (`sanity:client`, GROQ). Project and dataset are already set in `astro.config.mjs`
+- **Sanity** via `@sanity/astro` (`sanity:client`, GROQ). `site`, project, and dataset come from `PUBLIC_SITE_URL` and `PUBLIC_SANITY_*` (see `.env.example`); `astro.config.mjs` loads them with Vite `loadEnv`.
 - **Tailwind 4** tokens in `src/styles/global.css` (Curated Manuscript)
 - **Wrangler** (`wrangler.jsonc`) for Workers deploy
 - **Bun** (`bun.lock`). Tests use `bun:test`
@@ -28,21 +28,22 @@ Use `bun` / `bunx` for every install, script, binary, and one-off CLI. Do not us
 | Dev server control | `bunx astro dev stop` / `status` / `logs` |
 | Worker types | `bun run generate-types` or `bunx wrangler types` |
 | Sanity TypeGen | `bun run typegen` |
+| Type check | `bun run check` |
 | Tests | `bun test` |
 | Skills CLI | `bunx skills add …` |
 
 ## Architecture
 
-GROQ helpers in `src/lib/` (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`) call `sanityClient.fetch`. Pages import those helpers and render `.astro` components. Prefer existing lib functions over new ad-hoc GROQ in pages. Catalog links go through `hrefFor` in `href.ts`; image/document facets share `buildFacetQuery` in `facets.ts`.
+GROQ helpers in `src/lib/` (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`) call `sanityClient.fetch`. Pages import those helpers and render `.astro` components. Prefer existing lib functions over new ad-hoc GROQ in pages. Catalog links go through `hrefFor` in `href.ts`; image/document facets share `buildFacetQuery` in `facets.ts`. People, places, and subjects use `slug.current` when present, otherwise `_id` (old `_id` URLs 301 to the slug). Images and documents use `archiveId`.
 
 Follow [docs/TYPES.md](docs/TYPES.md) for TypeGen, `defineQuery`, and catalog result types. Do not re-declare `{ _id: string; title: string }` in pages.
 
 - Images: `urlFor` / `catalogGridSrc` / `catalogDetailSrc` in `src/lib/imageUrl.ts` (`@sanity/image-url`, `auto('format')`, srcset)
-- Rich text: `astro-portabletext` on research and document detail pages
-- **Static by default** (`output: 'static'`). Detail hubs use `getStaticPaths`. `export const prerender = false` only on `/search`, `/images`, `/documents`, and `/research` (URL-first GET facets). Those SSR routes set `Cache-Control` via `setSsrCacheControl`.
+- Rich text: `astro-portabletext` via `PortableTextBody.astro` (`historicalImageEmbed` in research body/notes and document transcription)
+- **Static by default** (`output: 'static'`). `site` is required for sitemap, canonicals, and Open Graph. Detail hubs use `getStaticPaths`. `export const prerender = false` only on `/search`, `/images`, `/documents`, and `/research` (URL-first GET facets). Those SSR routes set `Cache-Control` via `setSsrCacheControl`.
 - `useCdn: false` — build against the Content Lake, not a stale API CDN snapshot
 - Content lives in Sanity. Do not add Astro content collections
-- Public UI is `.astro`. React is a Sanity Studio dependency, not the public frontend
+- Public UI is `.astro`. Do not embed Sanity Studio on this site. Keep the `sanity` package for `bun run typegen` only.
 
 **Sanity types:** `historicalImage`, `primarySource`, `quarterlyIssue`, `quarterlyArticle`, `researchArticle`, `person`, `location`, `township`, `category`.
 
@@ -69,6 +70,6 @@ Match existing `.ts` / `.astro` files: tabs, single quotes, no semicolons, stric
 
 ## Do not
 
-- Commit `.env` or secrets
+- Commit `.env` or secrets (copy `.env.example` locally)
 - Add Durable Objects, D1, KV, or other Cloudflare bindings unless asked
 - Use Astro i18n unless asked (this site is English)

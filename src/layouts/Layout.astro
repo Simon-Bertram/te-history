@@ -13,13 +13,35 @@ import {
 interface Props {
 	title?: string
 	description?: string
+	ogImage?: string
+	ogType?: 'website' | 'article'
+	noIndex?: boolean
 }
 
-const {title = 'Tredyffrin Easttown Historical Society', description} = Astro.props
+const {
+	title = 'Tredyffrin Easttown Historical Society',
+	description,
+	ogImage,
+	ogType = 'website',
+	noIndex = false,
+} = Astro.props
+
 const nav = await getSiteNavigation()
 const headerLinks = pageLinks(nav.primaryLinks)
 const showSearch = hasSearchControl(nav.primaryLinks)
 const searchAction = searchHref(nav.primaryLinks)
+
+const canonical = Astro.site
+	? new URL(Astro.url.pathname, Astro.site).href
+	: undefined
+const absoluteOgImage = ogImage
+	? /^https?:\/\//i.test(ogImage)
+		? ogImage
+		: Astro.site
+			? new URL(ogImage, Astro.site).href
+			: undefined
+	: undefined
+const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 ---
 
 <!doctype html>
@@ -31,6 +53,18 @@ const searchAction = searchHref(nav.primaryLinks)
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
 		{description ? <meta name="description" content={description} /> : null}
+		{noIndex ? <meta name="robots" content="noindex" /> : null}
+		{canonical ? <link rel="canonical" href={canonical} /> : null}
+		<meta property="og:site_name" content="Tredyffrin Easttown Historical Society" />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:title" content={title} />
+		{description ? <meta property="og:description" content={description} /> : null}
+		{canonical ? <meta property="og:url" content={canonical} /> : null}
+		{absoluteOgImage ? <meta property="og:image" content={absoluteOgImage} /> : null}
+		<meta name="twitter:card" content={twitterCard} />
+		<meta name="twitter:title" content={title} />
+		{description ? <meta name="twitter:description" content={description} /> : null}
+		{absoluteOgImage ? <meta name="twitter:image" content={absoluteOgImage} /> : null}
 		<title>{title}</title>
 	</head>
 	<body class="flex min-h-full flex-col">

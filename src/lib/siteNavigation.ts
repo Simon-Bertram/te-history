@@ -41,7 +41,8 @@ export async function getSiteNavigation(): Promise<SiteNavigation> {
 			primaryLinks: asLinks(doc?.primaryLinks, SITE_NAVIGATION_PRIMARY_LINKS),
 			secondaryLinks: asLinks(doc?.secondaryLinks, SITE_NAVIGATION_SECONDARY_LINKS),
 		}
-	} catch {
+	} catch (error) {
+		console.error('[siteNavigation] Sanity fetch failed; using fallback links', error)
 		return {
 			primaryLinks: SITE_NAVIGATION_PRIMARY_LINKS,
 			secondaryLinks: SITE_NAVIGATION_SECONDARY_LINKS,

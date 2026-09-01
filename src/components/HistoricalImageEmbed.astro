@@ -1,0 +1,60 @@
+---
+import {hrefFor} from '../lib/href'
+import {
+	catalogDetailSrc,
+	intrinsicSize,
+	type CatalogImageField,
+} from '../lib/imageUrl'
+
+interface EmbedImage {
+	title?: string | null
+	archiveId?: string | null
+	imageFile?: CatalogImageField
+}
+
+interface Props {
+	node: {
+		alt?: string | null
+		historicalImage?: EmbedImage | null
+	}
+}
+
+const {node} = Astro.props
+const image = node.historicalImage
+const file = image?.imageFile
+const src = file ? catalogDetailSrc(file, 800) : undefined
+const size = file ? intrinsicSize(file, 800) : undefined
+const alt = node.alt || image?.title || ''
+const href = image?.archiveId
+	? hrefFor({_type: 'historicalImage', archiveId: image.archiveId})
+	: undefined
+---
+
+{
+	src && size ? (
+		<figure class="my-8">
+			{href ? (
+				<a href={href} class="text-primary no-underline">
+					<img
+						src={src}
+						alt={alt}
+						width={size.width}
+						height={size.height}
+						class="h-auto w-full"
+					/>
+				</a>
+			) : (
+				<img
+					src={src}
+					alt={alt}
+					width={size.width}
+					height={size.height}
+					class="h-auto w-full"
+				/>
+			)}
+			{alt ? (
+				<figcaption class="mt-2 font-sans text-sm text-on-surface-variant">{alt}</figcaption>
+			) : null}
+		</figure>
+	) : null
+}

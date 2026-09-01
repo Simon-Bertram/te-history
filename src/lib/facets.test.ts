@@ -55,4 +55,20 @@ describe('buildFacetQuery', () => {
 		expect(documents.filter).toContain('date.year >= $decadeStart')
 		expect(documents.filter).not.toContain('dateTaken.year')
 	})
+
+	test('ignores blank query, invalid decade, and location unless opted in', () => {
+		const images = buildFacetQuery(
+			{q: '   ', location: 'loc-1', decade: 'nineteen', page: 0},
+			{
+				type: 'historicalImage',
+				qFields: ['title'],
+				yearField: 'dateTaken.year',
+				pageSize: 24,
+			},
+		)
+		expect(images.page).toBe(1)
+		expect(images.filter).toBe('_type == "historicalImage"')
+		expect(images.groqParams).toEqual({})
+		expect(images.filter).not.toContain('location._ref')
+	})
 })
