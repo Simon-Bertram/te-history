@@ -1,8 +1,13 @@
+// Expand env.d.ts only when you add custom env vars or other ambient declarations.
+
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
-  "compilerOptions": {
-    "types": ["@sanity/astro/module"]
-  }
+  "include": [
+    ".astro/types.d.ts",
+    "**/*",
+    "./worker-configuration.d.ts"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

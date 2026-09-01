@@ -1,1 +1,266 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@import "tw-animate-css";
+/* @import "shadcn/tailwind.css";
+@plugin "daisyui"; */
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   The Curated Manuscript — design tokens
+   Parchment surfaces, burgundy ink, navy utility. See docs/DESIGN.md.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+  /* Parchment surface hierarchy */
+  --color-surface: var(--surface);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-dim: var(--surface-dim);
+
+  /* Ink */
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+
+  /* Brand tones */
+  --color-primary-container: var(--primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-secondary-wash: var(--secondary-wash);
+
+  --color-outline-variant: var(--outline-variant);
+
+  /* Typography — Newsreader (display) + Public Sans (utility) */
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-newsreader), ui-serif, Georgia, serif;
+
+  --text-display-lg: 3.5rem;
+  --text-display-lg--line-height: 1.02;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-md: 2.75rem;
+  --text-display-md--line-height: 1.05;
+  --text-display-md--letter-spacing: -0.015em;
+  --text-display-sm: 2.125rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-sm--letter-spacing: -0.01em;
+
+  /* Shadcn compatibility (inline so tokens remain overridable) */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* Clipped, academic radii. Nothing larger than 'sm'. */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Parchment & ink */
+  --surface: #fcf9f2;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f6f3ec;
+  --surface-container: #f1eee7;
+  --surface-container-high: #ebe8e1;
+  --surface-container-highest: #e5e2db;
+  --surface-dim: #dcdad3;
+  --on-surface: #1c1c18;
+  --on-surface-variant: #554241;
+
+  --primary-container: #6b1b1b;
+  --primary-fixed: #7a1a1f;
+
+  --secondary-container: #cfe2f9;
+  --on-secondary-container: #526478;
+  --secondary-fixed: #d1e4fb;
+  --on-secondary-fixed: #091d2e;
+  --secondary-wash: color-mix(in srgb, var(--secondary-container) 55%, var(--surface));
+
+  --outline-variant: #dcc0be;
+
+  /* Shadcn-compatible bindings */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-low);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: var(--on-surface);
+  --primary: #4d0408;
+  --primary-foreground: #ffffff;
+  --secondary: #4e6073;
+  --secondary-foreground: #ffffff;
+  --muted: var(--surface-container);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-container-high);
+  --accent-foreground: var(--on-surface);
+  --destructive: oklch(0.45 0.17 27);
+  --border: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  --input: var(--surface-container-lowest);
+  --ring: #4d0408;
+
+  --chart-1: #4d0408;
+  --chart-2: #4e6073;
+  --chart-3: #6b1b1b;
+  --chart-4: #554241;
+  --chart-5: #dcc0be;
+
+  /* Formal, clipped edge (§6 Don't — no lg/xl rounding). */
+  --radius: 0.125rem;
+
+  --sidebar: var(--surface-container-low);
+  --sidebar-foreground: var(--on-surface);
+  --sidebar-primary: #4d0408;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--surface-container);
+  --sidebar-accent-foreground: var(--on-surface);
+  --sidebar-border: color-mix(in srgb, var(--outline-variant) 20%, transparent);
+  --sidebar-ring: #4d0408;
+}
+
+/* Reserved for a future "after hours" reading room. */
+.dark {
+  --surface: #1c1c18;
+  --surface-container-lowest: #14140f;
+  --surface-container-low: #22221e;
+  --surface-container: #2a2a25;
+  --surface-container-high: #32322d;
+  --surface-container-highest: #3a3a34;
+  --surface-dim: #0e0e0a;
+  --on-surface: #fcf9f2;
+  --on-surface-variant: #cfb7b5;
+
+  --primary-container: #8a2328;
+  --primary-fixed: #e08e90;
+
+  --secondary-container: #2a3746;
+  --on-secondary-container: #cfe2f9;
+  --secondary-fixed: #22334a;
+  --on-secondary-fixed: #cfe2f9;
+  --secondary-wash: color-mix(in srgb, var(--secondary-fixed) 50%, var(--surface));
+
+  --outline-variant: #5a4644;
+
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-low);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: var(--on-surface);
+  --primary: #b33a3f;
+  --primary-foreground: #fcf9f2;
+  --secondary: #7a8b9c;
+  --secondary-foreground: #1c1c18;
+  --muted: var(--surface-container);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-container-high);
+  --accent-foreground: var(--on-surface);
+  --destructive: oklch(0.6 0.19 22);
+  --border: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  --input: var(--surface-container-lowest);
+  --ring: #b33a3f;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    overflow-y: scroll;
+    font-feature-settings: "ss01", "kern", "liga", "cv01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Parchment wash: warm highlight + cool shadow + a hair of grain. */
+    background-image:
+      radial-gradient(
+        1200px 600px at 0% 0%,
+        color-mix(in srgb, var(--primary) 3%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        1000px 700px at 100% 100%,
+        color-mix(in srgb, var(--secondary) 4%, transparent),
+        transparent 60%
+      ),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    /* Default attachment (scroll). `fixed` triggers Firefox’s scroll-linked
+		   positioning warning and can fight async panning. */
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: var(--on-surface);
+  }
+
+  /* Map chrome — keep popups transparent; style attribution on parchment. */
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+  .maplibregl-ctrl-attrib.maplibregl-compact {
+    @apply bg-surface/75! text-on-surface-variant! backdrop-blur-md! rounded-none!;
+  }
+  .maplibregl-ctrl-attrib-inner,
+  .maplibregl-ctrl-attrib-inner a {
+    @apply text-on-surface-variant! font-sans! text-[10px]! tracking-[0.04em]!;
+  }
+  .maplibregl-ctrl-attrib-inner a:hover {
+    @apply text-primary!;
+  }
+
+}
