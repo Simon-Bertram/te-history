@@ -1,0 +1,32 @@
+---
+const query = Astro.url.searchParams.get('q') ?? ''
+---
+
+<form
+	class="min-w-0 w-full max-w-64"
+	action="/"
+	method="get"
+	role="search"
+>
+	<label class="sr-only" for="site-search">
+		Search the archive
+	</label>
+	<input
+		id="site-search"
+		type="search"
+		name="q"
+		value={query}
+		placeholder="Search the archive"
+		autocomplete="off"
+		enterkeyhint="search"
+		class:list={[
+			'w-full rounded-sm bg-surface-container-lowest px-3 py-2',
+			'font-sans text-sm text-on-surface tracking-[0.02em]',
+			'placeholder:text-on-surface-variant/70',
+			'border-0 border-b border-outline-variant/40',
+			'transition-[border-color,box-shadow] duration-200',
+			'focus:border-primary focus:outline-none',
+			'focus:shadow-[0_0_12px_color-mix(in_srgb,var(--primary-container)_28%,transparent)]',
+		]}
+	/>
+</form>

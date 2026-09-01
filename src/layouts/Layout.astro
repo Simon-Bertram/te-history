@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css'
+import Navlinks from '../components/Navlinks.astro'
+import Search from '../components/Search.astro'
 ---
 
 <!doctype html>
@@ -13,6 +15,25 @@ import '../styles/global.css'
 		<title>Astro Basics</title>
 	</head>
 	<body>
+		<header
+			class="sticky top-0 z-50 border-b border-outline-variant/20 bg-surface/80 backdrop-blur-[20px]"
+		>
+			<nav
+				class="mx-auto flex max-w-6xl items-center justify-between gap-8 px-8 py-4"
+				aria-label="Main"
+			>
+				<a
+					href="/"
+					class="font-display text-lg tracking-[-0.015em] text-primary no-underline"
+				>
+					The Archive
+				</a>
+				<div class="flex min-w-0 items-center gap-8">
+					<Navlinks />
+					<Search />
+				</div>
+			</nav>
+		</header>
 		<slot />
 	</body>
 </html>
