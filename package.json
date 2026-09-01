@@ -12,7 +12,19 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.2.10"
+    "@sanity/astro": "^3.5.1",
+    "@sanity/client": "^8.4.0",
+    "@sanity/image-url": "^2.1.1",
+    "@tailwindcss/typography": "^0.5.20",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.10",
+    "astro-portabletext": "^1.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-is": "^19.2.8",
+    "sanity": "^6.11.0",
+    "styled-components": "^6.5.3",
+    "tailwindcss": "^4.3.3"
   },
   "allowScripts": {
     "esbuild": true
