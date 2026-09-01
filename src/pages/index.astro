@@ -1,11 +1,98 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+export const prerender = false
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import ImageGrid from '../components/ImageGrid.astro'
+import Layout from '../layouts/Layout.astro'
+import {getHighlightImages} from '../lib/catalog'
+import {getFeaturedResearch, getLatestQuarterlyIssue} from '../lib/collections'
+import {HOME_IMAGE_LIMIT} from '../lib/limits'
+import {getSiteNavigation, pageLinks} from '../lib/siteNavigation'
+
+const [images, issue, research, nav] = await Promise.all([
+	getHighlightImages(HOME_IMAGE_LIMIT),
+	getLatestQuarterlyIssue(),
+	getFeaturedResearch(3),
+	getSiteNavigation(),
+])
+const explore = pageLinks(nav.secondaryLinks)
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+	title="Tredyffrin Easttown Historical Society"
+	description="History Quarterly, photographs, documents, and township research from the Tredyffrin Easttown Historical Society."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		The collections
+	</p>
+	<h1 class="mt-3 max-w-3xl text-display-sm text-on-surface">
+		A catalog of the History Quarterly, photographs, and documents of Tredyffrin and Easttown.
+	</h1>
+
+	<section class="mt-14">
+		<div class="mb-6 flex items-end justify-between gap-4">
+			<h2 class="text-2xl">From the collection</h2>
+			<a href="/images" class="font-sans text-sm text-primary no-underline">Browse images</a>
+		</div>
+		<ImageGrid images={images} empty="Photographs will appear here as they are cataloged." />
+	</section>
+
+	{
+		issue ? (
+			<section class="mt-16 bg-surface-container-low p-8">
+				<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+					History Quarterly
+				</p>
+				<h2 class="mt-2 text-2xl">
+					Volume {issue.volume}, Number {issue.issueNumber}
+					{issue.season ? ` · ${issue.season}` : ''}
+				</h2>
+				<ul class="mt-4 list-none p-0">
+					{(issue.articles ?? []).map((article: { _id: string; title: string; authorText?: string }) => (
+						<li class="border-b border-outline-variant/20 py-3 font-sans">
+							<span class="text-on-surface">{article.title}</span>
+							{article.authorText ? (
+								<span class="text-on-surface-variant"> — {article.authorText}</span>
+							) : null}
+						</li>
+					))}
+				</ul>
+				<a href="/quarterly" class="mt-4 inline-block font-sans text-sm text-primary no-underline">
+					Volume index
+				</a>
+			</section>
+		) : null
+	}
+
+	{
+		research?.length ? (
+			<section class="mt-16">
+				<h2 class="text-2xl">Research</h2>
+				<ul class="mt-4 list-none p-0">
+					{research.map((article: { _id: string; title: string; slug?: string }) => (
+						<li class="py-3">
+							<a
+								href={article.slug ? `/research/${article.slug}` : '/research'}
+								class="font-display text-xl text-primary no-underline"
+							>
+								{article.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+
+	<section class="mt-16">
+		<h2 class="text-2xl">Explore</h2>
+		<ul class="mt-4 flex list-none flex-wrap gap-6 p-0">
+			{explore.map((link) => (
+				<li>
+					<a href={link.href} class="font-sans text-sm tracking-[0.04em] text-primary no-underline">
+						{link.label}
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
 </Layout>

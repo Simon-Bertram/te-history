@@ -1,0 +1,90 @@
+---
+export const prerender = false
+
+import ImageGrid from '../../components/ImageGrid.astro'
+import Layout from '../../layouts/Layout.astro'
+import {getPlaceHub} from '../../lib/collections'
+import {ENTITY_IMAGE_STRIP} from '../../lib/limits'
+import type {CatalogImage} from '../../lib/imageHighlights'
+
+const id = Astro.params.id
+if (!id) {
+	return Astro.redirect('/places')
+}
+
+const place = await getPlaceHub(id)
+if (!place) {
+	return new Response(null, {status: 404, statusText: 'Not found'})
+}
+
+const kind = place._type === 'township' ? 'Township' : 'Place'
+---
+
+<Layout title={place.name} description={`${place.name} in the Tredyffrin Easttown historical catalog.`}>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		<a href="/places" class="text-on-surface-variant no-underline hover:text-primary">Places</a>
+		{' / '}
+		{kind}
+	</p>
+	<h1 class="mt-3 text-display-sm">{place.name}</h1>
+	{
+		place.townships?.length ? (
+			<p class="mt-2 font-sans text-on-surface-variant">{place.townships.join(', ')}</p>
+		) : null
+	}
+
+	<section class="mt-10">
+		<div class="mb-6 flex items-end justify-between gap-4">
+			<h2 class="text-2xl">Photographs</h2>
+			{place.imageCount > ENTITY_IMAGE_STRIP ? (
+				<a
+					href={`/images?${place._type === 'township' ? 'township' : 'location'}=${place._id}`}
+					class="font-sans text-sm text-primary no-underline"
+				>
+					See all {place.imageCount} images
+				</a>
+			) : null}
+		</div>
+		<ImageGrid images={(place.images ?? []) as CatalogImage[]} empty="No photographs are linked here yet." />
+	</section>
+
+	{
+		place.documents?.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Documents</h2>
+				<ul class="mt-4 list-none p-0">
+					{place.documents.map((doc: { _id: string; title: string; archiveId?: string }) => (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a
+								href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
+								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+							>
+								{doc.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+
+	{
+		place.research?.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Research</h2>
+				<ul class="mt-4 list-none p-0">
+					{place.research.map((article: { _id: string; title: string; slug?: string }) => (
+						<li class="py-2">
+							<a
+								href={article.slug ? `/research/${article.slug}` : '/research'}
+								class="font-display text-xl text-primary no-underline"
+							>
+								{article.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+</Layout>

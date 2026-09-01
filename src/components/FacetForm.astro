@@ -1,0 +1,126 @@
+---
+interface Option {
+	_id: string
+	name?: string
+	title?: string
+}
+
+interface Props {
+	townships: Option[]
+	subjects: Option[]
+	locations?: Option[]
+	action?: string
+	showPlace?: boolean
+	showDecade?: boolean
+	showSort?: boolean
+}
+
+const {
+	townships,
+	subjects,
+	locations = [],
+	action = '/images',
+	showPlace = false,
+	showDecade = true,
+	showSort = false,
+} = Astro.props
+const q = Astro.url.searchParams.get('q') ?? ''
+const township = Astro.url.searchParams.get('township') ?? ''
+const location = Astro.url.searchParams.get('location') ?? ''
+const subject = Astro.url.searchParams.get('subject') ?? ''
+const decade = Astro.url.searchParams.get('decade') ?? ''
+const sort = Astro.url.searchParams.get('sort') ?? 'date-desc'
+const decades = [1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990]
+const inputClass =
+	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
+const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).length + 1
+---
+
+<form
+	class:list={[
+		'mb-10 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2',
+		columns >= 6 ? 'lg:grid-cols-3 xl:grid-cols-6' : 'lg:grid-cols-5',
+	]}
+	action={action}
+	method="get"
+>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Caption or Archive ID
+		<input class={inputClass} type="search" name="q" value={q} />
+	</label>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Township
+		<select class={inputClass} name="township">
+			<option value="">All</option>
+			{townships.map((item) => (
+				<option value={item._id} selected={township === item._id}>
+					{item.name}
+				</option>
+			))}
+		</select>
+	</label>
+	{
+		showPlace ? (
+			<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+				Place
+				<select class={inputClass} name="location">
+					<option value="">All</option>
+					{locations.map((item) => (
+						<option value={item._id} selected={location === item._id}>
+							{item.name}
+						</option>
+					))}
+				</select>
+			</label>
+		) : null
+	}
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Subject
+		<select class={inputClass} name="subject">
+			<option value="">All</option>
+			{subjects.map((item) => (
+				<option value={item._id} selected={subject === item._id}>
+					{item.title}
+				</option>
+			))}
+		</select>
+	</label>
+	{
+		showDecade ? (
+			<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+				Decade
+				<select class={inputClass} name="decade">
+					<option value="">All</option>
+					{decades.map((year) => (
+						<option value={String(year)} selected={decade === String(year)}>
+							{year}s
+						</option>
+					))}
+				</select>
+			</label>
+		) : null
+	}
+	{
+		showSort ? (
+			<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+				Sort
+				<select class={inputClass} name="sort">
+					<option value="date-desc" selected={sort === 'date-desc'}>Date, newest</option>
+					<option value="date-asc" selected={sort === 'date-asc'}>Date, oldest</option>
+					<option value="title" selected={sort === 'title'}>Title</option>
+				</select>
+			</label>
+		) : null
+	}
+	<div class="flex items-end gap-3">
+		<button
+			type="submit"
+			class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary"
+		>
+			Filter
+		</button>
+		<a href={action} class="py-2 font-sans text-sm text-on-surface-variant no-underline hover:text-primary">
+			Clear filters
+		</a>
+	</div>
+</form>

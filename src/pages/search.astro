@@ -1,0 +1,60 @@
+---
+export const prerender = false
+
+import Layout from '../layouts/Layout.astro'
+import {searchCatalog} from '../lib/search'
+
+const q = Astro.url.searchParams.get('q') ?? ''
+const results = q.trim() ? await searchCatalog(q) : {query: q, groups: []}
+---
+
+<Layout
+	title={q ? `Search: ${q}` : 'Search'}
+	description="Search photographs, documents, Quarterly articles, research, people, and places."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">Search</p>
+	<h1 class="mt-3 text-display-sm">Search the catalog</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		Results are grouped by type. Archive IDs such as MF37 or v22n1p017 jump to the top of Images
+		when they match. Full-text indexing of article bodies with Pagefind will cover statically
+		generated pages as those routes are added.
+	</p>
+
+	<form class="mt-8 max-w-md" action="/search" method="get" role="search">
+		<label class="sr-only" for="search-page">Query</label>
+		<input
+			id="search-page"
+			class="w-full rounded-sm bg-surface-container-lowest px-3 py-3 font-sans border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none"
+			type="search"
+			name="q"
+			value={q}
+			placeholder="Caption, name, or Archive ID"
+		/>
+	</form>
+
+	{
+		q.trim() && results.groups.length === 0 ? (
+			<p class="mt-8 font-sans text-on-surface-variant">No matches for “{q}”.</p>
+		) : null
+	}
+
+	{
+		results.groups.map((group) => (
+			<section class="mt-10">
+				<h2 class="text-2xl">{group.label}</h2>
+				<ul class="mt-3 list-none p-0">
+					{group.hits.map((hit) => (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a href={hit.href} class="font-display text-xl text-on-surface no-underline hover:text-primary">
+								{hit.title}
+							</a>
+							{hit.meta ? (
+								<p class="font-sans text-sm text-on-surface-variant">{hit.meta}</p>
+							) : null}
+						</li>
+					))}
+				</ul>
+			</section>
+		))
+	}
+</Layout>

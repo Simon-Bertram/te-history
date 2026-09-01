@@ -1,0 +1,85 @@
+---
+export const prerender = false
+
+import FacetForm from '../../components/FacetForm.astro'
+import ImageGrid from '../../components/ImageGrid.astro'
+import Pagination from '../../components/Pagination.astro'
+import Layout from '../../layouts/Layout.astro'
+import {
+	getFilteredImages,
+	getHighlightImages,
+	getLocations,
+	getSubjects,
+	getTownships,
+	parsePage,
+} from '../../lib/catalog'
+import {IMAGES_PAGE_SIZE} from '../../lib/limits'
+
+const params = Astro.url.searchParams
+const q = params.get('q') ?? ''
+const township = params.get('township') ?? ''
+const location = params.get('location') ?? ''
+const subject = params.get('subject') ?? ''
+const decade = params.get('decade') ?? ''
+const sort = params.get('sort') ?? ''
+const all = params.get('all') === '1'
+const page = parsePage(params.get('page') ?? undefined)
+const hasCustomSort = Boolean(sort) && sort !== 'date-desc'
+const hasFilters = Boolean(q || township || location || subject || decade || hasCustomSort || all)
+
+const [townships, locations, subjects, filtered, highlights] = await Promise.all([
+	getTownships(),
+	getLocations(),
+	getSubjects(),
+	hasFilters
+		? getFilteredImages({q, township, location, subject, decade, sort, page})
+		: Promise.resolve(null),
+	hasFilters ? Promise.resolve([]) : getHighlightImages(IMAGES_PAGE_SIZE),
+])
+
+const images = hasFilters ? (filtered?.images ?? []) : highlights
+const total = hasFilters ? (filtered?.total ?? 0) : images.length
+---
+
+<Layout
+	title="Image collection"
+	description="Search historic photographs from Tredyffrin and Easttown by subject, township, and Archive ID."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		Image collection
+	</p>
+	<h1 class="mt-3 text-display-sm">Photographs</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		The landing grid is a curated set of local views. Use the filters to search the full catalog,
+		or <a href="/images?all=1" class="text-primary">browse all images</a>.
+	</p>
+
+	<FacetForm
+		townships={townships ?? []}
+		subjects={subjects ?? []}
+		locations={locations ?? []}
+		showPlace
+		showSort
+	/>
+
+	{
+		hasFilters && total === 0 ? (
+			<p class="font-sans text-on-surface-variant">
+				No images match these filters. <a href="/images" class="text-primary">Clear filters</a>
+			</p>
+		) : (
+			<ImageGrid images={images} />
+		)
+	}
+
+	{
+		hasFilters ? (
+			<Pagination
+				page={page}
+				pageSize={IMAGES_PAGE_SIZE}
+				total={total}
+				basePath="/images"
+			/>
+		) : null
+	}
+</Layout>

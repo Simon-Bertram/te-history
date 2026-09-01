@@ -1,0 +1,52 @@
+---
+import type {CatalogImage} from '../lib/imageHighlights'
+import {urlFor} from '../lib/imageUrl'
+
+interface Props {
+	images: CatalogImage[]
+	empty?: string
+}
+
+const {images, empty = 'No images match these filters.'} = Astro.props
+---
+
+{
+	images.length === 0 ? (
+		<p class="font-sans text-on-surface-variant">{empty}</p>
+	) : (
+		<ul class="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
+			{images.map((image) => {
+				const src = image.imageFile
+					? urlFor(image.imageFile as Parameters<typeof urlFor>[0])
+							.width(720)
+							.height(540)
+							.fit('crop')
+							.url()
+					: undefined
+				const href = image.archiveId ? `/images/${image.archiveId}` : `/images`
+				return (
+					<li class="bg-surface-container-low p-8 transition-[background-color,box-shadow] duration-200 hover:bg-surface-container-highest hover:shadow-[0_24px_48px_color-mix(in_srgb,var(--on-surface)_6%,transparent)]">
+						<a href={href} class="no-underline text-inherit">
+							{src ? (
+								<img
+									src={src}
+									alt={image.title ?? ''}
+									width="720"
+									height="540"
+									class="mb-4 aspect-[4/3] w-full object-cover"
+									loading="lazy"
+								/>
+							) : null}
+							<p class="font-display text-lg text-on-surface">{image.title}</p>
+							<p class="mt-1 font-sans text-sm tracking-[0.04em] text-on-surface-variant">
+								{[image.archiveId, image.dateTaken?.year, image.township]
+									.filter(Boolean)
+									.join(' · ')}
+							</p>
+						</a>
+					</li>
+				)
+			})}
+		</ul>
+	)
+}

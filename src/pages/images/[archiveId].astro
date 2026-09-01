@@ -1,0 +1,103 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import {getImageByArchiveId} from '../../lib/collections'
+import {urlFor} from '../../lib/imageUrl'
+
+const archiveId = Astro.params.archiveId
+if (!archiveId) {
+	return Astro.redirect('/images')
+}
+
+const image = await getImageByArchiveId(archiveId)
+if (!image) {
+	return new Response(null, {status: 404, statusText: 'Not found'})
+}
+
+const src = image.imageFile
+	? urlFor(image.imageFile).width(1600).fit('max').url()
+	: undefined
+---
+
+<Layout title={image.title ?? archiveId} description={image.description}>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		<a href="/images" class="text-on-surface-variant no-underline hover:text-primary">Images</a>
+		{' / '}
+		{image.archiveId}
+	</p>
+	<h1 class="mt-3 text-display-sm">{image.title}</h1>
+	{
+		src ? (
+			<img src={src} alt={image.title ?? ''} class="mt-8 w-full max-w-4xl" />
+		) : null
+	}
+	{
+		image.description ? (
+			<p class="mt-6 max-w-2xl font-sans text-on-surface">{image.description}</p>
+		) : null
+	}
+	<dl class="mt-8 grid max-w-xl gap-3 font-sans text-sm">
+		{image.dateTaken?.year ? (
+			<div>
+				<dt class="text-on-surface-variant">Date</dt>
+				<dd>{image.dateTaken.year}</dd>
+			</div>
+		) : null}
+		{image.location || image.township ? (
+			<div>
+				<dt class="text-on-surface-variant">Place</dt>
+				<dd>
+					{image.location ? (
+						<a href={`/places/${image.location._id}`} class="text-primary no-underline">
+							{image.location.name}
+						</a>
+					) : null}
+					{image.location && image.township ? `, ${image.township}` : null}
+					{!image.location && image.township ? image.township : null}
+				</dd>
+			</div>
+		) : null}
+		{image.rights ? (
+			<div>
+				<dt class="text-on-surface-variant">Rights</dt>
+				<dd>{image.rights}</dd>
+			</div>
+		) : null}
+	</dl>
+	{
+		image.people?.length ? (
+			<section class="mt-8">
+				<h2 class="text-xl">People</h2>
+				<ul class="mt-2 list-none p-0">
+					{image.people.map((person: { _id: string; firstName?: string; lastName?: string }) => (
+						<li>
+							<a href={`/people/${person._id}`} class="text-primary no-underline">
+								{[person.firstName, person.lastName].filter(Boolean).join(' ')}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+	{
+		image.subjects?.length ? (
+			<section class="mt-8">
+				<h2 class="text-xl">Subjects</h2>
+				<ul class="mt-2 flex list-none flex-wrap gap-2 p-0">
+					{image.subjects.map((item: { _id: string; title: string }) => (
+						<li>
+							<a
+								href={`/subjects/${item._id}`}
+								class="bg-secondary-fixed px-3 py-1 font-sans text-sm text-on-secondary-fixed no-underline"
+							>
+								{item.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+</Layout>

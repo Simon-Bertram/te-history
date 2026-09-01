@@ -1,16 +1,15 @@
 ---
-const query = Astro.url.searchParams.get('q') ?? ''
+interface Props {
+	action?: string
+	query?: string
+}
+
+const action = Astro.props.action ?? '/search'
+const query = Astro.props.query ?? Astro.url.searchParams.get('q') ?? ''
 ---
 
-<form
-	class="min-w-0 w-full max-w-64"
-	action="/"
-	method="get"
-	role="search"
->
-	<label class="sr-only" for="site-search">
-		Search the archive
-	</label>
+<form class="min-w-0 w-full max-w-64" action={action} method="get" role="search">
+	<label class="sr-only" for="site-search">Search the archive</label>
 	<input
 		id="site-search"
 		type="search"

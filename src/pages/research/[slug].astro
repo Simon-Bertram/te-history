@@ -1,0 +1,31 @@
+---
+export const prerender = false
+
+import {PortableText} from 'astro-portabletext'
+import Layout from '../../layouts/Layout.astro'
+import {getResearchBySlug} from '../../lib/collections'
+
+const slug = Astro.params.slug
+if (!slug) {
+	return Astro.redirect('/research')
+}
+
+const article = await getResearchBySlug(slug)
+if (!article) {
+	return new Response(null, {status: 404, statusText: 'Not found'})
+}
+---
+
+<Layout title={article.title}>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		<a href="/research" class="text-on-surface-variant no-underline hover:text-primary">Research</a>
+	</p>
+	<h1 class="mt-3 text-display-sm">{article.title}</h1>
+	{
+		article.body?.length ? (
+			<div class="prose mt-8 max-w-3xl font-sans">
+				<PortableText value={article.body} />
+			</div>
+		) : null
+	}
+</Layout>

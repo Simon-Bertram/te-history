@@ -1,7 +1,25 @@
 ---
 import '../styles/global.css'
+import ExploreFooter from '../components/ExploreFooter.astro'
 import Navlinks from '../components/Navlinks.astro'
 import Search from '../components/Search.astro'
+import {
+	getSiteNavigation,
+	hasSearchControl,
+	pageLinks,
+	searchHref,
+} from '../lib/siteNavigation'
+
+interface Props {
+	title?: string
+	description?: string
+}
+
+const {title = 'Tredyffrin Easttown Historical Society', description} = Astro.props
+const nav = await getSiteNavigation()
+const headerLinks = pageLinks(nav.primaryLinks)
+const showSearch = hasSearchControl(nav.primaryLinks)
+const searchAction = searchHref(nav.primaryLinks)
 ---
 
 <!doctype html>
@@ -12,29 +30,30 @@ import Search from '../components/Search.astro'
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		{description ? <meta name="description" content={description} /> : null}
+		<title>{title}</title>
 	</head>
-	<body>
+	<body class="flex min-h-full flex-col">
 		<header
-			class="sticky top-0 z-50 border-b border-outline-variant/20 bg-surface/80 backdrop-blur-[20px]"
+			class="sticky top-0 z-50 bg-surface/80 backdrop-blur-[20px]"
 		>
 			<nav
 				class="mx-auto flex max-w-6xl items-center justify-between gap-8 px-8 py-4"
 				aria-label="Main"
 			>
-				<a
-					href="/"
-					class="font-display text-lg tracking-[-0.015em] text-primary no-underline"
-				>
-					The Archive
+				<a href="/" class="font-display text-lg tracking-[-0.015em] text-primary no-underline">
+					TEHS
 				</a>
 				<div class="flex min-w-0 items-center gap-8">
-					<Navlinks />
-					<Search />
+					<Navlinks links={headerLinks} />
+					{showSearch ? <Search action={searchAction} /> : null}
 				</div>
 			</nav>
 		</header>
-		<slot />
+		<main class="mx-auto w-full max-w-6xl flex-1 px-8 py-12">
+			<slot />
+		</main>
+		<ExploreFooter links={nav.secondaryLinks} />
 	</body>
 </html>
 

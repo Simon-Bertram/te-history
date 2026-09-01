@@ -1,0 +1,35 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import {getQuarterlyIssues} from '../../lib/collections'
+
+const issues = await getQuarterlyIssues()
+---
+
+<Layout
+	title="History Quarterly"
+	description="Volume index for the Tredyffrin Easttown History Quarterly digital archives."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		History Quarterly
+	</p>
+	<h1 class="mt-3 text-display-sm">Volume index</h1>
+	<ul class="mt-8 list-none p-0">
+		{
+			(issues ?? []).map((issue: { _id: string; volume: number; issueNumber: number; season?: string; articleCount?: number }) => (
+				<li class="border-b border-outline-variant/20 py-4 font-sans">
+					<span class="font-display text-xl">
+						Volume {issue.volume}, Number {issue.issueNumber}
+					</span>
+					{issue.season ? (
+						<span class="text-on-surface-variant"> · {issue.season}</span>
+					) : null}
+					{issue.articleCount != null ? (
+						<span class="text-on-surface-variant"> · {issue.articleCount} articles</span>
+					) : null}
+				</li>
+			))
+		}
+	</ul>
+</Layout>

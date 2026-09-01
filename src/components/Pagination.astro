@@ -1,0 +1,43 @@
+---
+interface Props {
+	page: number
+	pageSize: number
+	total: number
+	basePath: string
+}
+
+const {page, pageSize, total, basePath} = Astro.props
+const pageCount = Math.max(1, Math.ceil(total / pageSize))
+const params = new URLSearchParams(Astro.url.search)
+const hrefFor = (next: number) => {
+	const nextParams = new URLSearchParams(params)
+	if (next <= 1) nextParams.delete('page')
+	else nextParams.set('page', String(next))
+	const query = nextParams.toString()
+	return query ? `${basePath}?${query}` : basePath
+}
+---
+
+{
+	pageCount > 1 ? (
+		<nav class="mt-10 flex items-center justify-between font-sans text-sm" aria-label="Pagination">
+			{page > 1 ? (
+				<a href={hrefFor(page - 1)} class="text-primary no-underline">
+					Previous
+				</a>
+			) : (
+				<span class="text-on-surface-variant">Previous</span>
+			)}
+			<p class="text-on-surface-variant">
+				Page {page} of {pageCount}
+			</p>
+			{page < pageCount ? (
+				<a href={hrefFor(page + 1)} class="text-primary no-underline">
+					Next
+				</a>
+			) : (
+				<span class="text-on-surface-variant">Next</span>
+			)}
+		</nav>
+	) : null
+}

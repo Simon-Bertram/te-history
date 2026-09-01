@@ -1,0 +1,94 @@
+---
+export const prerender = false
+
+import FacetForm from '../../components/FacetForm.astro'
+import Pagination from '../../components/Pagination.astro'
+import Layout from '../../layouts/Layout.astro'
+import {getDocumentsPage} from '../../lib/collections'
+import {getSubjects, getTownships, parsePage} from '../../lib/catalog'
+import {urlFor} from '../../lib/imageUrl'
+import {IMAGES_PAGE_SIZE} from '../../lib/limits'
+
+const params = Astro.url.searchParams
+const q = params.get('q') ?? ''
+const township = params.get('township') ?? ''
+const subject = params.get('subject') ?? ''
+const decade = params.get('decade') ?? ''
+const page = parsePage(params.get('page') ?? undefined)
+
+const [townships, subjects, result] = await Promise.all([
+	getTownships(),
+	getSubjects(),
+	getDocumentsPage({q, township, subject, decade, page, pageSize: IMAGES_PAGE_SIZE}),
+])
+---
+
+<Layout
+	title="Document collection"
+	description="Newspaper clippings, letters, and transcriptions from the Tredyffrin Easttown Historical Society."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		Document collection
+	</p>
+	<h1 class="mt-3 text-display-sm">Documents</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		Clippings and transcriptions, searchable by the same townships and subjects as the photographs.
+	</p>
+
+	<FacetForm townships={townships ?? []} subjects={subjects ?? []} action="/documents" />
+
+	{
+		result?.total === 0 ? (
+			<p class="font-sans text-on-surface-variant">
+				No documents match these filters. <a href="/documents" class="text-primary">Clear filters</a>
+			</p>
+		) : (
+			<ul class="list-none p-0">
+				{(result?.documents ?? []).map((doc: {
+					_id: string
+					title: string
+					archiveId?: string
+					newspaper?: string
+					year?: number
+					excerpt?: string
+					articleImage?: unknown
+				}) => {
+					const thumb = doc.articleImage
+						? urlFor(doc.articleImage as Parameters<typeof urlFor>[0]).width(160).height(120).fit('crop').url()
+						: undefined
+					const excerpt = doc.excerpt?.replace(/\s+/g, ' ').trim().slice(0, 160)
+					return (
+						<li class="flex gap-4 border-b border-outline-variant/20 py-5">
+							{thumb ? (
+								<img src={thumb} alt="" width="160" height="120" class="h-24 w-32 shrink-0 object-cover" />
+							) : null}
+							<div>
+								<a
+									href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
+									class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								>
+									{doc.title}
+								</a>
+								<p class="mt-1 font-sans text-sm text-on-surface-variant">
+									{[doc.archiveId, doc.newspaper, doc.year].filter(Boolean).join(' · ')}
+								</p>
+								{excerpt ? (
+									<p class="mt-2 max-w-2xl font-sans text-sm text-on-surface-variant">
+										{excerpt}{doc.excerpt && doc.excerpt.length > 160 ? '…' : ''}
+									</p>
+								) : null}
+							</div>
+						</li>
+					)
+				})}
+			</ul>
+		)
+	}
+
+	<Pagination
+		page={page}
+		pageSize={IMAGES_PAGE_SIZE}
+		total={result?.total ?? 0}
+		basePath="/documents"
+	/>
+</Layout>

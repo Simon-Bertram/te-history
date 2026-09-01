@@ -1,0 +1,100 @@
+---
+export const prerender = false
+
+import ImageGrid from '../../components/ImageGrid.astro'
+import Layout from '../../layouts/Layout.astro'
+import {getPersonHub} from '../../lib/collections'
+import {ENTITY_IMAGE_STRIP} from '../../lib/limits'
+import type {CatalogImage} from '../../lib/imageHighlights'
+
+const id = Astro.params.id
+if (!id) {
+	return Astro.redirect('/people')
+}
+
+const person = await getPersonHub(id)
+if (!person || !person.linkCount) {
+	return new Response(null, {status: 404, statusText: 'Not found'})
+}
+
+const name = [person.firstName, person.lastName].filter(Boolean).join(' ')
+---
+
+<Layout title={name}>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		<a href="/people" class="text-on-surface-variant no-underline hover:text-primary">People</a>
+	</p>
+	<h1 class="mt-3 text-display-sm">{name}</h1>
+	{
+		person.born || person.died ? (
+			<p class="mt-2 font-sans text-on-surface-variant">
+				{[person.born, person.died].filter(Boolean).join(' – ')}
+			</p>
+		) : null
+	}
+
+	<section class="mt-10">
+		<div class="mb-6 flex items-end justify-between gap-4">
+			<h2 class="text-2xl">Photographs</h2>
+			{person.imageCount > ENTITY_IMAGE_STRIP ? (
+				<a href={`/search?q=${encodeURIComponent(name)}`} class="font-sans text-sm text-primary no-underline">
+					See all {person.imageCount} images
+				</a>
+			) : null}
+		</div>
+		<ImageGrid images={(person.images ?? []) as CatalogImage[]} empty="No photographs are linked yet." />
+	</section>
+
+	{
+		person.documents?.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Documents</h2>
+				<ul class="mt-4 list-none p-0">
+					{person.documents.map((doc: { _id: string; title: string; archiveId?: string }) => (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a
+								href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
+								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+							>
+								{doc.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+
+	{
+		person.articles?.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Articles</h2>
+				<ul class="mt-4 list-none p-0">
+					{person.articles.map((article: {
+						_id: string
+						_type: string
+						title: string
+						slug?: string
+						sourceUrl?: string
+					}) => {
+						const href =
+							article._type === 'researchArticle' && article.slug
+								? `/research/${article.slug}`
+								: article.sourceUrl
+						return (
+							<li class="border-b border-outline-variant/20 py-3">
+								{href ? (
+									<a href={href} class="font-display text-xl text-on-surface no-underline hover:text-primary">
+										{article.title}
+									</a>
+								) : (
+									<span class="font-display text-xl">{article.title}</span>
+								)}
+							</li>
+						)
+					})}
+				</ul>
+			</section>
+		) : null
+	}
+</Layout>

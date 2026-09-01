@@ -1,0 +1,46 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import {getSubjectHubs} from '../../lib/collections'
+import {isFuzzySubject} from '../../lib/limits'
+
+const subjects = await getSubjectHubs()
+---
+
+<Layout
+	title="Subjects"
+	description="Theme index for photographs, documents, and Quarterly articles."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">Subjects</p>
+	<h1 class="mt-3 text-display-sm">Themes</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		Concrete subjects such as churches, schools, railroads, inns, and farms. Fuzzy Person / Place /
+		View tags are listed last until they are curated.
+	</p>
+	<ul class="mt-8 list-none p-0">
+		{
+			(subjects ?? [])
+				.slice()
+				.sort((a: { title: string }, b: { title: string }) => {
+					const aFuzzy = isFuzzySubject(a.title) ? 1 : 0
+					const bFuzzy = isFuzzySubject(b.title) ? 1 : 0
+					return aFuzzy - bFuzzy || a.title.localeCompare(b.title)
+				})
+				.map((item: { _id: string; title: string; description?: string; imageCount?: number }) => (
+					<li class="border-b border-outline-variant/20 py-4">
+						<a
+							href={`/subjects/${item._id}`}
+							class="font-display text-xl text-on-surface no-underline hover:text-primary"
+						>
+							{item.title}
+						</a>
+						<p class="font-sans text-sm text-on-surface-variant">
+							{item.imageCount ?? 0} photographs
+							{item.description ? ` · ${item.description}` : ''}
+						</p>
+					</li>
+				))
+		}
+	</ul>
+</Layout>
