@@ -1,24 +1,24 @@
 ---
-export const prerender = false
-
 import Layout from '../../layouts/Layout.astro'
-import {getImageByArchiveId} from '../../lib/collections'
-import {urlFor} from '../../lib/imageUrl'
-import {rewriteNotFound} from '../../lib/notFound'
+import {getImageStaticPaths} from '../../lib/catalog'
+import {hrefFor} from '../../lib/href'
+import {
+	DETAIL_IMAGE_WIDTHS,
+	catalogDetailSrc,
+	intrinsicSize,
+	srcsetFromWidths,
+} from '../../lib/imageUrl'
 
-const archiveId = Astro.params.archiveId
-if (!archiveId) {
-	return Astro.redirect('/images')
+export async function getStaticPaths() {
+	return getImageStaticPaths()
 }
 
-const image = await getImageByArchiveId(archiveId)
-if (!image) {
-	return rewriteNotFound(Astro)
-}
-
-const src = image.imageFile
-	? urlFor(image.imageFile).width(1600).fit('max').url()
-	: undefined
+const {image} = Astro.props
+const archiveId = image.archiveId ?? Astro.params.archiveId ?? ''
+const file = image.imageFile
+const src = file ? catalogDetailSrc(file, 1600) : undefined
+const srcset = file ? srcsetFromWidths(file, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
+const size = file ? intrinsicSize(file, 1600) : undefined
 ---
 
 <Layout title={image.title ?? archiveId} description={image.description ?? undefined}>
@@ -29,8 +29,17 @@ const src = image.imageFile
 	</p>
 	<h1 class="mt-3 text-display-sm">{image.title}</h1>
 	{
-		src ? (
-			<img src={src} alt={image.title ?? ''} class="mt-8 w-full max-w-4xl" />
+		src && size ? (
+			<img
+				src={src}
+				srcset={srcset}
+				sizes="(min-width: 896px) 896px, calc(100vw - 4rem)"
+				alt={image.title ?? ''}
+				width={size.width}
+				height={size.height}
+				class="mt-8 h-auto w-full max-w-4xl"
+				fetchpriority="high"
+			/>
 		) : null
 	}
 	{
@@ -50,7 +59,7 @@ const src = image.imageFile
 				<dt class="text-on-surface-variant">Place</dt>
 				<dd>
 					{image.location ? (
-						<a href={`/places/${image.location._id}`} class="text-primary no-underline">
+						<a href={hrefFor({_type: 'location', _id: image.location._id})} class="text-primary no-underline">
 							{image.location.name}
 						</a>
 					) : null}
@@ -73,7 +82,7 @@ const src = image.imageFile
 				<ul class="mt-2 list-none p-0">
 					{image.people.map((person) => (
 						<li>
-							<a href={`/people/${person._id}`} class="text-primary no-underline">
+							<a href={hrefFor({_type: 'person', _id: person._id})} class="text-primary no-underline">
 								{[person.firstName, person.lastName].filter(Boolean).join(' ')}
 							</a>
 						</li>
@@ -90,7 +99,7 @@ const src = image.imageFile
 					{image.subjects.map((item) => (
 						<li>
 							<a
-								href={`/subjects/${item._id}`}
+								href={hrefFor({_type: 'category', _id: item._id})}
 								class="bg-secondary-fixed px-3 py-1 font-sans text-sm text-on-secondary-fixed no-underline"
 							>
 								{item.title}

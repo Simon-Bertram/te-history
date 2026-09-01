@@ -3,6 +3,7 @@ import {
 	CONCRETE_SUBJECTS,
 	CORE_TOWNSHIPS,
 	FUZZY_SUBJECTS,
+	HIGHLIGHT_BUCKET_CAP,
 	VALLEY_FORGE,
 } from './limits'
 
@@ -69,17 +70,18 @@ export function diversifyCatalogImages(
 	const decadeCounts = new Map<number, number>()
 
 	const ranked = [...candidates]
-		.filter((image) => !chosenIds.has(image._id) && scoreCatalogImage(image) > 0)
-		.sort((a, b) => scoreCatalogImage(b) - scoreCatalogImage(a))
+		.map((image) => ({image, score: scoreCatalogImage(image)}))
+		.filter(({image, score}) => !chosenIds.has(image._id) && score > 0)
+		.sort((a, b) => b.score - a.score)
 
-	for (const image of ranked) {
+	for (const {image} of ranked) {
 		if (chosen.length >= limit) break
 		const primary = lower(image.subjects?.[0])
 		const decade = image.dateTaken?.year
 			? Math.floor(image.dateTaken.year / 10) * 10
 			: undefined
-		if (primary && (subjectCounts.get(primary) ?? 0) >= 4) continue
-		if (decade != null && (decadeCounts.get(decade) ?? 0) >= 4) continue
+		if (primary && (subjectCounts.get(primary) ?? 0) >= HIGHLIGHT_BUCKET_CAP) continue
+		if (decade != null && (decadeCounts.get(decade) ?? 0) >= HIGHLIGHT_BUCKET_CAP) continue
 		chosen.push(image)
 		chosenIds.add(image._id)
 		if (primary) subjectCounts.set(primary, (subjectCounts.get(primary) ?? 0) + 1)

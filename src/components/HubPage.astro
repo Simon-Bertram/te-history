@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro'
+import ImageGrid from './ImageGrid.astro'
+import type {CatalogImageCard} from '../lib/imageHighlights'
+import {ENTITY_IMAGE_STRIP} from '../lib/limits'
+
+interface Props {
+	title: string
+	description?: string
+	parentHref: string
+	parentLabel: string
+	crumb?: string
+	heading: string
+	images: CatalogImageCard[]
+	imageCount: number
+	seeAllHref?: string
+	emptyImages?: string
+}
+
+const {
+	title,
+	description,
+	parentHref,
+	parentLabel,
+	crumb,
+	heading,
+	images,
+	imageCount,
+	seeAllHref,
+	emptyImages = 'No photographs are linked yet.',
+} = Astro.props
+---
+
+<Layout title={title} description={description}>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		<a href={parentHref} class="text-on-surface-variant no-underline hover:text-primary">
+			{parentLabel}
+		</a>
+		{crumb ? <>{' / '}{crumb}</> : null}
+	</p>
+	<h1 class="mt-3 text-display-sm">{heading}</h1>
+	<slot name="lede" />
+	<section class="mt-10">
+		<div class="mb-6 flex items-end justify-between gap-4">
+			<h2 class="text-2xl">Photographs</h2>
+			{
+				seeAllHref && imageCount > ENTITY_IMAGE_STRIP ? (
+					<a href={seeAllHref} class="font-sans text-sm text-primary no-underline">
+						See all {imageCount} images
+					</a>
+				) : null
+			}
+		</div>
+		<ImageGrid images={images} empty={emptyImages} />
+	</section>
+	<slot />
+</Layout>

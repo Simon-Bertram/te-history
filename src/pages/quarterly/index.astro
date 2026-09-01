@@ -1,8 +1,7 @@
 ---
-export const prerender = false
-
+import ArticleList from '../../components/ArticleList.astro'
 import Layout from '../../layouts/Layout.astro'
-import {getQuarterlyIssues} from '../../lib/collections'
+import {getQuarterlyIssues} from '../../lib/quarterly'
 
 const issues = await getQuarterlyIssues()
 ---
@@ -17,7 +16,10 @@ const issues = await getQuarterlyIssues()
 	<h1 class="mt-3 text-display-sm">Volume index</h1>
 	{
 		(issues ?? []).map((issue) => {
-			const articles = issue.articles ?? []
+			const articles = (issue.articles ?? []).map((article) => ({
+				...article,
+				_type: 'quarterlyArticle',
+			}))
 			return (
 				<section class="mt-10">
 					<h2 class="text-2xl">
@@ -26,28 +28,9 @@ const issues = await getQuarterlyIssues()
 							<span class="font-sans text-lg text-on-surface-variant"> · {issue.season}</span>
 						) : null}
 					</h2>
-					{articles.length ? (
-						<ul class="mt-4 list-none p-0">
-							{articles.map((article) => (
-								<li class="border-b border-outline-variant/20 py-3 font-sans">
-									{article.sourceUrl ? (
-										<a
-											href={article.sourceUrl}
-											class="font-display text-xl text-on-surface no-underline hover:text-primary"
-											rel="noreferrer noopener"
-										>
-											{article.title}
-										</a>
-									) : (
-										<span class="font-display text-xl">{article.title}</span>
-									)}
-									{article.authorText ? (
-										<span class="text-on-surface-variant"> — {article.authorText}</span>
-									) : null}
-								</li>
-							))}
-						</ul>
-					) : null}
+					<div class="mt-4">
+						<ArticleList items={articles} />
+					</div>
 				</section>
 			)
 		})

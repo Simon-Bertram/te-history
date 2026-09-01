@@ -8,11 +8,13 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'static',
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
       include: [
         'astro/app/manifest',
+        'astro/assets/services/noop',
         '@sanity/client',
         '@sanity/image-url',
         'astro-portabletext',
@@ -29,5 +31,8 @@ export default defineConfig({
     }),
   ],
 
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    imageService: 'passthrough',
+  }),
+  session: false,
 });

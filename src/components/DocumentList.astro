@@ -1,0 +1,80 @@
+---
+import {hrefFor} from '../lib/href'
+import {catalogGridSrc} from '../lib/imageUrl'
+import {EXCERPT_LENGTH} from '../lib/limits'
+import type {CatalogImageField} from '../lib/imageUrl'
+
+export interface DocumentListItem {
+	title?: string | null
+	archiveId?: string | null
+	newspaper?: string | null
+	year?: number | null
+	excerpt?: string | null
+	articleImage?: CatalogImageField
+}
+
+interface Props {
+	items: DocumentListItem[]
+	heading?: string
+	showMeta?: boolean
+}
+
+const {items, heading, showMeta = false} = Astro.props
+---
+
+{
+	items.length === 0 ? null : (
+		<section class={heading ? 'mt-12' : undefined}>
+			{heading ? <h2 class="text-2xl">{heading}</h2> : null}
+			<ul class:list={['list-none p-0', heading && 'mt-4']}>
+				{items.map((doc) => {
+					const thumb = showMeta && doc.articleImage
+						? catalogGridSrc(doc.articleImage, 160)
+						: undefined
+					const excerpt = showMeta
+						? doc.excerpt?.replace(/\s+/g, ' ').trim().slice(0, EXCERPT_LENGTH)
+						: undefined
+					return (
+						<li class:list={[
+							'border-b border-outline-variant/20',
+							showMeta ? 'flex gap-4 py-5' : 'py-3',
+						]}>
+							{thumb ? (
+								<img
+									src={thumb}
+									alt=""
+									width="160"
+									height="120"
+									class="h-24 w-32 shrink-0 object-cover"
+									loading="lazy"
+								/>
+							) : null}
+							<div>
+								<a
+									href={hrefFor(
+										{_type: 'primarySource', archiveId: doc.archiveId},
+										'/documents',
+									)}
+									class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								>
+									{doc.title}
+								</a>
+								{showMeta ? (
+									<p class="mt-1 font-sans text-sm text-on-surface-variant">
+										{[doc.archiveId, doc.newspaper, doc.year].filter(Boolean).join(' · ')}
+									</p>
+								) : null}
+								{excerpt ? (
+									<p class="mt-2 max-w-2xl font-sans text-sm text-on-surface-variant">
+										{excerpt}
+										{doc.excerpt && doc.excerpt.length > EXCERPT_LENGTH ? '…' : ''}
+									</p>
+								) : null}
+							</div>
+						</li>
+					)
+				})}
+			</ul>
+		</section>
+	)
+}

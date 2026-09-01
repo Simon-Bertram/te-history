@@ -1,9 +1,8 @@
 ---
-export const prerender = false
-
 import Layout from '../../layouts/Layout.astro'
-import {getSubjectHubs} from '../../lib/collections'
+import {hrefFor} from '../../lib/href'
 import {isFuzzySubject} from '../../lib/limits'
+import {getSubjectHubs} from '../../lib/subjects'
 
 const subjects = await getSubjectHubs()
 ---
@@ -30,7 +29,7 @@ const subjects = await getSubjectHubs()
 				.map((item) => (
 					<li class="border-b border-outline-variant/20 py-4">
 						<a
-							href={`/subjects/${item._id}`}
+							href={hrefFor({_type: 'category', _id: item._id})}
 							class="font-display text-xl text-on-surface no-underline hover:text-primary"
 						>
 							{item.title}

@@ -74,6 +74,17 @@ describe('mergeFeaturedWithFallback', () => {
 		const merged = mergeFeaturedWithFallback(featured, fallback, 3)
 		expect(merged.map((item) => item._id)).toEqual(['f2', 'f1', 'x'])
 	})
+
+	test('does not need a fallback pool when featured already fills the limit', () => {
+		const featured = [
+			image({_id: 'f1', featuredOnSite: true, featuredRank: 1}),
+			image({_id: 'f2', featuredOnSite: true, featuredRank: 2}),
+		]
+		expect(mergeFeaturedWithFallback(featured, [], 2).map((item) => item._id)).toEqual([
+			'f1',
+			'f2',
+		])
+	})
 })
 
 describe('title helpers', () => {

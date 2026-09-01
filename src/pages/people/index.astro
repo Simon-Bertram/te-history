@@ -1,8 +1,7 @@
 ---
-export const prerender = false
-
 import Layout from '../../layouts/Layout.astro'
-import {getLinkedPeople, type LinkedPerson} from '../../lib/collections'
+import {hrefFor} from '../../lib/href'
+import {getLinkedPeople, type LinkedPerson} from '../../lib/people'
 
 function letterOf(person: LinkedPerson): string {
 	const raw = (person.lastName ?? person.firstName ?? '?').slice(0, 1).toUpperCase()
@@ -54,7 +53,7 @@ const groups = [...grouped.entries()]
 					{members.map((person) => (
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
-								href={`/people/${person._id}`}
+								href={hrefFor({_type: 'person', _id: person._id})}
 								class="font-display text-xl text-on-surface no-underline hover:text-primary"
 							>
 								{[person.lastName, person.firstName].filter(Boolean).join(', ')}

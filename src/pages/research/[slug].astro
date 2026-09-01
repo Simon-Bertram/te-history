@@ -1,20 +1,14 @@
 ---
-export const prerender = false
-
 import {PortableText} from 'astro-portabletext'
 import Layout from '../../layouts/Layout.astro'
-import {getResearchBySlug} from '../../lib/collections'
-import {rewriteNotFound} from '../../lib/notFound'
+import {getResearchStaticPaths} from '../../lib/research'
 
-const slug = Astro.params.slug
-if (!slug) {
-	return Astro.redirect('/research')
+export async function getStaticPaths() {
+	return getResearchStaticPaths()
 }
 
-const article = await getResearchBySlug(slug)
-if (!article) {
-	return rewriteNotFound(Astro)
-}
+const {article} = Astro.props
+const slug = article.slug ?? Astro.params.slug ?? ''
 ---
 
 <Layout title={article.title ?? slug}>

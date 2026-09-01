@@ -1,7 +1,9 @@
 import {defineQuery} from 'groq'
 import {sanityClient} from 'sanity:client'
 
-import {PUBLIC_INCOMING} from './groq'
+import {HAS_PUBLIC_INCOMING} from './groq'
+import {hrefFor} from './href'
+import {SEARCH_RESULT_LIMIT} from './limits'
 
 export interface SearchHit {
 	_id: string
@@ -19,43 +21,25 @@ export interface GroupedSearch {
 const ARCHIVE_ID_PATTERN = /^[A-Za-z]{1,8}\d+[A-Za-z0-9+-]*$/
 
 export const SEARCH_CATALOG_QUERY = defineQuery(/* groq */ `{
-	"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{
+	"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, archiveId
 	},
-	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{
+	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, archiveId, newspaper
 	},
-	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...12]{
+	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, sourceUrl, sourceKey
 	},
-	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{
+	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, "slug": slug.current, archiveId
 	},
-	"people": *[_type == "person" && (firstName match $q || lastName match $q) && ${PUBLIC_INCOMING} > 0] | order(lastName asc)[0...12]{
+	"people": *[_type == "person" && (firstName match $q || lastName match $q) && ${HAS_PUBLIC_INCOMING}] | order(lastName asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, firstName, lastName
 	},
-	"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{
+	"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, name
 	}
 }`)
-
-function hrefFor(doc: {
-	_id?: string
-	_type: string
-	archiveId?: string
-	slug?: string
-	sourceUrl?: string
-}): string {
-	if (doc._type === 'historicalImage' && doc.archiveId) return `/images/${doc.archiveId}`
-	if (doc._type === 'primarySource' && doc.archiveId) return `/documents/${doc.archiveId}`
-	if (doc._type === 'researchArticle' && doc.slug) return `/research/${doc.slug}`
-	if (doc._type === 'quarterlyArticle' && doc.sourceUrl) return doc.sourceUrl
-	if (doc._type === 'person' && doc._id) return `/people/${doc._id}`
-	if ((doc._type === 'location' || doc._type === 'township') && doc._id) {
-		return `/places/${doc._id}`
-	}
-	return '/search'
-}
 
 export async function searchCatalog(rawQuery: string): Promise<GroupedSearch> {
 	const query = rawQuery.trim()

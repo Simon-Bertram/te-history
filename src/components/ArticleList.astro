@@ -1,0 +1,57 @@
+---
+import {hrefFor, isExternalHref} from '../lib/href'
+
+export interface ArticleListItem {
+	title?: string | null
+	_type?: string | null
+	slug?: string | null
+	sourceUrl?: string | null
+	authorText?: string | null
+}
+
+interface Props {
+	items: ArticleListItem[]
+	heading?: string
+}
+
+const {items, heading} = Astro.props
+
+function itemHref(item: ArticleListItem): string | undefined {
+	const type = item._type ?? (item.slug ? 'researchArticle' : item.sourceUrl ? 'quarterlyArticle' : '')
+	if (!type) return undefined
+	const href = hrefFor({_type: type, slug: item.slug, sourceUrl: item.sourceUrl}, '')
+	return href || undefined
+}
+---
+
+{
+	items.length === 0 ? null : (
+		<section class={heading ? 'mt-12' : undefined}>
+			{heading ? <h2 class="text-2xl">{heading}</h2> : null}
+			<ul class:list={['list-none p-0', heading && 'mt-4']}>
+				{items.map((article) => {
+					const href = itemHref(article)
+					const external = href ? isExternalHref(href) : false
+					return (
+						<li class="border-b border-outline-variant/20 py-3">
+							{href ? (
+								<a
+									href={href}
+									class="font-display text-xl text-on-surface no-underline hover:text-primary"
+									rel={external ? 'noreferrer noopener' : undefined}
+								>
+									{article.title}
+								</a>
+							) : (
+								<span class="font-display text-xl">{article.title}</span>
+							)}
+							{article.authorText ? (
+								<span class="font-sans text-on-surface-variant"> — {article.authorText}</span>
+							) : null}
+						</li>
+					)
+				})}
+			</ul>
+		</section>
+	)
+}

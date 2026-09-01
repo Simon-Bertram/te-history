@@ -27,16 +27,20 @@ Use `bun` / `bunx` for every install, script, binary, and one-off CLI. Do not us
 | Dev in background | `bunx astro dev --background` |
 | Dev server control | `bunx astro dev stop` / `status` / `logs` |
 | Worker types | `bun run generate-types` or `bunx wrangler types` |
+| Sanity TypeGen | `bun run typegen` |
 | Tests | `bun test` |
 | Skills CLI | `bunx skills add …` |
 
 ## Architecture
 
-GROQ helpers in `src/lib/` (`catalog.ts`, `collections.ts`, `search.ts`, `siteNavigation.ts`) call `sanityClient.fetch`. Pages in `src/pages/` import those helpers and render `.astro` components. Prefer existing lib functions over new ad-hoc GROQ in pages.
+GROQ helpers in `src/lib/` (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`) call `sanityClient.fetch`. Pages import those helpers and render `.astro` components. Prefer existing lib functions over new ad-hoc GROQ in pages. Catalog links go through `hrefFor` in `href.ts`; image/document facets share `buildFacetQuery` in `facets.ts`.
 
-- Images: `urlFor` in `src/lib/imageUrl.ts` (`@sanity/image-url`)
+Follow [docs/TYPES.md](docs/TYPES.md) for TypeGen, `defineQuery`, and catalog result types. Do not re-declare `{ _id: string; title: string }` in pages.
+
+- Images: `urlFor` / `catalogGridSrc` / `catalogDetailSrc` in `src/lib/imageUrl.ts` (`@sanity/image-url`, `auto('format')`, srcset)
 - Rich text: `astro-portabletext` on research and document detail pages
-- Catalog routes: `export const prerender = false` (Cloudflare on-demand rendering)
+- **Static by default** (`output: 'static'`). Detail hubs use `getStaticPaths`. `export const prerender = false` only on `/search`, `/images`, `/documents`, and `/research` (URL-first GET facets). Those SSR routes set `Cache-Control` via `setSsrCacheControl`.
+- `useCdn: false` — build against the Content Lake, not a stale API CDN snapshot
 - Content lives in Sanity. Do not add Astro content collections
 - Public UI is `.astro`. React is a Sanity Studio dependency, not the public frontend
 
@@ -55,7 +59,7 @@ Do not invent a new look or apply generic dashboard/shadcn layouts.
 
 ## Search and catalogs
 
-Follow [docs/SEARCH.md](docs/SEARCH.md). URL-first GET params (`/search?q=`, `/images?township=&location=&subject=&decade=&sort=&page=`). No TanStack Query, SWR, or React search islands. Do not add Pagefind until detail pages are statically generated.
+Follow [docs/SEARCH.md](docs/SEARCH.md). URL-first GET params (`/search?q=`, `/images?township=&location=&subject=&decade=&sort=&page=`). No TanStack Query, SWR, or React search islands. Image, document, and research **detail** pages are prerendered; Pagefind over `dist/` is a follow-up, not a replacement for GROQ Archive ID search.
 
 Facet lists: Tredyffrin/Easttown first (`sortTownshipsFirst`); fuzzy subjects last (`sortSubjectsDemoteFuzzy`). Limits live in `src/lib/limits.ts`.
 

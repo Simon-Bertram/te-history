@@ -20,7 +20,7 @@ paths:
 
 # Catalog and search
 
-Read [docs/SEARCH.md](../../../docs/SEARCH.md) before changing search or facets. Put GROQ in `src/lib/` (`catalog.ts`, `collections.ts`, `search.ts`, `siteNavigation.ts`). Pages import helpers; do not embed large queries in `.astro` files.
+Read [docs/SEARCH.md](../../../docs/SEARCH.md) before changing search or facets. Put GROQ in `src/lib/` by catalog type (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`). Pages import helpers; do not embed large queries in `.astro` files. Do not add a repository layer.
 
 Fetch with `sanityClient` from `sanity:client`. Catalog routes keep `export const prerender = false`.
 
@@ -38,7 +38,7 @@ Do not add Pagefind until article, image, and document **detail** pages are stat
 
 ## GROQ patterns
 
-Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `SEARCH_RESULT_LIMIT`, `ENTITY_IMAGE_STRIP`, `HOME_IMAGE_LIMIT`).
+Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `DOCUMENTS_PAGE_SIZE`, `SEARCH_RESULT_LIMIT`, `ENTITY_IMAGE_STRIP`, `HOME_IMAGE_LIMIT`). Catalog hrefs: `hrefFor` in `href.ts`. Image and document facets: `buildFacetQuery` in `facets.ts`.
 
 | Type | Typical filters |
 | --- | --- |
@@ -46,7 +46,7 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `S
 | `primarySource` | documents by `archiveId` |
 | `quarterlyIssue` / `quarterlyArticle` | issue order `volume desc, issueNumber desc` |
 | `researchArticle` | `defined(slug.current)` |
-| `person` | public incoming links `> 0` (exclude name-index stubs) |
+| `person` | public incoming links via `HAS_PUBLIC_INCOMING` (exclude name-index stubs) |
 | `location` / `township` | places; townships ordered with Tredyffrin then Easttown first |
 | `category` | subjects; demote fuzzy tags (`person`, `people`, `place`, `view`, `cultural`) |
 
@@ -60,9 +60,9 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `S
 
 | Path | Helper |
 | --- | --- |
-| `/images`, `/images/[archiveId]` | `getFilteredImages`, `getHighlightImages` |
-| `/documents` | collections helpers for `primarySource` |
+| `/images`, `/images/[archiveId]` | `catalog.ts` |
+| `/documents`, `/documents/[archiveId]` | `documents.ts` |
 | `/search` | `searchCatalog` |
-| `/people`, `/places`, `/research`, `/subjects` | `getLinkedPeople`, `getPlaceHub`, `getPersonHub`, research/subject helpers |
+| `/people`, `/places`, `/research`, `/subjects`, `/quarterly` | `people.ts`, `places.ts`, `research.ts`, `subjects.ts`, `quarterly.ts` |
 
 Images: `urlFor` from `src/lib/imageUrl.ts`. Portable Text: `astro-portabletext` on research and document detail pages (`portable-text-serialization` skill for custom components).

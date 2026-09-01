@@ -11,9 +11,11 @@ import {
 	getLocations,
 	getSubjects,
 	getTownships,
-	parsePage,
 } from '../../lib/catalog'
-import {IMAGES_PAGE_SIZE} from '../../lib/limits'
+import {IMAGES_PAGE_SIZE, parsePage} from '../../lib/limits'
+import {setSsrCacheControl} from '../../lib/ssrCache'
+
+setSsrCacheControl(Astro.response.headers)
 
 const params = Astro.url.searchParams
 const q = params.get('q') ?? ''
@@ -68,7 +70,7 @@ const total = hasFilters ? (filtered?.total ?? 0) : images.length
 				No images match these filters. <a href="/images" class="text-primary">Clear filters</a>
 			</p>
 		) : (
-			<ImageGrid images={images} />
+			<ImageGrid images={images} priorityCount={hasFilters ? 0 : 1} />
 		)
 	}
 

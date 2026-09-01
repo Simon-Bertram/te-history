@@ -1,18 +1,21 @@
 ---
-export const prerender = false
-
+import ArticleList from '../components/ArticleList.astro'
 import ImageGrid from '../components/ImageGrid.astro'
 import Layout from '../layouts/Layout.astro'
 import {getHighlightImages} from '../lib/catalog'
-import {getFeaturedResearch, getLatestQuarterlyIssue} from '../lib/collections'
 import {HOME_IMAGE_LIMIT} from '../lib/limits'
+import {getLatestQuarterlyIssue} from '../lib/quarterly'
+import {getFeaturedResearch} from '../lib/research'
 
 const [images, issue, research] = await Promise.all([
 	getHighlightImages(HOME_IMAGE_LIMIT),
 	getLatestQuarterlyIssue(),
 	getFeaturedResearch(),
 ])
-const articles = issue?.articles ?? []
+const articles = (issue?.articles ?? []).map((article) => ({
+	...article,
+	_type: 'quarterlyArticle',
+}))
 ---
 
 <Layout
@@ -31,7 +34,11 @@ const articles = issue?.articles ?? []
 			<h2 class="text-2xl">From the collection</h2>
 			<a href="/images" class="font-sans text-sm text-primary no-underline">Browse images</a>
 		</div>
-		<ImageGrid images={images} empty="Photographs will appear here as they are cataloged." />
+		<ImageGrid
+			images={images}
+			empty="Photographs will appear here as they are cataloged."
+			priorityCount={1}
+		/>
 	</section>
 
 	{
@@ -44,30 +51,7 @@ const articles = issue?.articles ?? []
 					Volume {issue.volume}, Number {issue.issueNumber}
 					{issue.season ? ` · ${issue.season}` : ''}
 				</h2>
-				{
-					articles.length ? (
-						<ul class="mt-4 list-none p-0">
-							{articles.map((article) => (
-								<li class="border-b border-outline-variant/20 py-3 font-sans">
-									{article.sourceUrl ? (
-										<a
-											href={article.sourceUrl}
-											class="text-on-surface no-underline hover:text-primary"
-											rel="noreferrer noopener"
-										>
-											{article.title}
-										</a>
-									) : (
-										<span class="text-on-surface">{article.title}</span>
-									)}
-									{article.authorText ? (
-										<span class="text-on-surface-variant"> — {article.authorText}</span>
-									) : null}
-								</li>
-							))}
-						</ul>
-					) : null
-				}
+				<ArticleList items={articles} />
 				<a href="/quarterly" class="mt-4 inline-block font-sans text-sm text-primary no-underline">
 					Volume index
 				</a>
@@ -75,23 +59,11 @@ const articles = issue?.articles ?? []
 		) : null
 	}
 
-	{
-		research?.length ? (
-			<section class="mt-16">
-				<h2 class="text-2xl">Research</h2>
-				<ul class="mt-4 list-none p-0">
-					{research.map((article) => (
-						<li class="py-3">
-							<a
-								href={article.slug ? `/research/${article.slug}` : '/research'}
-								class="font-display text-xl text-primary no-underline"
-							>
-								{article.title}
-							</a>
-						</li>
-					))}
-				</ul>
-			</section>
-		) : null
-	}
+	<ArticleList
+		items={(research ?? []).map((article) => ({
+			...article,
+			_type: 'researchArticle',
+		}))}
+		heading="Research"
+	/>
 </Layout>

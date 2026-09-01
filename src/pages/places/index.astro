@@ -1,9 +1,8 @@
 ---
-export const prerender = false
-
 import Layout from '../../layouts/Layout.astro'
-import {getPlaces} from '../../lib/collections'
+import {hrefFor} from '../../lib/href'
 import {sortTownshipsFirst} from '../../lib/limits'
+import {getPlaces} from '../../lib/places'
 
 const places = await getPlaces()
 const townships = sortTownshipsFirst(places?.townships ?? [])
@@ -23,7 +22,7 @@ const townships = sortTownshipsFirst(places?.townships ?? [])
 		{
 			townships.map((item) => (
 				<li class="py-2">
-					<a href={`/places/${item._id}`} class="font-display text-xl text-on-surface no-underline hover:text-primary">
+					<a href={hrefFor({_type: 'township', _id: item._id})} class="font-display text-xl text-on-surface no-underline hover:text-primary">
 						{item.name}
 					</a>
 				</li>
@@ -35,7 +34,7 @@ const townships = sortTownshipsFirst(places?.townships ?? [])
 		{
 			(places?.locations ?? []).map((item) => (
 				<li class="border-b border-outline-variant/20 py-3">
-					<a href={`/places/${item._id}`} class="font-display text-xl text-on-surface no-underline hover:text-primary">
+					<a href={hrefFor({_type: 'location', _id: item._id})} class="font-display text-xl text-on-surface no-underline hover:text-primary">
 						{item.name}
 					</a>
 					{item.townships?.length ? (

@@ -1,25 +1,24 @@
 ---
-export const prerender = false
-
 import {PortableText} from 'astro-portabletext'
 import Layout from '../../layouts/Layout.astro'
-import {getDocumentByArchiveId} from '../../lib/collections'
-import {urlFor} from '../../lib/imageUrl'
-import {rewriteNotFound} from '../../lib/notFound'
+import {getDocumentStaticPaths} from '../../lib/documents'
+import {
+	DETAIL_IMAGE_WIDTHS,
+	catalogDetailSrc,
+	intrinsicSize,
+	srcsetFromWidths,
+} from '../../lib/imageUrl'
 
-const archiveId = Astro.params.archiveId
-if (!archiveId) {
-	return Astro.redirect('/documents')
+export async function getStaticPaths() {
+	return getDocumentStaticPaths()
 }
 
-const doc = await getDocumentByArchiveId(archiveId)
-if (!doc) {
-	return rewriteNotFound(Astro)
-}
-
+const {document: doc} = Astro.props
+const archiveId = doc.archiveId ?? Astro.params.archiveId ?? ''
 const scan = doc.articleImage
-	? urlFor(doc.articleImage).width(1200).fit('max').url()
-	: undefined
+const src = scan ? catalogDetailSrc(scan, 1200) : undefined
+const srcset = scan ? srcsetFromWidths(scan, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
+const size = scan ? intrinsicSize(scan, 1200) : undefined
 ---
 
 <Layout title={doc.title ?? archiveId}>
@@ -34,7 +33,19 @@ const scan = doc.articleImage
 	<p class="mt-2 font-sans text-on-surface-variant">
 		{[doc.newspaper, doc.date?.year].filter(Boolean).join(' · ')}
 	</p>
-	{scan ? <img src={scan} alt="" class="mt-8 w-full max-w-3xl" /> : null}
+	{
+		src && size ? (
+			<img
+				src={src}
+				srcset={srcset}
+				sizes="(min-width: 768px) 768px, calc(100vw - 4rem)"
+				alt=""
+				width={size.width}
+				height={size.height}
+				class="mt-8 h-auto w-full max-w-3xl"
+			/>
+		) : null
+	}
 	{
 		doc.transcription?.length ? (
 			<div class="prose mt-8 max-w-2xl font-sans">

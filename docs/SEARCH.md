@@ -7,13 +7,12 @@ Collection and search pages are **URL-first** (`GET /search?q=`, `GET /images?to
 - Header search posts to `/search`.
 - GROQ `match` groups hits as Images, Documents, Quarterly, Research, People, and Places.
 - Archive ID-shaped queries are sorted to the top of Images.
-- People hits exclude name-index stubs with no public incoming links.
-- Facets on `/images` and `/documents` run GROQ on the server (Cloudflare on-demand rendering): township (Tredyffrin/Easttown first), place (images), subject (fuzzy tags last), decade, and image sort.
+- People hits exclude name-index stubs with no public incoming links (`HAS_PUBLIC_INCOMING` existence check, not a full reverse-link count).
+- Facets on `/images` and `/documents` run GROQ on the server (`prerender = false`): township (Tredyffrin/Easttown first), place (images), subject (fuzzy tags last), decade, and image sort. Identical facet URLs may be absorbed at the edge (`s-maxage` / `stale-while-revalidate`).
+- Image, document, research, people, place, and subject **detail** HTML is prerendered at build.
 
 ## Pagefind
 
-[Pagefind](https://pagefind.app/) is the planned full-text engine once article, image, and document **detail pages are statically generated**. It indexes HTML at build time. Do not add it while those routes are SSR-only — the index would be empty.
-
-When detail pages are prerendered, add `pagefind` as a `postbuild` step over `dist/` and mount its UI on `/search` alongside (or instead of) GROQ for body text.
+[Pagefind](https://pagefind.app/) can index prerendered detail HTML in `dist/`. Do not add it yet — keep URL-first GROQ search for Archive IDs and grouped types. When added, mount it on `/search` alongside GROQ for body text.
 
 Do not add TanStack Query, SWR, or a React search island unless header typeahead starts issuing many overlapping client requests.

@@ -146,6 +146,38 @@
 					"type": "string"
 				},
 				"optional": true
+			},
+			"metadata": {
+				"type": "objectAttribute",
+				"value": {
+					"type": "object",
+					"attributes": {
+						"dimensions": {
+							"type": "objectAttribute",
+							"value": {
+								"type": "object",
+								"attributes": {
+									"width": {
+										"type": "objectAttribute",
+										"value": {
+											"type": "number"
+										},
+										"optional": true
+									},
+									"height": {
+										"type": "objectAttribute",
+										"value": {
+											"type": "number"
+										},
+										"optional": true
+									}
+								}
+							},
+							"optional": true
+						}
+					}
+				},
+				"optional": true
 			}
 		}
 	},

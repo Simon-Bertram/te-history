@@ -1,5 +1,13 @@
-export const PUBLIC_INCOMING = /* groq */ `
-	count(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)])
+import {
+	ENTITY_IMAGE_STRIP,
+	HUB_ARTICLE_LIMIT,
+	HUB_DOCUMENT_LIMIT,
+	HUB_RESEARCH_LIMIT,
+} from './limits'
+
+/** True when at least one public catalog document references the parent. */
+export const HAS_PUBLIC_INCOMING = /* groq */ `
+	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)
 `
 
 export const IMAGE_PROJECTION = /* groq */ `
@@ -20,8 +28,84 @@ export const ENTITY_IMAGE_PROJECTION = /* groq */ `
 	_id, title, archiveId, dateTaken, imageFile, "township": township->name
 `
 
+export const HUB_DOCUMENT_PROJECTION = /* groq */ `
+	_id, title, archiveId
+`
+
 export const DOCUMENT_LIST_PROJECTION = /* groq */ `
 	_id, title, archiveId, newspaper, "year": date.year,
 	"excerpt": pt::text(transcription),
 	articleImage
+`
+
+export const IMAGE_ASSET_DIMENSIONS = /* groq */ `
+	asset->{
+		_id,
+		metadata { dimensions { width, height } }
+	}
+`
+
+export const IMAGE_DETAIL_PROJECTION = /* groq */ `
+	_id, title, archiveId, description, dateTaken,
+	imageFile {
+		...,
+		${IMAGE_ASSET_DIMENSIONS}
+	},
+	"township": township->name,
+	"location": location->{_id, name},
+	"people": people[]->{_id, firstName, lastName},
+	"subjects": subjects[]->{_id, title},
+	rights
+`
+
+export const DOCUMENT_DETAIL_PROJECTION = /* groq */ `
+	_id, title, archiveId, newspaper, date, transcription,
+	articleImage {
+		...,
+		${IMAGE_ASSET_DIMENSIONS}
+	}
+`
+
+export const PERSON_HUB_PROJECTION = /* groq */ `
+	_id, firstName, lastName, "born": born.year, "died": died.year,
+	"hasPublicLink": ${HAS_PUBLIC_INCOMING},
+	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
+	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	},
+	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...${HUB_DOCUMENT_LIMIT}]{
+		${HUB_DOCUMENT_PROJECTION}
+	},
+	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
+		_id, _type, title, "slug": slug.current, sourceUrl
+	}
+`
+
+export const PLACE_HUB_PROJECTION = /* groq */ `
+	_id, _type, name,
+	"townships": townships[]->name,
+	"imageCount": count(*[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)]),
+	"images": *[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	},
+	"documents": *[_type == "primarySource" && (township._ref == ^._id || references(^._id))] | order(title asc)[0...${HUB_DOCUMENT_LIMIT}]{
+		${HUB_DOCUMENT_PROJECTION}
+	},
+	"research": *[_type == "researchArticle" && ^._id in townships[]._ref] | order(title asc)[0...${HUB_RESEARCH_LIMIT}]{
+		_id, title, "slug": slug.current
+	}
+`
+
+export const SUBJECT_HUB_PROJECTION = /* groq */ `
+	_id, title, description,
+	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
+	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	},
+	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...${HUB_DOCUMENT_LIMIT}]{
+		${HUB_DOCUMENT_PROJECTION}
+	},
+	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
+		_id, title, sourceUrl
+	}
 `

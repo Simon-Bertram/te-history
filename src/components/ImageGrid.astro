@@ -1,13 +1,25 @@
 ---
+import {hrefFor} from '../lib/href'
 import type {CatalogImageCard} from '../lib/imageHighlights'
-import {urlFor} from '../lib/imageUrl'
+import {
+	GRID_IMAGE_WIDTHS,
+	catalogGridSrc,
+	srcsetFromWidths,
+} from '../lib/imageUrl'
 
 interface Props {
 	images: CatalogImageCard[]
 	empty?: string
+	priorityCount?: number
 }
 
-const {images, empty = 'No images match these filters.'} = Astro.props
+const {
+	images,
+	empty = 'No images match these filters.',
+	priorityCount = 0,
+} = Astro.props
+
+const sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4rem)'
 ---
 
 {
@@ -15,22 +27,31 @@ const {images, empty = 'No images match these filters.'} = Astro.props
 		<p class="font-sans text-on-surface-variant">{empty}</p>
 	) : (
 		<ul class="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
-			{images.map((image) => {
-				const src = image.imageFile
-					? urlFor(image.imageFile).width(720).height(540).fit('crop').url()
+			{images.map((image, index) => {
+				const file = image.imageFile
+				const src = file ? catalogGridSrc(file, 720) : undefined
+				const srcset = file
+					? srcsetFromWidths(file, GRID_IMAGE_WIDTHS, catalogGridSrc)
 					: undefined
-				const href = image.archiveId ? `/images/${image.archiveId}` : `/images`
+				const href = hrefFor(
+					{_type: 'historicalImage', archiveId: image.archiveId},
+					'/images',
+				)
+				const isPriority = index < priorityCount
 				return (
 					<li class="bg-surface-container-low p-8 transition-[background-color,box-shadow] duration-200 hover:bg-surface-container-highest hover:shadow-[0_24px_48px_color-mix(in_srgb,var(--on-surface)_6%,transparent)]">
 						<a href={href} class="no-underline text-inherit">
 							{src ? (
 								<img
 									src={src}
+									srcset={srcset}
+									sizes={sizes}
 									alt={image.title ?? ''}
 									width="720"
 									height="540"
 									class="mb-4 aspect-[4/3] w-full object-cover"
-									loading="lazy"
+									loading={isPriority ? 'eager' : 'lazy'}
+									fetchpriority={isPriority ? 'high' : 'auto'}
 								/>
 							) : null}
 							<p class="font-display text-lg text-on-surface">{image.title}</p>

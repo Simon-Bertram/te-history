@@ -1,9 +1,13 @@
 ---
 export const prerender = false
 
+import ArticleList from '../../components/ArticleList.astro'
 import Layout from '../../layouts/Layout.astro'
-import {getResearchArticles} from '../../lib/collections'
 import {getTownships} from '../../lib/catalog'
+import {getResearchArticles} from '../../lib/research'
+import {setSsrCacheControl} from '../../lib/ssrCache'
+
+setSsrCacheControl(Astro.response.headers)
 
 const township = Astro.url.searchParams.get('township') ?? ''
 const [articles, townships] = await Promise.all([
@@ -37,18 +41,12 @@ const [articles, townships] = await Promise.all([
 			Filter
 		</button>
 	</form>
-	<ul class="mt-8 list-none p-0">
-		{
-			(articles ?? []).map((article) => (
-				<li class="border-b border-outline-variant/20 py-4">
-					<a
-						href={article.slug ? `/research/${article.slug}` : '/research'}
-						class="font-display text-xl text-on-surface no-underline hover:text-primary"
-					>
-						{article.title}
-					</a>
-				</li>
-			))
-		}
-	</ul>
+	<div class="mt-8">
+		<ArticleList
+			items={(articles ?? []).map((article) => ({
+				...article,
+				_type: 'researchArticle',
+			}))}
+		/>
+	</div>
 </Layout>
