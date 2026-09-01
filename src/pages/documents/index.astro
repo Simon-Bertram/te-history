@@ -44,17 +44,9 @@ const [townships, subjects, result] = await Promise.all([
 			</p>
 		) : (
 			<ul class="list-none p-0">
-				{(result?.documents ?? []).map((doc: {
-					_id: string
-					title: string
-					archiveId?: string
-					newspaper?: string
-					year?: number
-					excerpt?: string
-					articleImage?: unknown
-				}) => {
+				{(result?.documents ?? []).map((doc) => {
 					const thumb = doc.articleImage
-						? urlFor(doc.articleImage as Parameters<typeof urlFor>[0]).width(160).height(120).fit('crop').url()
+						? urlFor(doc.articleImage).width(160).height(120).fit('crop').url()
 						: undefined
 					const excerpt = doc.excerpt?.replace(/\s+/g, ' ').trim().slice(0, 160)
 					return (

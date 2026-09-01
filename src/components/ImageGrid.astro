@@ -1,9 +1,9 @@
 ---
-import type {CatalogImage} from '../lib/imageHighlights'
+import type {CatalogImageCard} from '../lib/imageHighlights'
 import {urlFor} from '../lib/imageUrl'
 
 interface Props {
-	images: CatalogImage[]
+	images: CatalogImageCard[]
 	empty?: string
 }
 
@@ -17,11 +17,7 @@ const {images, empty = 'No images match these filters.'} = Astro.props
 		<ul class="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
 			{images.map((image) => {
 				const src = image.imageFile
-					? urlFor(image.imageFile as Parameters<typeof urlFor>[0])
-							.width(720)
-							.height(540)
-							.fit('crop')
-							.url()
+					? urlFor(image.imageFile).width(720).height(540).fit('crop').url()
 					: undefined
 				const href = image.archiveId ? `/images/${image.archiveId}` : `/images`
 				return (

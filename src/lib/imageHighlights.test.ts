@@ -11,12 +11,16 @@ import {
 
 function image(partial: Partial<CatalogImage> & Pick<CatalogImage, '_id'>): CatalogImage {
 	return {
-		imageFile: {},
 		title: 'Berwyn station',
+		archiveId: null,
 		description: 'A dated local view',
-		township: 'Tredyffrin',
-		subjects: ['Railroad'],
 		dateTaken: {year: 1910},
+		featuredOnSite: null,
+		featuredRank: null,
+		imageFile: {},
+		township: 'Tredyffrin',
+		location: null,
+		subjects: ['Railroad'],
 		...partial,
 	}
 }

@@ -22,12 +22,12 @@ const subjects = await getSubjectHubs()
 		{
 			(subjects ?? [])
 				.slice()
-				.sort((a: { title: string }, b: { title: string }) => {
+				.sort((a, b) => {
 					const aFuzzy = isFuzzySubject(a.title) ? 1 : 0
 					const bFuzzy = isFuzzySubject(b.title) ? 1 : 0
-					return aFuzzy - bFuzzy || a.title.localeCompare(b.title)
+					return aFuzzy - bFuzzy || (a.title ?? '').localeCompare(b.title ?? '')
 				})
-				.map((item: { _id: string; title: string; description?: string; imageCount?: number }) => (
+				.map((item) => (
 					<li class="border-b border-outline-variant/20 py-4">
 						<a
 							href={`/subjects/${item._id}`}

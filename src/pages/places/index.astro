@@ -21,7 +21,7 @@ const townships = sortTownshipsFirst(places?.townships ?? [])
 	<h2 class="mt-10 text-2xl">Townships</h2>
 	<ul class="mt-4 list-none p-0">
 		{
-			townships.map((item: { _id: string; name: string }) => (
+			townships.map((item) => (
 				<li class="py-2">
 					<a href={`/places/${item._id}`} class="font-display text-xl text-on-surface no-underline hover:text-primary">
 						{item.name}
@@ -33,7 +33,7 @@ const townships = sortTownshipsFirst(places?.townships ?? [])
 	<h2 class="mt-10 text-2xl">Villages &amp; named places</h2>
 	<ul class="mt-4 list-none p-0">
 		{
-			(places?.locations ?? []).map((item: { _id: string; name: string; townships?: string[] }) => (
+			(places?.locations ?? []).map((item) => (
 				<li class="border-b border-outline-variant/20 py-3">
 					<a href={`/places/${item._id}`} class="font-display text-xl text-on-surface no-underline hover:text-primary">
 						{item.name}

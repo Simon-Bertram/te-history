@@ -10,6 +10,14 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: [
+        'astro/app/manifest',
+        '@sanity/client',
+        '@sanity/image-url',
+        'astro-portabletext',
+      ],
+    },
   },
 
   integrations: [

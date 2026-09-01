@@ -5,6 +5,7 @@ import {PortableText} from 'astro-portabletext'
 import Layout from '../../layouts/Layout.astro'
 import {getDocumentByArchiveId} from '../../lib/collections'
 import {urlFor} from '../../lib/imageUrl'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const archiveId = Astro.params.archiveId
 if (!archiveId) {
@@ -13,7 +14,7 @@ if (!archiveId) {
 
 const doc = await getDocumentByArchiveId(archiveId)
 if (!doc) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 
 const scan = doc.articleImage

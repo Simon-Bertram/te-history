@@ -1,4 +1,4 @@
-import type {NavLink} from './siteNavigation'
+import type {NavLink} from './nav'
 
 export const SITE_NAVIGATION_PRIMARY_LINKS: NavLink[] = [
 	{_key: 'nav-home', label: 'Home', href: '/', kind: 'page'},

@@ -1,6 +1,7 @@
+import {defineQuery} from 'groq'
 import {sanityClient} from 'sanity:client'
 
-import {SEARCH_RESULT_LIMIT} from './limits'
+import {PUBLIC_INCOMING} from './groq'
 
 export interface SearchHit {
 	_id: string
@@ -16,7 +17,27 @@ export interface GroupedSearch {
 }
 
 const ARCHIVE_ID_PATTERN = /^[A-Za-z]{1,8}\d+[A-Za-z0-9+-]*$/
-const PUBLIC_INCOMING = `count(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)])`
+
+export const SEARCH_CATALOG_QUERY = defineQuery(/* groq */ `{
+	"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{
+		_id, _type, title, archiveId
+	},
+	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{
+		_id, _type, title, archiveId, newspaper
+	},
+	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...12]{
+		_id, _type, title, sourceUrl, sourceKey
+	},
+	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{
+		_id, _type, title, "slug": slug.current, archiveId
+	},
+	"people": *[_type == "person" && (firstName match $q || lastName match $q) && ${PUBLIC_INCOMING} > 0] | order(lastName asc)[0...12]{
+		_id, _type, firstName, lastName
+	},
+	"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{
+		_id, _type, name
+	}
+}`)
 
 function hrefFor(doc: {
 	_id?: string
@@ -42,48 +63,42 @@ export async function searchCatalog(rawQuery: string): Promise<GroupedSearch> {
 
 	const wildcard = `*${query}*`
 	const isArchiveId = ARCHIVE_ID_PATTERN.test(query)
+	const result = await sanityClient.fetch(SEARCH_CATALOG_QUERY, {
+		q: wildcard,
+		exact: query,
+	})
 
-	const result = await sanityClient.fetch(
-		/* groq */ `{
-			"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, title, archiveId
-			},
-			"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, title, archiveId, newspaper
-			},
-			"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, title, sourceUrl, sourceKey
-			},
-			"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, title, "slug": slug.current, archiveId
-			},
-			"people": *[_type == "person" && (firstName match $q || lastName match $q) && ${PUBLIC_INCOMING} > 0] | order(lastName asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, firstName, lastName
-			},
-			"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...${SEARCH_RESULT_LIMIT}]{
-				_id, _type, name
-			}
-		}`,
-		{q: wildcard, exact: query},
-	)
+	type SearchDoc = {
+		_id: string
+		_type: string
+		title?: string | null
+		archiveId?: string | null
+		newspaper?: string | null
+		sourceKey?: string | null
+		sourceUrl?: string | null
+		slug?: string | null
+		firstName?: string | null
+		lastName?: string | null
+		name?: string | null
+	}
 
 	const toHits = (
-		docs: Array<Record<string, string | undefined>> | undefined,
-		titleOf: (doc: Record<string, string | undefined>) => string,
-		metaOf?: (doc: Record<string, string | undefined>) => string | undefined,
+		docs: SearchDoc[] | undefined,
+		titleOf: (doc: SearchDoc) => string,
+		metaOf?: (doc: SearchDoc) => string | null | undefined,
 	): SearchHit[] =>
 		(docs ?? []).map((doc) => ({
-			_id: doc._id ?? '',
-			_type: doc._type ?? '',
+			_id: doc._id,
+			_type: doc._type,
 			title: titleOf(doc),
-			href: hrefFor(doc as {
-				_id?: string
-				_type: string
-				archiveId?: string
-				slug?: string
-				sourceUrl?: string
+			href: hrefFor({
+				_id: doc._id,
+				_type: doc._type,
+				archiveId: doc.archiveId ?? undefined,
+				slug: doc.slug ?? undefined,
+				sourceUrl: doc.sourceUrl ?? undefined,
 			}),
-			meta: metaOf?.(doc),
+			meta: metaOf?.(doc) ?? undefined,
 		}))
 
 	let images = toHits(result?.images, (doc) => doc.title ?? 'Untitled image', (doc) => doc.archiveId)

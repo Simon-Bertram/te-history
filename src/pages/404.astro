@@ -1,0 +1,25 @@
+---
+export const prerender = false
+
+import Layout from '../layouts/Layout.astro'
+
+Astro.response.status = 404
+---
+
+<Layout
+	title="Page not found"
+	description="This catalog page does not exist in the Tredyffrin Easttown Historical Society collections."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		Not found
+	</p>
+	<h1 class="mt-3 text-display-sm">This page is not in the catalog.</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		The photograph, document, or record may have been moved, or the address may be mistyped.
+	</p>
+	<p class="mt-8 font-sans">
+		<a href="/" class="text-primary no-underline">Return home</a>
+		<span class="text-on-surface-variant"> · </span>
+		<a href="/search" class="text-primary no-underline">Search the catalog</a>
+	</p>
+</Layout>

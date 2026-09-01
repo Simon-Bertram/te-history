@@ -1,9 +1,15 @@
+import {defineQuery} from 'groq'
 import {sanityClient} from 'sanity:client'
 
+import type {
+	LOCATIONS_QUERY_RESULT,
+	SUBJECTS_QUERY_RESULT,
+	TOWNSHIPS_QUERY_RESULT,
+} from '../../sanity.types'
 import type {CatalogImage} from './imageHighlights'
 import {mergeFeaturedWithFallback} from './imageHighlights'
+import {IMAGE_PROJECTION} from './groq'
 import {
-	FALLBACK_POOL_SIZE,
 	HOME_IMAGE_LIMIT,
 	IMAGES_PAGE_SIZE,
 	parseImageSort,
@@ -12,31 +18,34 @@ import {
 	type ImageSort,
 } from './limits'
 
-const IMAGE_PROJECTION = /* groq */ `
-	_id,
-	title,
-	archiveId,
-	description,
-	dateTaken,
-	featuredOnSite,
-	featuredRank,
-	imageFile,
-	"township": township->name,
-	"location": location->name,
-	"subjects": subjects[]->title
-`
+export type TownshipOption = TOWNSHIPS_QUERY_RESULT[number]
+export type LocationOption = LOCATIONS_QUERY_RESULT[number]
+export type SubjectOption = SUBJECTS_QUERY_RESULT[number]
+export type {CatalogImage}
 
-const FEATURED_IMAGES_QUERY = /* groq */ `
+export const FEATURED_IMAGES_QUERY = defineQuery(/* groq */ `
 	*[_type == "historicalImage" && featuredOnSite == true] | order(featuredRank asc, title asc)[0...24]{
 		${IMAGE_PROJECTION}
 	}
-`
+`)
 
-const FALLBACK_IMAGES_QUERY = /* groq */ `
-	*[_type == "historicalImage" && defined(imageFile.asset) && defined(dateTaken.year) && defined(description) && defined(title) && !(title match "Untitled*") && !(archiveId match "OLA*")] | order(dateTaken.year asc)[0...${FALLBACK_POOL_SIZE}]{
+export const FALLBACK_IMAGES_QUERY = defineQuery(/* groq */ `
+	*[_type == "historicalImage" && defined(imageFile.asset) && defined(dateTaken.year) && defined(description) && defined(title) && !(title match "Untitled*") && !(archiveId match "OLA*")] | order(dateTaken.year asc)[0...80]{
 		${IMAGE_PROJECTION}
 	}
-`
+`)
+
+export const TOWNSHIPS_QUERY = defineQuery(/* groq */ `
+	*[_type == "township"] | order(name asc){_id, name}
+`)
+
+export const LOCATIONS_QUERY = defineQuery(/* groq */ `
+	*[_type == "location"] | order(name asc){_id, name}
+`)
+
+export const SUBJECTS_QUERY = defineQuery(/* groq */ `
+	*[_type == "category"] | order(title asc){_id, title}
+`)
 
 const IMAGE_SORT_CLAUSE: Record<ImageSort, string> = {
 	'date-desc': 'dateTaken.year desc, title asc',
@@ -110,6 +119,7 @@ export async function getFilteredImages(params: ImageFacetParams): Promise<{
 	}
 
 	const filter = filters.join(' && ')
+	// @sanity-typegen-ignore — facet filters are interpolated at runtime
 	const query = /* groq */ `{
 		"total": count(*[${filter}]),
 		"images": *[${filter}] | order(${IMAGE_SORT_CLAUSE[sort]})[${start}...${end}]{${IMAGE_PROJECTION}}
@@ -130,22 +140,16 @@ export async function getFilteredImages(params: ImageFacetParams): Promise<{
 
 export {parsePage}
 
-export async function getTownships() {
-	const items = await sanityClient.fetch<{_id: string; name: string}[]>(
-		`*[_type == "township"] | order(name asc){_id, name}`,
-	)
+export async function getTownships(): Promise<TownshipOption[]> {
+	const items = await sanityClient.fetch(TOWNSHIPS_QUERY)
 	return sortTownshipsFirst(items ?? [])
 }
 
-export async function getLocations() {
-	return sanityClient.fetch<{_id: string; name: string}[]>(
-		`*[_type == "location"] | order(name asc){_id, name}`,
-	)
+export async function getLocations(): Promise<LocationOption[]> {
+	return (await sanityClient.fetch(LOCATIONS_QUERY)) ?? []
 }
 
-export async function getSubjects() {
-	const items = await sanityClient.fetch<{_id: string; title: string}[]>(
-		`*[_type == "category"] | order(title asc){_id, title}`,
-	)
+export async function getSubjects(): Promise<SubjectOption[]> {
+	const items = await sanityClient.fetch(SUBJECTS_QUERY)
 	return sortSubjectsDemoteFuzzy(items ?? [])
 }

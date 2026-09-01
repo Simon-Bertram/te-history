@@ -33,14 +33,14 @@ export function parseImageSort(value: string | undefined): ImageSort {
 	return 'date-desc'
 }
 
-export function isFuzzySubject(title: string | undefined): boolean {
+export function isFuzzySubject(title: string | null | undefined): boolean {
 	return FUZZY_SUBJECTS.includes(
 		(title ?? '').trim().toLowerCase() as (typeof FUZZY_SUBJECTS)[number],
 	)
 }
 
-export function sortTownshipsFirst<T extends {name?: string}>(items: T[]): T[] {
-	const rank = (name?: string) => {
+export function sortTownshipsFirst<T extends {name?: string | null}>(items: T[]): T[] {
+	const rank = (name?: string | null) => {
 		const lower = (name ?? '').trim().toLowerCase()
 		const index = CORE_TOWNSHIPS.indexOf(lower as (typeof CORE_TOWNSHIPS)[number])
 		return index === -1 ? 100 : index
@@ -50,7 +50,7 @@ export function sortTownshipsFirst<T extends {name?: string}>(items: T[]): T[] {
 	)
 }
 
-export function sortSubjectsDemoteFuzzy<T extends {title?: string}>(items: T[]): T[] {
+export function sortSubjectsDemoteFuzzy<T extends {title?: string | null}>(items: T[]): T[] {
 	return [...items].sort((a, b) => {
 		const aFuzzy = isFuzzySubject(a.title) ? 1 : 0
 		const bFuzzy = isFuzzySubject(b.title) ? 1 : 0

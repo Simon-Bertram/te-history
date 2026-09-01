@@ -1,29 +1,20 @@
+import {defineQuery} from 'groq'
 import {sanityClient} from 'sanity:client'
 
+import type {NavLink, SiteNavigation} from './nav'
 import {
 	SITE_NAVIGATION_PRIMARY_LINKS,
 	SITE_NAVIGATION_SECONDARY_LINKS,
 } from './navFallback'
 
-export interface NavLink {
-	_key: string
-	label: string
-	href: string
-	kind: 'page' | 'search'
-	purpose?: string
-}
+export type {NavLink, SiteNavigation} from './nav'
 
-export interface SiteNavigation {
-	primaryLinks: NavLink[]
-	secondaryLinks: NavLink[]
-}
-
-const SITE_NAVIGATION_QUERY = /* groq */ `
+export const SITE_NAVIGATION_QUERY = defineQuery(/* groq */ `
 	*[_id == "siteNavigation"][0]{
 		primaryLinks[]{_key, label, href, kind, purpose},
 		secondaryLinks[]{_key, label, href, kind, purpose}
 	}
-`
+`)
 
 function asLinks(value: unknown, fallback: NavLink[]): NavLink[] {
 	if (!Array.isArray(value) || value.length === 0) return fallback

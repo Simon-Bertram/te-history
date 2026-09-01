@@ -26,7 +26,7 @@ const [articles, townships] = await Promise.all([
 				name="township"
 			>
 				<option value="">All</option>
-				{(townships ?? []).map((item: {_id: string; name: string}) => (
+				{(townships ?? []).map((item) => (
 					<option value={item._id} selected={township === item._id}>
 						{item.name}
 					</option>
@@ -39,7 +39,7 @@ const [articles, townships] = await Promise.all([
 	</form>
 	<ul class="mt-8 list-none p-0">
 		{
-			(articles ?? []).map((article: { _id: string; title: string; slug?: string }) => (
+			(articles ?? []).map((article) => (
 				<li class="border-b border-outline-variant/20 py-4">
 					<a
 						href={article.slug ? `/research/${article.slug}` : '/research'}

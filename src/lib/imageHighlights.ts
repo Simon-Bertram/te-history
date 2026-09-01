@@ -1,3 +1,4 @@
+import type {FALLBACK_IMAGES_QUERY_RESULT} from '../../sanity.types'
 import {
 	CONCRETE_SUBJECTS,
 	CORE_TOWNSHIPS,
@@ -5,21 +6,13 @@ import {
 	VALLEY_FORGE,
 } from './limits'
 
-export interface CatalogImage {
-	_id: string
-	title?: string
-	archiveId?: string
-	description?: string
-	dateTaken?: {year?: number}
-	township?: string
-	location?: string
-	subjects?: string[]
-	imageFile?: unknown
-	featuredOnSite?: boolean
-	featuredRank?: number
-}
+export type CatalogImage = FALLBACK_IMAGES_QUERY_RESULT[number]
+export type CatalogImageCard = Pick<
+	CatalogImage,
+	'_id' | 'title' | 'archiveId' | 'dateTaken' | 'township' | 'imageFile'
+>
 
-function lower(value: string | undefined): string {
+function lower(value: string | null | undefined): string {
 	return (value ?? '').trim().toLowerCase()
 }
 

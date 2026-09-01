@@ -4,6 +4,7 @@ export const prerender = false
 import Layout from '../../layouts/Layout.astro'
 import {getImageByArchiveId} from '../../lib/collections'
 import {urlFor} from '../../lib/imageUrl'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const archiveId = Astro.params.archiveId
 if (!archiveId) {
@@ -12,7 +13,7 @@ if (!archiveId) {
 
 const image = await getImageByArchiveId(archiveId)
 if (!image) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 
 const src = image.imageFile
@@ -20,7 +21,7 @@ const src = image.imageFile
 	: undefined
 ---
 
-<Layout title={image.title ?? archiveId} description={image.description}>
+<Layout title={image.title ?? archiveId} description={image.description ?? undefined}>
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/images" class="text-on-surface-variant no-underline hover:text-primary">Images</a>
 		{' / '}
@@ -70,7 +71,7 @@ const src = image.imageFile
 			<section class="mt-8">
 				<h2 class="text-xl">People</h2>
 				<ul class="mt-2 list-none p-0">
-					{image.people.map((person: { _id: string; firstName?: string; lastName?: string }) => (
+					{image.people.map((person) => (
 						<li>
 							<a href={`/people/${person._id}`} class="text-primary no-underline">
 								{[person.firstName, person.lastName].filter(Boolean).join(' ')}
@@ -86,7 +87,7 @@ const src = image.imageFile
 			<section class="mt-8">
 				<h2 class="text-xl">Subjects</h2>
 				<ul class="mt-2 flex list-none flex-wrap gap-2 p-0">
-					{image.subjects.map((item: { _id: string; title: string }) => (
+					{image.subjects.map((item) => (
 						<li>
 							<a
 								href={`/subjects/${item._id}`}

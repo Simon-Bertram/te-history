@@ -5,7 +5,7 @@ import ImageGrid from '../../components/ImageGrid.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getPlaceHub} from '../../lib/collections'
 import {ENTITY_IMAGE_STRIP} from '../../lib/limits'
-import type {CatalogImage} from '../../lib/imageHighlights'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const id = Astro.params.id
 if (!id) {
@@ -14,13 +14,13 @@ if (!id) {
 
 const place = await getPlaceHub(id)
 if (!place) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 
 const kind = place._type === 'township' ? 'Township' : 'Place'
 ---
 
-<Layout title={place.name} description={`${place.name} in the Tredyffrin Easttown historical catalog.`}>
+<Layout title={place.name ?? id} description={`${place.name} in the Tredyffrin Easttown historical catalog.`}>
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/places" class="text-on-surface-variant no-underline hover:text-primary">Places</a>
 		{' / '}
@@ -45,7 +45,7 @@ const kind = place._type === 'township' ? 'Township' : 'Place'
 				</a>
 			) : null}
 		</div>
-		<ImageGrid images={(place.images ?? []) as CatalogImage[]} empty="No photographs are linked here yet." />
+		<ImageGrid images={place.images ?? []} empty="No photographs are linked here yet." />
 	</section>
 
 	{
@@ -53,7 +53,7 @@ const kind = place._type === 'township' ? 'Township' : 'Place'
 			<section class="mt-12">
 				<h2 class="text-2xl">Documents</h2>
 				<ul class="mt-4 list-none p-0">
-					{place.documents.map((doc: { _id: string; title: string; archiveId?: string }) => (
+					{place.documents.map((doc) => (
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
 								href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
@@ -73,7 +73,7 @@ const kind = place._type === 'township' ? 'Township' : 'Place'
 			<section class="mt-12">
 				<h2 class="text-2xl">Research</h2>
 				<ul class="mt-4 list-none p-0">
-					{place.research.map((article: { _id: string; title: string; slug?: string }) => (
+					{place.research.map((article) => (
 						<li class="py-2">
 							<a
 								href={article.slug ? `/research/${article.slug}` : '/research'}

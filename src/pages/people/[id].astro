@@ -5,7 +5,7 @@ import ImageGrid from '../../components/ImageGrid.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getPersonHub} from '../../lib/collections'
 import {ENTITY_IMAGE_STRIP} from '../../lib/limits'
-import type {CatalogImage} from '../../lib/imageHighlights'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const id = Astro.params.id
 if (!id) {
@@ -14,7 +14,7 @@ if (!id) {
 
 const person = await getPersonHub(id)
 if (!person || !person.linkCount) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 
 const name = [person.firstName, person.lastName].filter(Boolean).join(' ')
@@ -42,7 +42,7 @@ const name = [person.firstName, person.lastName].filter(Boolean).join(' ')
 				</a>
 			) : null}
 		</div>
-		<ImageGrid images={(person.images ?? []) as CatalogImage[]} empty="No photographs are linked yet." />
+		<ImageGrid images={person.images ?? []} empty="No photographs are linked yet." />
 	</section>
 
 	{
@@ -50,7 +50,7 @@ const name = [person.firstName, person.lastName].filter(Boolean).join(' ')
 			<section class="mt-12">
 				<h2 class="text-2xl">Documents</h2>
 				<ul class="mt-4 list-none p-0">
-					{person.documents.map((doc: { _id: string; title: string; archiveId?: string }) => (
+					{person.documents.map((doc) => (
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
 								href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
@@ -70,13 +70,7 @@ const name = [person.firstName, person.lastName].filter(Boolean).join(' ')
 			<section class="mt-12">
 				<h2 class="text-2xl">Articles</h2>
 				<ul class="mt-4 list-none p-0">
-					{person.articles.map((article: {
-						_id: string
-						_type: string
-						title: string
-						slug?: string
-						sourceUrl?: string
-					}) => {
+					{person.articles.map((article) => {
 						const href =
 							article._type === 'researchArticle' && article.slug
 								? `/research/${article.slug}`

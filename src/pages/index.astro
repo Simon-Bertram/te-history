@@ -6,15 +6,13 @@ import Layout from '../layouts/Layout.astro'
 import {getHighlightImages} from '../lib/catalog'
 import {getFeaturedResearch, getLatestQuarterlyIssue} from '../lib/collections'
 import {HOME_IMAGE_LIMIT} from '../lib/limits'
-import {getSiteNavigation, pageLinks} from '../lib/siteNavigation'
 
-const [images, issue, research, nav] = await Promise.all([
+const [images, issue, research] = await Promise.all([
 	getHighlightImages(HOME_IMAGE_LIMIT),
 	getLatestQuarterlyIssue(),
-	getFeaturedResearch(3),
-	getSiteNavigation(),
+	getFeaturedResearch(),
 ])
-const explore = pageLinks(nav.secondaryLinks)
+const articles = issue?.articles ?? []
 ---
 
 <Layout
@@ -46,16 +44,30 @@ const explore = pageLinks(nav.secondaryLinks)
 					Volume {issue.volume}, Number {issue.issueNumber}
 					{issue.season ? ` · ${issue.season}` : ''}
 				</h2>
-				<ul class="mt-4 list-none p-0">
-					{(issue.articles ?? []).map((article: { _id: string; title: string; authorText?: string }) => (
-						<li class="border-b border-outline-variant/20 py-3 font-sans">
-							<span class="text-on-surface">{article.title}</span>
-							{article.authorText ? (
-								<span class="text-on-surface-variant"> — {article.authorText}</span>
-							) : null}
-						</li>
-					))}
-				</ul>
+				{
+					articles.length ? (
+						<ul class="mt-4 list-none p-0">
+							{articles.map((article) => (
+								<li class="border-b border-outline-variant/20 py-3 font-sans">
+									{article.sourceUrl ? (
+										<a
+											href={article.sourceUrl}
+											class="text-on-surface no-underline hover:text-primary"
+											rel="noreferrer noopener"
+										>
+											{article.title}
+										</a>
+									) : (
+										<span class="text-on-surface">{article.title}</span>
+									)}
+									{article.authorText ? (
+										<span class="text-on-surface-variant"> — {article.authorText}</span>
+									) : null}
+								</li>
+							))}
+						</ul>
+					) : null
+				}
 				<a href="/quarterly" class="mt-4 inline-block font-sans text-sm text-primary no-underline">
 					Volume index
 				</a>
@@ -68,7 +80,7 @@ const explore = pageLinks(nav.secondaryLinks)
 			<section class="mt-16">
 				<h2 class="text-2xl">Research</h2>
 				<ul class="mt-4 list-none p-0">
-					{research.map((article: { _id: string; title: string; slug?: string }) => (
+					{research.map((article) => (
 						<li class="py-3">
 							<a
 								href={article.slug ? `/research/${article.slug}` : '/research'}
@@ -82,17 +94,4 @@ const explore = pageLinks(nav.secondaryLinks)
 			</section>
 		) : null
 	}
-
-	<section class="mt-16">
-		<h2 class="text-2xl">Explore</h2>
-		<ul class="mt-4 flex list-none flex-wrap gap-6 p-0">
-			{explore.map((link) => (
-				<li>
-					<a href={link.href} class="font-sans text-sm tracking-[0.04em] text-primary no-underline">
-						{link.label}
-					</a>
-				</li>
-			))}
-		</ul>
-	</section>
 </Layout>

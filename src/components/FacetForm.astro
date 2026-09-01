@@ -1,14 +1,10 @@
 ---
-interface Option {
-	_id: string
-	name?: string
-	title?: string
-}
+import type {LocationOption, SubjectOption, TownshipOption} from '../lib/catalog'
 
 interface Props {
-	townships: Option[]
-	subjects: Option[]
-	locations?: Option[]
+	townships: TownshipOption[]
+	subjects: SubjectOption[]
+	locations?: LocationOption[]
 	action?: string
 	showPlace?: boolean
 	showDecade?: boolean

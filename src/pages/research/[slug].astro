@@ -4,6 +4,7 @@ export const prerender = false
 import {PortableText} from 'astro-portabletext'
 import Layout from '../../layouts/Layout.astro'
 import {getResearchBySlug} from '../../lib/collections'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const slug = Astro.params.slug
 if (!slug) {
@@ -12,11 +13,11 @@ if (!slug) {
 
 const article = await getResearchBySlug(slug)
 if (!article) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 ---
 
-<Layout title={article.title}>
+<Layout title={article.title ?? slug}>
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/research" class="text-on-surface-variant no-underline hover:text-primary">Research</a>
 	</p>
@@ -26,6 +27,16 @@ if (!article) {
 			<div class="prose mt-8 max-w-3xl font-sans">
 				<PortableText value={article.body} />
 			</div>
+		) : null
+	}
+	{
+		article.notesAndReferences?.length ? (
+			<section class="mt-16 bg-surface-dim p-8">
+				<h2 class="text-2xl">Notes and references</h2>
+				<div class="prose mt-4 max-w-3xl font-sans">
+					<PortableText value={article.notesAndReferences} />
+				</div>
+			</section>
 		) : null
 	}
 </Layout>

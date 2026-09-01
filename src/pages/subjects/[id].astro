@@ -5,7 +5,7 @@ import ImageGrid from '../../components/ImageGrid.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getSubjectHub} from '../../lib/collections'
 import {ENTITY_IMAGE_STRIP} from '../../lib/limits'
-import type {CatalogImage} from '../../lib/imageHighlights'
+import {rewriteNotFound} from '../../lib/notFound'
 
 const id = Astro.params.id
 if (!id) {
@@ -14,12 +14,12 @@ if (!id) {
 
 const subject = await getSubjectHub(id)
 if (!subject) {
-	return new Response(null, {status: 404, statusText: 'Not found'})
+	return rewriteNotFound(Astro)
 }
 ---
 
 <Layout
-	title={subject.title}
+	title={subject.title ?? id}
 	description={subject.description ?? `${subject.title} in the Tredyffrin Easttown historical catalog.`}
 >
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
@@ -39,7 +39,7 @@ if (!subject) {
 				</a>
 			) : null}
 		</div>
-		<ImageGrid images={(subject.images ?? []) as CatalogImage[]} empty="No photographs are tagged with this subject yet." />
+		<ImageGrid images={subject.images ?? []} empty="No photographs are tagged with this subject yet." />
 	</section>
 
 	{
@@ -47,7 +47,7 @@ if (!subject) {
 			<section class="mt-12">
 				<h2 class="text-2xl">Documents</h2>
 				<ul class="mt-4 list-none p-0">
-					{subject.documents.map((doc: { _id: string; title: string; archiveId?: string }) => (
+					{subject.documents.map((doc) => (
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
 								href={doc.archiveId ? `/documents/${doc.archiveId}` : '/documents'}
@@ -67,7 +67,7 @@ if (!subject) {
 			<section class="mt-12">
 				<h2 class="text-2xl">Quarterly</h2>
 				<ul class="mt-4 list-none p-0">
-					{subject.quarterly.map((article: { _id: string; title: string; sourceUrl?: string }) => (
+					{subject.quarterly.map((article) => (
 						<li class="border-b border-outline-variant/20 py-3">
 							{article.sourceUrl ? (
 								<a href={article.sourceUrl} class="font-display text-xl text-on-surface no-underline hover:text-primary">
