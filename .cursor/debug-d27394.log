@@ -1,0 +1,4 @@
+{"sessionId":"d27394","runId":"pre-fix","hypothesisId":"A","location":"src/middleware.ts:onRequest","message":"Worker middleware ran","data":{"pathname":"/","secFetchMode":"navigate","prerender":true},"timestamp":1788339258741}
+{"sessionId":"d27394","runId":"pre-fix","hypothesisId":"A","location":"src/middleware.ts:onRequest","message":"Worker middleware ran","data":{"pathname":"/images","secFetchMode":"navigate","prerender":false},"timestamp":1788339261978}
+{"sessionId":"d27394","runId":"pre-fix","hypothesisId":"E","location":"src/pages/images/index.astro","message":"SSR /images page rendered","data":{"pathname":"/images","secFetchMode":"navigate","status":200},"timestamp":1788339261987}
+{"sessionId":"d27394","runId":"pre-fix","hypothesisId":"E","location":"src/pages/images/index.astro","message":"SSR /images page rendered","data":{"pathname":"/images","secFetchMode":"navigate","status":200},"timestamp":1788339328805}

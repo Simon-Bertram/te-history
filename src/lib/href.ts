@@ -33,6 +33,16 @@ export function isExternalHref(href: string): boolean {
 	return /^https?:\/\//i.test(href)
 }
 
+/** Absolute URL for Open Graph and similar tags. Leaves http(s) paths unchanged. */
+export function absoluteUrl(
+	path: string | undefined,
+	site: URL | string | undefined,
+): string | undefined {
+	if (!path) return undefined
+	if (isExternalHref(path)) return path
+	return site ? new URL(path, site).href : undefined
+}
+
 /** Prerender params for image and document detail pages. */
 export function archiveIdStaticPaths<T extends {archiveId?: string | null}, P>(
 	rows: T[] | null | undefined,

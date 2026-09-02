@@ -1,8 +1,8 @@
 ---
 import '../styles/global.css'
 import ExploreFooter from '../components/ExploreFooter.astro'
-import Navlinks from '../components/Navlinks.astro'
-import Search from '../components/Search.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import {absoluteUrl} from '../lib/href'
 import {
 	getSiteNavigation,
 	hasSearchControl,
@@ -31,22 +31,15 @@ const headerLinks = pageLinks(nav.primaryLinks)
 const showSearch = hasSearchControl(nav.primaryLinks)
 const searchAction = searchHref(nav.primaryLinks)
 
-const canonical = Astro.site
-	? new URL(Astro.url.pathname, Astro.site).href
-	: undefined
-const absoluteOgImage = ogImage
-	? /^https?:\/\//i.test(ogImage)
-		? ogImage
-		: Astro.site
-			? new URL(ogImage, Astro.site).href
-			: undefined
-	: undefined
+const canonical = absoluteUrl(Astro.url.pathname, Astro.site)
+const absoluteOgImage = absoluteUrl(ogImage, Astro.site)
 const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 	<head>
+		<script is:inline>document.documentElement.classList.remove('no-js')</script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -68,23 +61,26 @@ const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 		<title>{title}</title>
 	</head>
 	<body class="flex min-h-full flex-col">
-		<header
-			class="sticky top-0 z-50 bg-surface/80 backdrop-blur-[20px]"
+		<a
+			href="#main"
+			class:list={[
+				'sr-only font-sans text-sm text-primary',
+				'focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60]',
+				'focus:rounded-sm focus:bg-surface-container-lowest focus:px-4 focus:py-2',
+			]}
 		>
-			<nav
-				class="mx-auto flex max-w-6xl items-center justify-between gap-8 px-8 py-4"
-				aria-label="Main"
-			>
-				<a href="/" class="font-display text-lg tracking-[-0.015em] text-primary no-underline">
-					TEHS
-				</a>
-				<div class="flex min-w-0 items-center gap-8">
-					<Navlinks links={headerLinks} />
-					{showSearch ? <Search action={searchAction} /> : null}
-				</div>
-			</nav>
-		</header>
-		<main class="mx-auto w-full max-w-6xl flex-1 px-8 py-12">
+			Skip to content
+		</a>
+		<SiteHeader
+			links={headerLinks}
+			showSearch={showSearch}
+			searchAction={searchAction}
+		/>
+		<main
+			id="main"
+			tabindex="-1"
+			class="mx-auto w-full max-w-6xl flex-1 scroll-mt-24 px-8 py-12"
+		>
 			<slot />
 		</main>
 		<ExploreFooter links={nav.secondaryLinks} />

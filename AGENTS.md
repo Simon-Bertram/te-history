@@ -24,6 +24,7 @@ Use `bun` / `bunx` for every install, script, binary, and one-off CLI. Do not us
 | --- | --- |
 | Install | `bun install` |
 | Dev / build / preview | `bun run dev` / `bun run build` / `bun run preview` |
+| Deploy | `bun run deploy` (`astro build` then `wrangler deploy`) |
 | Dev in background | `bunx astro dev --background` |
 | Dev server control | `bunx astro dev stop` / `status` / `logs` |
 | Worker types | `bun run generate-types` or `bunx wrangler types` |

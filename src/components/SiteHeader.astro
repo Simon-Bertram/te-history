@@ -1,0 +1,212 @@
+---
+import type {NavLink} from '../lib/nav'
+import Navlinks from './Navlinks.astro'
+import Search from './Search.astro'
+import SiteLogo from './SiteLogo.astro'
+
+interface Props {
+	links: NavLink[]
+	showSearch: boolean
+	searchAction: string
+}
+
+const {links, showSearch, searchAction} = Astro.props
+---
+
+<header
+	class="site-header sticky top-0 z-50 bg-surface/80 backdrop-blur-[20px]"
+>
+	<nav
+		class="relative mx-auto flex max-w-7xl items-center justify-between gap-8 px-8 py-4"
+		aria-label="Main"
+	>
+		<SiteLogo />
+		<button
+			type="button"
+			id="menu-toggle"
+			class:list={[
+				'menu-toggle inline-flex size-11 shrink-0 items-center justify-center',
+				'rounded-sm text-primary touch-manipulation lg:hidden',
+				'hover:bg-surface-container',
+				'focus-visible:outline-2 focus-visible:outline-offset-2',
+				'focus-visible:outline-primary',
+			]}
+			aria-controls="site-menu"
+			aria-expanded="false"
+			aria-label="Open menu"
+		>
+			<span class="menu-icon" aria-hidden="true">
+				<span></span>
+				<span></span>
+				<span></span>
+			</span>
+		</button>
+		<div id="site-menu" class="site-menu">
+			{
+				showSearch ? (
+					<div class="order-1 w-full min-w-0 lg:order-2 lg:w-auto">
+						<Search action={searchAction} />
+					</div>
+				) : null
+			}
+			<div class="order-2 lg:order-1">
+				<Navlinks links={links} />
+			</div>
+		</div>
+	</nav>
+</header>
+
+<script>
+	const header = document.querySelector<HTMLElement>('.site-header')
+	const toggle = document.querySelector<HTMLButtonElement>('#menu-toggle')
+	const panel = document.querySelector<HTMLElement>('#site-menu')
+	const main = document.querySelector('main')
+	const footer = document.querySelector('footer')
+	const desktopQuery = window.matchMedia('(min-width: 64rem)')
+
+	function isDesktop() {
+		return desktopQuery.matches
+	}
+
+	function setOpen(open: boolean) {
+		if (!header || !toggle || !panel) return
+
+		const overlay = open && !isDesktop()
+		header.classList.toggle('is-open', overlay)
+		toggle.setAttribute('aria-expanded', String(overlay))
+		toggle.setAttribute('aria-label', overlay ? 'Close menu' : 'Open menu')
+		document.documentElement.classList.toggle('menu-open', overlay)
+
+		if (main) main.inert = overlay
+		if (footer) footer.inert = overlay
+		panel.inert = !isDesktop() && !overlay
+	}
+
+	toggle?.addEventListener('click', () => {
+		const open = toggle.getAttribute('aria-expanded') !== 'true'
+		setOpen(open)
+	})
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key !== 'Escape') return
+		if (toggle?.getAttribute('aria-expanded') !== 'true') return
+		setOpen(false)
+		toggle.focus()
+	})
+
+	desktopQuery.addEventListener('change', () => {
+		if (isDesktop()) setOpen(false)
+	})
+	window.addEventListener('resize', () => {
+		if (isDesktop()) setOpen(false)
+	})
+
+	setOpen(false)
+</script>
+
+<style>
+	.site-menu {
+		position: absolute;
+		inset-inline: 0;
+		top: 100%;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		padding: 0.5rem 2rem 2rem;
+		background: color-mix(in srgb, var(--surface) 80%, transparent);
+		backdrop-filter: blur(20px);
+		box-shadow: 0 24px 48px
+			color-mix(in srgb, var(--on-surface) 5%, transparent);
+		overscroll-behavior: contain;
+		transition:
+			opacity 220ms ease-out,
+			transform 220ms ease-out;
+	}
+
+	@media (width < 64rem) {
+		.site-menu {
+			opacity: 0;
+			pointer-events: none;
+			transform: translateY(-0.5rem);
+		}
+
+		.site-header.is-open .site-menu {
+			opacity: 1;
+			pointer-events: auto;
+			transform: none;
+		}
+
+		:global(html.no-js) .site-menu {
+			position: static;
+			opacity: 1;
+			pointer-events: auto;
+			transform: none;
+			box-shadow: none;
+		}
+
+		:global(html.no-js) .menu-toggle {
+			display: none;
+		}
+	}
+
+	.menu-icon {
+		display: flex;
+		width: 1.25rem;
+		height: 1.25rem;
+		flex-direction: column;
+		justify-content: center;
+		gap: 5px;
+	}
+
+	.menu-icon span {
+		display: block;
+		height: 1.5px;
+		width: 100%;
+		background: currentColor;
+		transform-origin: center;
+		transition:
+			transform 220ms ease-out,
+			opacity 220ms ease-out;
+	}
+
+	.menu-toggle[aria-expanded='true'] .menu-icon span:nth-child(1) {
+		transform: translateY(6.5px) rotate(45deg);
+	}
+
+	.menu-toggle[aria-expanded='true'] .menu-icon span:nth-child(2) {
+		opacity: 0;
+	}
+
+	.menu-toggle[aria-expanded='true'] .menu-icon span:nth-child(3) {
+		transform: translateY(-6.5px) rotate(-45deg);
+	}
+
+	@media (width >= 64rem) {
+		.site-menu {
+			position: static;
+			flex-direction: row;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 2rem;
+			padding: 0;
+			background: transparent;
+			box-shadow: none;
+			backdrop-filter: none;
+			opacity: 1;
+			pointer-events: auto;
+			transform: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.site-menu,
+		.menu-icon span {
+			transition-duration: 0s;
+		}
+	}
+
+	:global(html.menu-open) {
+		overflow: hidden;
+	}
+</style>

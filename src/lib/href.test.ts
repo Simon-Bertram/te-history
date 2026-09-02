@@ -1,6 +1,13 @@
 import {describe, expect, test} from 'bun:test'
 
-import {archiveIdStaticPaths, hrefFor, hubStaticPaths, isExternalHref, slugStaticPaths} from './href'
+import {
+	absoluteUrl,
+	archiveIdStaticPaths,
+	hrefFor,
+	hubStaticPaths,
+	isExternalHref,
+	slugStaticPaths,
+} from './href'
 
 describe('hrefFor', () => {
 	test('maps each catalog type to one path', () => {
@@ -76,5 +83,19 @@ describe('isExternalHref', () => {
 	test('treats http(s) as external', () => {
 		expect(isExternalHref('https://tehistory.org')).toBe(true)
 		expect(isExternalHref('/research/foo')).toBe(false)
+	})
+})
+
+describe('absoluteUrl', () => {
+	const site = 'https://catalog.tehistory.org'
+
+	test('returns undefined when path or site is missing for a relative path', () => {
+		expect(absoluteUrl(undefined, site)).toBeUndefined()
+		expect(absoluteUrl('/images/MF37', undefined)).toBeUndefined()
+	})
+
+	test('leaves http(s) URLs unchanged and resolves relative paths against site', () => {
+		expect(absoluteUrl('https://cdn.sanity.io/x.jpg', site)).toBe('https://cdn.sanity.io/x.jpg')
+		expect(absoluteUrl('/images/MF37', site)).toBe('https://catalog.tehistory.org/images/MF37')
 	})
 })

@@ -11,7 +11,7 @@ const isActive = (href: string) =>
 	(href.replace(/\/$/, '') || '/') === currentPath
 ---
 
-<ul class="flex list-none flex-wrap gap-8 p-0">
+<ul class="flex list-none flex-col gap-0 p-0 lg:flex-row lg:flex-wrap lg:gap-8">
 	{
 		links.map((link) => (
 			<li>
@@ -19,7 +19,8 @@ const isActive = (href: string) =>
 					href={link.href}
 					aria-current={isActive(link.href) ? 'page' : undefined}
 					class:list={[
-						'font-sans text-sm tracking-[0.04em] transition-colors',
+						'block py-3 font-sans text-base tracking-[0.04em] transition-colors',
+						'lg:inline lg:py-0 lg:text-sm',
 						isActive(link.href)
 							? 'font-medium text-primary underline decoration-primary-fixed underline-offset-4'
 							: 'text-on-surface-variant no-underline hover:text-primary',

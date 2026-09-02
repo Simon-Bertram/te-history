@@ -1,5 +1,6 @@
 ---
 import type {LocationOption, SubjectOption, TownshipOption} from '../lib/catalog'
+import {DECADE_STARTS} from '../lib/limits'
 
 interface Props {
 	townships: TownshipOption[]
@@ -26,7 +27,6 @@ const location = Astro.url.searchParams.get('location') ?? ''
 const subject = Astro.url.searchParams.get('subject') ?? ''
 const decade = Astro.url.searchParams.get('decade') ?? ''
 const sort = Astro.url.searchParams.get('sort') ?? 'date-desc'
-const decades = [1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990]
 const inputClass =
 	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
 const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).length + 1
@@ -87,7 +87,7 @@ const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).le
 				Decade
 				<select class={inputClass} name="decade">
 					<option value="">All</option>
-					{decades.map((year) => (
+					{DECADE_STARTS.map((year) => (
 						<option value={String(year)} selected={decade === String(year)}>
 							{year}s
 						</option>
@@ -111,7 +111,7 @@ const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).le
 	<div class="flex items-end gap-3">
 		<button
 			type="submit"
-			class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary"
+			class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-surface"
 		>
 			Filter
 		</button>

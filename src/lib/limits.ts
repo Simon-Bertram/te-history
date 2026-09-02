@@ -34,6 +34,10 @@ export const CORE_TOWNSHIPS = ['tredyffrin', 'easttown'] as const
 
 export const VALLEY_FORGE = 'valley forge'
 
+export const DECADE_STARTS = [
+	1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
+] as const
+
 export type ImageSort = 'date-desc' | 'date-asc' | 'title'
 
 export function parseImageSort(value: string | undefined): ImageSort {

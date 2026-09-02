@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro",
     "generate-types": "wrangler types",
     "typegen": "sanity typegen generate",
@@ -29,7 +30,7 @@
     "sanity": "^6.11.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "wrangler": "^4.127.1"
+    "wrangler": "^4.128.0"
   },
   "allowScripts": {
     "esbuild": true

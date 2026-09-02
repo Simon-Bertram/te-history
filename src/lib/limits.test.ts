@@ -1,6 +1,7 @@
 import {describe, expect, test} from 'bun:test'
 
 import {
+	DECADE_STARTS,
 	isFuzzySubject,
 	parseImageSort,
 	parsePage,
@@ -25,6 +26,15 @@ describe('parseImageSort', () => {
 		expect(parseImageSort('date-asc')).toBe('date-asc')
 		expect(parseImageSort('title')).toBe('title')
 		expect(parseImageSort('nope')).toBe('date-desc')
+	})
+})
+
+describe('DECADE_STARTS', () => {
+	test('includes 2000, 2010, and 2020', () => {
+		expect(DECADE_STARTS).toContain(2000)
+		expect(DECADE_STARTS).toContain(2010)
+		expect(DECADE_STARTS).toContain(2020)
+		expect(DECADE_STARTS.at(-1)).toBe(2020)
 	})
 })
 
