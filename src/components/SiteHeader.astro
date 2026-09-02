@@ -14,7 +14,7 @@ const {links, showSearch, searchAction} = Astro.props
 ---
 
 <header
-	class="site-header sticky top-0 z-50 bg-surface/80 backdrop-blur-[20px]"
+	class="site-header sticky top-0 z-50 bg-surface backdrop-blur-[20px]"
 >
 	<nav
 		class="relative mx-auto flex max-w-7xl items-center justify-between gap-8 px-8 py-4"
@@ -72,10 +72,14 @@ const {links, showSearch, searchAction} = Astro.props
 		if (!header || !toggle || !panel) return
 
 		const overlay = open && !isDesktop()
+		const root = document.documentElement
+		const gutter = overlay ? window.innerWidth - root.clientWidth : 0
+
 		header.classList.toggle('is-open', overlay)
 		toggle.setAttribute('aria-expanded', String(overlay))
 		toggle.setAttribute('aria-label', overlay ? 'Close menu' : 'Open menu')
-		document.documentElement.classList.toggle('menu-open', overlay)
+		root.classList.toggle('menu-open', overlay)
+		root.style.paddingInlineEnd = overlay && gutter > 0 ? `${gutter}px` : ''
 
 		if (main) main.inert = overlay
 		if (footer) footer.inert = overlay
@@ -114,8 +118,7 @@ const {links, showSearch, searchAction} = Astro.props
 		flex-direction: column;
 		gap: 1.5rem;
 		padding: 0.5rem 2rem 2rem;
-		background: color-mix(in srgb, var(--surface) 80%, transparent);
-		backdrop-filter: blur(20px);
+		background: var(--surface);
 		box-shadow: 0 24px 48px
 			color-mix(in srgb, var(--on-surface) 5%, transparent);
 		overscroll-behavior: contain;
