@@ -1,11 +1,15 @@
 ---
 export const prerender = false
 
+import CatalogResultsBar from '../../components/CatalogResultsBar.astro'
 import DocumentList from '../../components/DocumentList.astro'
 import FacetForm from '../../components/FacetForm.astro'
-import Pagination from '../../components/Pagination.astro'
 import Layout from '../../layouts/Layout.astro'
 import {getSubjects, getTownships} from '../../lib/catalog'
+import {
+	catalogPageCount,
+	formatCatalogResultsSummary,
+} from '../../lib/catalogResults'
 import {getDocumentsPage} from '../../lib/documents'
 import {DOCUMENTS_PAGE_SIZE, parsePage} from '../../lib/limits'
 import {setSsrCacheControl} from '../../lib/ssrCache'
@@ -24,6 +28,18 @@ const [townships, subjects, result] = await Promise.all([
 	getSubjects(),
 	getDocumentsPage({q, township, subject, decade, page}),
 ])
+
+const total = result?.total ?? 0
+const pageCount = catalogPageCount(total, DOCUMENTS_PAGE_SIZE)
+const showNavigation = pageCount > 1
+const resultsSummary = formatCatalogResultsSummary({
+	total,
+	page,
+	pageSize: DOCUMENTS_PAGE_SIZE,
+	singular: 'document',
+	plural: 'documents',
+	pageInSummary: showNavigation,
+})
 ---
 
 <Layout
@@ -40,8 +56,19 @@ const [townships, subjects, result] = await Promise.all([
 
 	<FacetForm townships={townships ?? []} subjects={subjects ?? []} action="/documents" />
 
+	<CatalogResultsBar
+		summary={resultsSummary}
+		page={page}
+		pageSize={DOCUMENTS_PAGE_SIZE}
+		total={total}
+		basePath="/documents"
+		showNavigation={showNavigation}
+		class="mb-6"
+		ariaLabel="Results pagination"
+	/>
+
 	{
-		result?.total === 0 ? (
+		total === 0 ? (
 			<p class="font-sans text-on-surface-variant">
 				No documents match these filters. <a href="/documents" class="text-primary">Clear filters</a>
 			</p>
@@ -50,10 +77,18 @@ const [townships, subjects, result] = await Promise.all([
 		)
 	}
 
-	<Pagination
-		page={page}
-		pageSize={DOCUMENTS_PAGE_SIZE}
-		total={result?.total ?? 0}
-		basePath="/documents"
-	/>
+	{
+		showNavigation ? (
+			<CatalogResultsBar
+				summary={resultsSummary}
+				page={page}
+				pageSize={DOCUMENTS_PAGE_SIZE}
+				total={total}
+				basePath="/documents"
+				showNavigation
+				class="mt-10"
+				ariaLabel="Results pagination bottom"
+			/>
+		) : null
+	}
 </Layout>

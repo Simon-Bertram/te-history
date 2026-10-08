@@ -1,0 +1,43 @@
+---
+import Pagination from './Pagination.astro'
+
+interface Props {
+	summary: string
+	page: number
+	pageSize: number
+	total: number
+	basePath: string
+	showNavigation: boolean
+	class?: string
+	ariaLabel?: string
+}
+
+const {
+	summary,
+	page,
+	pageSize,
+	total,
+	basePath,
+	showNavigation,
+	class: className = 'mb-6',
+	ariaLabel = 'Results pagination',
+} = Astro.props
+---
+
+{
+	showNavigation ? (
+		<Pagination
+			page={page}
+			pageSize={pageSize}
+			total={total}
+			basePath={basePath}
+			summary={summary}
+			class={className}
+			ariaLabel={ariaLabel}
+		/>
+	) : (
+		<p class:list={[className, 'text-center font-sans text-sm text-on-surface-variant']}>
+			{summary}
+		</p>
+	)
+}

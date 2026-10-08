@@ -1,9 +1,9 @@
 ---
 export const prerender = false
 
+import CatalogResultsBar from '../../components/CatalogResultsBar.astro'
 import FacetForm from '../../components/FacetForm.astro'
 import ImageGrid from '../../components/ImageGrid.astro'
-import Pagination from '../../components/Pagination.astro'
 import Layout from '../../layouts/Layout.astro'
 import {
 	getFilteredImages,
@@ -13,6 +13,10 @@ import {
 	getSubjects,
 	getTownships,
 } from '../../lib/catalog'
+import {
+	catalogPageCount,
+	formatCatalogResultsSummary,
+} from '../../lib/catalogResults'
 import {IMAGES_PAGE_SIZE, parsePage} from '../../lib/limits'
 import {setSsrCacheControl} from '../../lib/ssrCache'
 
@@ -43,16 +47,16 @@ const [townships, locations, subjects, filtered, highlights, catalogTotal] = awa
 
 const images = hasFilters ? (filtered?.images ?? []) : highlights
 const total = hasFilters ? (filtered?.total ?? 0) : catalogTotal
-const pageCount = Math.ceil(total / IMAGES_PAGE_SIZE)
-const photographLabel = total === 1 ? 'photograph' : 'photographs'
-const totalFormatted = total.toLocaleString('en-US')
-const resultsSummary =
-	total === 0
-		? `0 ${photographLabel}`
-		: hasFilters
-			? `${totalFormatted} ${photographLabel} · Page ${page} of ${pageCount}`
-			: `${totalFormatted} ${photographLabel}`
-const showPagination = hasFilters && pageCount > 1
+const pageCount = catalogPageCount(total, IMAGES_PAGE_SIZE)
+const showNavigation = hasFilters && pageCount > 1
+const resultsSummary = formatCatalogResultsSummary({
+	total,
+	page,
+	pageSize: IMAGES_PAGE_SIZE,
+	singular: 'photograph',
+	plural: 'photographs',
+	pageInSummary: hasFilters,
+})
 ---
 
 <Layout
@@ -76,23 +80,16 @@ const showPagination = hasFilters && pageCount > 1
 		showSort
 	/>
 
-	{
-		showPagination ? (
-			<Pagination
-				page={page}
-				pageSize={IMAGES_PAGE_SIZE}
-				total={total}
-				basePath="/images"
-				summary={resultsSummary}
-				class="mb-6"
-				ariaLabel="Results pagination"
-			/>
-		) : (
-			<p class="mb-6 text-center font-sans text-sm text-on-surface-variant">
-				{resultsSummary}
-			</p>
-		)
-	}
+	<CatalogResultsBar
+		summary={resultsSummary}
+		page={page}
+		pageSize={IMAGES_PAGE_SIZE}
+		total={total}
+		basePath="/images"
+		showNavigation={showNavigation}
+		class="mb-6"
+		ariaLabel="Results pagination"
+	/>
 
 	{
 		hasFilters && total === 0 ? (
@@ -105,13 +102,14 @@ const showPagination = hasFilters && pageCount > 1
 	}
 
 	{
-		showPagination ? (
-			<Pagination
+		showNavigation ? (
+			<CatalogResultsBar
+				summary={resultsSummary}
 				page={page}
 				pageSize={IMAGES_PAGE_SIZE}
 				total={total}
 				basePath="/images"
-				summary={resultsSummary}
+				showNavigation
 				class="mt-10"
 				ariaLabel="Results pagination bottom"
 			/>
