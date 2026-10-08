@@ -7,7 +7,6 @@ import type {
 } from '../../sanity.types'
 import {buildFacetQuery} from './facets'
 import {DOCUMENT_DETAIL_PROJECTION, DOCUMENT_LIST_PROJECTION} from './groq'
-import {archiveIdStaticPaths} from './href'
 import {DOCUMENTS_PAGE_SIZE} from './limits'
 
 export type DocumentsPage = DOCUMENTS_PAGE_QUERY_RESULT
@@ -25,10 +24,6 @@ export const DOCUMENT_BY_ARCHIVE_ID_QUERY = defineQuery(/* groq */ `
 	*[_type == "primarySource" && archiveId == $archiveId][0]{
 		${DOCUMENT_DETAIL_PROJECTION}
 	}
-`)
-
-export const DOCUMENT_STATIC_PATHS_QUERY = defineQuery(/* groq */ `
-	*[_type == "primarySource" && defined(archiveId)]{${DOCUMENT_DETAIL_PROJECTION}}
 `)
 
 export async function getDocumentsPage(params: {
@@ -58,9 +53,4 @@ export async function getDocumentByArchiveId(
 	archiveId: string,
 ): Promise<DocumentDetail | null> {
 	return sanityClient.fetch(DOCUMENT_BY_ARCHIVE_ID_QUERY, {archiveId})
-}
-
-export async function getDocumentStaticPaths() {
-	const rows = await sanityClient.fetch(DOCUMENT_STATIC_PATHS_QUERY)
-	return archiveIdStaticPaths(rows, (document) => ({document}))
 }

@@ -1,56 +1,69 @@
 ---
+export const prerender = false
+
+import CatalogNotFound from '../../components/CatalogNotFound.astro'
 import PortableTextBody from '../../components/PortableTextBody.astro'
 import Layout from '../../layouts/Layout.astro'
-import {getDocumentStaticPaths} from '../../lib/documents'
+import {getDocumentByArchiveId} from '../../lib/documents'
 import {
 	DETAIL_IMAGE_WIDTHS,
 	catalogDetailSrc,
 	intrinsicSize,
 	srcsetFromWidths,
 } from '../../lib/imageUrl'
+import {rewriteNotFound} from '../../lib/notFound'
+import {setSsrCacheControl} from '../../lib/ssrCache'
 
-export async function getStaticPaths() {
-	return getDocumentStaticPaths()
-}
+setSsrCacheControl(Astro.response.headers)
 
-const {document: doc} = Astro.props
-const archiveId = doc.archiveId ?? Astro.params.archiveId ?? ''
-const scan = doc.articleImage
+const archiveId = Astro.params.archiveId ?? ''
+const doc = archiveId ? await getDocumentByArchiveId(archiveId) : null
+if (!doc) rewriteNotFound(Astro)
+
+const scan = doc?.articleImage
 const src = scan ? catalogDetailSrc(scan, 1200) : undefined
 const srcset = scan ? srcsetFromWidths(scan, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
 const size = scan ? intrinsicSize(scan, 1200) : undefined
 ---
 
-<Layout title={doc.title ?? archiveId} ogImage={src} ogType="article">
-	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
-		<a href="/documents" class="text-on-surface-variant no-underline hover:text-primary">
-			Documents
-		</a>
-		{' / '}
-		{doc.archiveId}
-	</p>
-	<h1 class="mt-3 text-display-sm">{doc.title}</h1>
-	<p class="mt-2 font-sans text-on-surface-variant">
-		{[doc.newspaper, doc.date?.year].filter(Boolean).join(' · ')}
-	</p>
-	{
-		src && size ? (
-			<img
-				src={src}
-				srcset={srcset}
-				sizes="(min-width: 768px) 768px, calc(100vw - 4rem)"
-				alt=""
-				width={size.width}
-				height={size.height}
-				class="mt-8 h-auto w-full max-w-3xl"
-			/>
-		) : null
-	}
-	{
-		doc.transcription?.length ? (
-			<div class="prose mt-8 max-w-2xl font-sans">
-				<PortableTextBody value={doc.transcription} />
-			</div>
-		) : null
-	}
-</Layout>
+{
+	!doc ? (
+		<Layout
+			title="Page not found"
+			description="This catalog page does not exist in the Tredyffrin Easttown Historical Society collections."
+			noIndex
+		>
+			<CatalogNotFound />
+		</Layout>
+	) : (
+		<Layout title={doc.title ?? archiveId} ogImage={src} ogType="article">
+			<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+				<a href="/documents" class="text-on-surface-variant no-underline hover:text-primary">
+					Documents
+				</a>
+				{' / '}
+				{doc.archiveId}
+			</p>
+			<h1 class="mt-3 text-display-sm">{doc.title}</h1>
+			<p class="mt-2 font-sans text-on-surface-variant">
+				{[doc.newspaper, doc.date?.year].filter(Boolean).join(' · ')}
+			</p>
+			{src && size ? (
+				<img
+					src={src}
+					srcset={srcset}
+					sizes="(min-width: 768px) 768px, calc(100vw - 4rem)"
+					alt=""
+					width={size.width}
+					height={size.height}
+					class="mt-8 h-auto w-full max-w-3xl"
+				/>
+			) : null}
+			{doc.transcription?.length ? (
+				<div class="prose mt-8 max-w-2xl font-sans">
+					<PortableTextBody value={doc.transcription} />
+				</div>
+			) : null}
+		</Layout>
+	)
+}

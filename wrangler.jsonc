@@ -14,7 +14,7 @@
 			"/images",
 			"/images/",
 			"/documents",
-			"/documents/",
+			"/documents/*",
 			"/research",
 			"/research/"
 		]

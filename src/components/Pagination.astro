@@ -4,9 +4,22 @@ interface Props {
 	pageSize: number
 	total: number
 	basePath: string
+	showPageLabel?: boolean
+	summary?: string
+	class?: string
+	ariaLabel?: string
 }
 
-const {page, pageSize, total, basePath} = Astro.props
+const {
+	page,
+	pageSize,
+	total,
+	basePath,
+	showPageLabel = true,
+	summary,
+	class: className = 'mt-10',
+	ariaLabel = 'Pagination',
+} = Astro.props
 const pageCount = Math.max(1, Math.ceil(total / pageSize))
 const params = new URLSearchParams(Astro.url.search)
 const hrefFor = (next: number) => {
@@ -16,11 +29,15 @@ const hrefFor = (next: number) => {
 	const query = nextParams.toString()
 	return query ? `${basePath}?${query}` : basePath
 }
+const centerLabel = summary ?? (showPageLabel ? `Page ${page} of ${pageCount}` : null)
 ---
 
 {
 	pageCount > 1 ? (
-		<nav class="mt-10 flex items-center justify-between font-sans text-sm" aria-label="Pagination">
+		<nav
+			class:list={[className, 'flex items-center justify-between font-sans text-sm']}
+			aria-label={ariaLabel}
+		>
 			{page > 1 ? (
 				<a href={hrefFor(page - 1)} class="text-primary no-underline">
 					Previous
@@ -28,9 +45,11 @@ const hrefFor = (next: number) => {
 			) : (
 				<span class="text-on-surface-variant">Previous</span>
 			)}
-			<p class="text-on-surface-variant">
-				Page {page} of {pageCount}
-			</p>
+			{centerLabel ? (
+				<p class="text-center text-on-surface-variant">{centerLabel}</p>
+			) : (
+				<span />
+			)}
 			{page < pageCount ? (
 				<a href={hrefFor(page + 1)} class="text-primary no-underline">
 					Next

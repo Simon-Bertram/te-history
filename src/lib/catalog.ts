@@ -62,6 +62,10 @@ export const IMAGE_STATIC_PATHS_QUERY = defineQuery(/* groq */ `
 	*[_type == "historicalImage" && defined(archiveId)]{${IMAGE_DETAIL_PROJECTION}}
 `)
 
+export const IMAGE_CATALOG_TOTAL_QUERY = defineQuery(/* groq */ `
+	count(*[_type == "historicalImage" && defined(imageFile.asset)])
+`)
+
 const IMAGE_SORT_CLAUSE: Record<ImageSort, string> = {
 	'date-desc': 'dateTaken.year desc, title asc',
 	'date-asc': 'dateTaken.year asc, title asc',
@@ -75,6 +79,10 @@ export async function getHighlightImages(limit = HOME_IMAGE_LIMIT): Promise<Cata
 	}
 	const fallback = (await sanityClient.fetch(FALLBACK_IMAGES_QUERY)) ?? []
 	return mergeFeaturedWithFallback(featured, fallback, limit)
+}
+
+export async function getImageCatalogTotal(): Promise<number> {
+	return (await sanityClient.fetch(IMAGE_CATALOG_TOTAL_QUERY)) ?? 0
 }
 
 export interface ImageFacetParams {
