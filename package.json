@@ -25,6 +25,7 @@
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "7.3.7",
+    "astro-icon": "^1.2.0",
     "astro-portabletext": "^1.0.1",
     "groq": "^6.18.0",
     "sanity": "^6.18.0",
