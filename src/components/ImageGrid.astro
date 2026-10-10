@@ -1,5 +1,6 @@
 ---
 import {hrefFor} from '../lib/href'
+import {catalogImageAlt} from '../lib/imageAlt'
 import type {CatalogImageCard} from '../lib/imageHighlights'
 import {
 	GRID_IMAGE_WIDTHS,
@@ -46,7 +47,10 @@ const sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4
 									src={src}
 									srcset={srcset}
 									sizes={sizes}
-									alt={image.title ?? ''}
+									alt={catalogImageAlt({
+										imageFile: file,
+										title: image.title,
+									})}
 									width="720"
 									height="540"
 									class="mb-4 aspect-4/3 w-full object-cover"

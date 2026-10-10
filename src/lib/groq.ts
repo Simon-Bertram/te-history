@@ -18,14 +18,22 @@ export const IMAGE_PROJECTION = /* groq */ `
 	dateTaken,
 	featuredOnSite,
 	featuredRank,
-	imageFile,
+	imageFile {
+		...,
+		alt
+	},
 	"township": township->name,
 	"location": location->name,
 	"subjects": subjects[]->title
 `
 
 export const ENTITY_IMAGE_PROJECTION = /* groq */ `
-	_id, title, archiveId, dateTaken, imageFile, "township": township->name
+	_id, title, archiveId, dateTaken,
+	imageFile {
+		...,
+		alt
+	},
+	"township": township->name
 `
 
 export const HUB_DOCUMENT_PROJECTION = /* groq */ `
@@ -61,6 +69,7 @@ export const PORTABLE_TEXT_WITH_EMBEDS = /* groq */ `
 				archiveId,
 				imageFile {
 					...,
+					alt,
 					${IMAGE_ASSET_DIMENSIONS}
 				}
 			}
@@ -72,6 +81,7 @@ export const IMAGE_DETAIL_PROJECTION = /* groq */ `
 	_id, title, archiveId, description, dateTaken,
 	imageFile {
 		...,
+		alt,
 		${IMAGE_ASSET_DIMENSIONS}
 	},
 	"township": township->name,

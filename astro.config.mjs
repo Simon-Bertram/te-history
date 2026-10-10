@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 
 import sanity from '@sanity/astro';
+import icon from 'astro-icon';
 
 import cloudflare from '@astrojs/cloudflare';
 
@@ -38,6 +39,7 @@ export default defineConfig({
       apiVersion,
       useCdn: false,
     }),
+    icon(),
     sitemap({
       filter: (page) => {
         const pathname = new URL(page).pathname.replace(/\/$/, '') || '/';

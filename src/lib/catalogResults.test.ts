@@ -1,6 +1,10 @@
 import {describe, expect, test} from 'bun:test'
 
-import {catalogPageCount, formatCatalogResultsSummary} from './catalogResults'
+import {
+	catalogPageCount,
+	formatCatalogResultsSummary,
+	formatDisplayingRangeSummary,
+} from './catalogResults'
 
 describe('catalogPageCount', () => {
 	test('returns 0 for empty totals', () => {
@@ -80,5 +84,79 @@ describe('formatCatalogResultsSummary', () => {
 				pageInSummary: true,
 			}),
 		).toBe('12 photographs · Page 1 of 1')
+	})
+})
+
+describe('formatDisplayingRangeSummary', () => {
+	test('formats zero results', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 0,
+				page: 1,
+				pageSize: 24,
+				singular: 'photograph',
+				plural: 'photographs',
+			}),
+		).toBe('Displaying 0 photographs')
+	})
+
+	test('formats a short first page', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 12,
+				page: 1,
+				pageSize: 24,
+				singular: 'photograph',
+				plural: 'photographs',
+			}),
+		).toBe('Displaying 1–12 of 12 photographs')
+	})
+
+	test('formats a full first page', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 7054,
+				page: 1,
+				pageSize: 24,
+				singular: 'photograph',
+				plural: 'photographs',
+			}),
+		).toBe('Displaying 1–24 of 7,054 photographs')
+	})
+
+	test('formats a middle page', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 888,
+				page: 2,
+				pageSize: 24,
+				singular: 'document',
+				plural: 'documents',
+			}),
+		).toBe('Displaying 25–48 of 888 documents')
+	})
+
+	test('clamps the last page end to total', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 50,
+				page: 3,
+				pageSize: 24,
+				singular: 'photograph',
+				plural: 'photographs',
+			}),
+		).toBe('Displaying 49–50 of 50 photographs')
+	})
+
+	test('uses singular when total is one', () => {
+		expect(
+			formatDisplayingRangeSummary({
+				total: 1,
+				page: 1,
+				pageSize: 24,
+				singular: 'photograph',
+				plural: 'photographs',
+			}),
+		).toBe('Displaying 1–1 of 1 photograph')
 	})
 })

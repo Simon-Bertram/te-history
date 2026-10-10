@@ -8,14 +8,13 @@ import Layout from '../../layouts/Layout.astro'
 import {
 	getFilteredImages,
 	getHighlightImages,
-	getImageCatalogTotal,
 	getLocations,
 	getSubjects,
 	getTownships,
 } from '../../lib/catalog'
 import {
 	catalogPageCount,
-	formatCatalogResultsSummary,
+	formatDisplayingRangeSummary,
 } from '../../lib/catalogResults'
 import {IMAGES_PAGE_SIZE, parsePage} from '../../lib/limits'
 import {setSsrCacheControl} from '../../lib/ssrCache'
@@ -34,7 +33,7 @@ const page = parsePage(params.get('page') ?? undefined)
 const hasCustomSort = Boolean(sort) && sort !== 'date-desc'
 const hasFilters = Boolean(q || township || location || subject || decade || hasCustomSort || all)
 
-const [townships, locations, subjects, filtered, highlights, catalogTotal] = await Promise.all([
+const [townships, locations, subjects, filtered, highlights] = await Promise.all([
 	getTownships(),
 	getLocations(),
 	getSubjects(),
@@ -42,21 +41,21 @@ const [townships, locations, subjects, filtered, highlights, catalogTotal] = awa
 		? getFilteredImages({q, township, location, subject, decade, sort, page})
 		: Promise.resolve(null),
 	hasFilters ? Promise.resolve([]) : getHighlightImages(IMAGES_PAGE_SIZE),
-	hasFilters ? Promise.resolve(0) : getImageCatalogTotal(),
 ])
 
 const images = hasFilters ? (filtered?.images ?? []) : highlights
-const total = hasFilters ? (filtered?.total ?? 0) : catalogTotal
+const total = hasFilters ? (filtered?.total ?? 0) : images.length
 const pageCount = catalogPageCount(total, IMAGES_PAGE_SIZE)
 const showNavigation = hasFilters && pageCount > 1
-const resultsSummary = formatCatalogResultsSummary({
-	total,
-	page,
-	pageSize: IMAGES_PAGE_SIZE,
-	singular: 'photograph',
-	plural: 'photographs',
-	pageInSummary: hasFilters,
-})
+const resultsSummary = hasFilters
+	? formatDisplayingRangeSummary({
+			total,
+			page,
+			pageSize: IMAGES_PAGE_SIZE,
+			singular: 'photograph',
+			plural: 'photographs',
+		})
+	: `Displaying featured photos (${images.length.toLocaleString('en-US')})`
 ---
 
 <Layout

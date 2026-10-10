@@ -6,6 +6,7 @@ const builder = createImageUrlBuilder(sanityClient)
 /** Image objects from GROQ projections such as `imageFile` and `articleImage`. */
 export type CatalogImageField = {
 	_type?: 'image'
+	alt?: string | null
 	asset?: {
 		_ref?: string
 		_type?: string

@@ -1,4 +1,6 @@
 ---
+import {Icon} from 'astro-icon/components'
+
 interface Props {
 	page: number
 	pageSize: number
@@ -30,6 +32,11 @@ const hrefFor = (next: number) => {
 	return query ? `${basePath}?${query}` : basePath
 }
 const centerLabel = summary ?? (showPageLabel ? `Page ${page} of ${pageCount}` : null)
+const linkClass =
+	'inline-flex items-center gap-1 text-secondary no-underline hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary'
+const disabledClass =
+	'inline-flex items-center gap-1 text-on-surface-variant opacity-50'
+const iconClass = 'size-4 shrink-0'
 ---
 
 {
@@ -39,11 +46,15 @@ const centerLabel = summary ?? (showPageLabel ? `Page ${page} of ${pageCount}` :
 			aria-label={ariaLabel}
 		>
 			{page > 1 ? (
-				<a href={hrefFor(page - 1)} class="text-primary no-underline">
+				<a href={hrefFor(page - 1)} class={linkClass}>
+					<Icon name="lucide:chevron-left" class={iconClass} aria-hidden="true" />
 					Previous
 				</a>
 			) : (
-				<span class="text-on-surface-variant">Previous</span>
+				<span class={disabledClass} aria-disabled="true">
+					<Icon name="lucide:chevron-left" class={iconClass} aria-hidden="true" />
+					Previous
+				</span>
 			)}
 			{centerLabel ? (
 				<p class="text-center text-on-surface-variant">{centerLabel}</p>
@@ -51,11 +62,15 @@ const centerLabel = summary ?? (showPageLabel ? `Page ${page} of ${pageCount}` :
 				<span />
 			)}
 			{page < pageCount ? (
-				<a href={hrefFor(page + 1)} class="text-primary no-underline">
+				<a href={hrefFor(page + 1)} class={linkClass}>
 					Next
+					<Icon name="lucide:chevron-right" class={iconClass} aria-hidden="true" />
 				</a>
 			) : (
-				<span class="text-on-surface-variant">Next</span>
+				<span class={disabledClass} aria-disabled="true">
+					Next
+					<Icon name="lucide:chevron-right" class={iconClass} aria-hidden="true" />
+				</span>
 			)}
 		</nav>
 	) : null

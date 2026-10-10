@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro'
 import {getImageStaticPaths} from '../../lib/catalog'
 import {hrefFor} from '../../lib/href'
+import {catalogImageAlt} from '../../lib/imageAlt'
 import {
 	DETAIL_IMAGE_WIDTHS,
 	catalogDetailSrc,
@@ -19,6 +20,7 @@ const file = image.imageFile
 const src = file ? catalogDetailSrc(file, 1600) : undefined
 const srcset = file ? srcsetFromWidths(file, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
 const size = file ? intrinsicSize(file, 1600) : undefined
+const alt = catalogImageAlt({imageFile: file, title: image.title})
 ---
 
 <Layout
@@ -39,7 +41,7 @@ const size = file ? intrinsicSize(file, 1600) : undefined
 				src={src}
 				srcset={srcset}
 				sizes="(min-width: 896px) 896px, calc(100vw - 4rem)"
-				alt={image.title ?? ''}
+				alt={alt}
 				width={size.width}
 				height={size.height}
 				class="mt-8 h-auto w-full max-w-4xl"

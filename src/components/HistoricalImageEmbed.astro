@@ -1,5 +1,6 @@
 ---
 import {hrefFor} from '../lib/href'
+import {catalogImageAlt} from '../lib/imageAlt'
 import {
 	catalogDetailSrc,
 	intrinsicSize,
@@ -24,7 +25,11 @@ const image = node.historicalImage
 const file = image?.imageFile
 const src = file ? catalogDetailSrc(file, 800) : undefined
 const size = file ? intrinsicSize(file, 800) : undefined
-const alt = node.alt || image?.title || ''
+const alt = catalogImageAlt({
+	override: node.alt,
+	imageFile: file,
+	title: image?.title,
+})
 const href = image?.archiveId
 	? hrefFor({_type: 'historicalImage', archiveId: image.archiveId})
 	: undefined
