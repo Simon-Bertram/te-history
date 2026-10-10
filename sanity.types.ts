@@ -14,55 +14,16 @@
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
+type ArrayOf<T> = Array<
+  T & {
+    _key: string;
+  }
+>;
+
 // Source: schema.json
-export type Slug = {
-  _type?: "slug";
-  current?: string;
-};
-
-export type HistoricalDate = {
-  _type?: "historicalDate";
-  year?: number;
-  month?: number;
-  date?: string;
-  precision?: string;
-  qualifier?: string;
-};
-
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-};
-
-export type SanityImageAsset = {
-  _id: string;
-  _type: "sanity.imageAsset";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  url?: string;
-  metadata?: {
-    dimensions?: {
-      width?: number;
-      height?: number;
-    };
-  };
-};
-
-export type TownshipReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "township";
-};
-
-export type LocationReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "location";
+export type PageBreak = {
+  _type: "pageBreak";
+  pageNumber?: string;
 };
 
 export type PersonReference = {
@@ -72,11 +33,50 @@ export type PersonReference = {
   [internalGroqTypeReferenceTo]?: "person";
 };
 
-export type CategoryReference = {
+export type ImmediateRelative = {
+  _type: "immediateRelative";
+  relative?: PersonReference;
+  relationshipType?:
+    "spouse" | "parent" | "child" | "sibling" | "cousin" | "other";
+};
+
+export type HistoricalDate = {
+  _type: "historicalDate";
+  precision?: "year" | "month" | "day";
+  qualifier?: "exact" | "circa" | "before" | "after";
+  year?: number;
+  month?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  date?: string;
+};
+
+export type CensusRecord = {
+  _type: "censusRecord";
+  year?: number;
+  occupation?: string;
+};
+
+export type NavLink = {
+  _type: "navLink";
+  label?: string;
+  href?: string;
+  kind?: "page" | "search";
+  purpose?: string;
+};
+
+export type ResearchArticleReference = {
   _ref: string;
   _type: "reference";
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "category";
+  [internalGroqTypeReferenceTo]?: "researchArticle";
+};
+
+export type InternalSubLinks = {
+  _type: "internalSubLinks";
+  links?: Array<
+    {
+      _key: string;
+    } & ResearchArticleReference
+  >;
 };
 
 export type HistoricalImageReference = {
@@ -86,6 +86,111 @@ export type HistoricalImageReference = {
   [internalGroqTypeReferenceTo]?: "historicalImage";
 };
 
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
+export type ThenAndNowView = {
+  _type: "thenAndNowView";
+  source?: "historicalImage" | "upload";
+  historicalImage?: HistoricalImageReference;
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  takenYear?: number;
+  caption?: string;
+  alt?: string;
+  commentary?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+};
+
+export type HistoricalImageEmbed = {
+  _type: "historicalImageEmbed";
+  historicalImage?: HistoricalImageReference;
+  caption?: string;
+  alt?: string;
+  imageRole?: "figure" | "aside";
+};
+
+export type MapEmbed = {
+  _type: "mapEmbed";
+  mapYear?: string;
+  mapUrl?: string;
+};
+
+export type SiteNavigation = {
+  _id: string;
+  _type: "siteNavigation";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  primaryLinks?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
+  secondaryLinks?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
+};
+
+export type ImageIdentifier = {
+  _id: string;
+  _type: "imageIdentifier";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  prefix?: string;
+  description?: string;
+  migrationKey?: string;
+};
+
+export type DonationCategory = {
+  _id: string;
+  _type: "donationCategory";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  description?: string;
+  migrationKey?: string;
+};
+
+export type FamilyLine = {
+  _id: string;
+  _type: "familyLine";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  description?: string;
+};
+
 export type QuarterlyIssueReference = {
   _ref: string;
   _type: "reference";
@@ -93,53 +198,249 @@ export type QuarterlyIssueReference = {
   [internalGroqTypeReferenceTo]?: "quarterlyIssue";
 };
 
-export type Township = {
-  _id: string;
-  _type: "township";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  slug?: Slug;
+export type TownshipReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "township";
 };
 
-export type Location = {
-  _id: string;
-  _type: "location";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  slug?: Slug;
-  townships?: Array<
-    {
-      _key: string;
-    } & TownshipReference
-  >;
+export type PropertyReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "property";
 };
 
-export type Person = {
-  _id: string;
-  _type: "person";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName?: string;
-  lastName?: string;
-  slug?: Slug;
-  born?: HistoricalDate;
-  died?: HistoricalDate;
+export type BusinessReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "business";
 };
 
-export type Category = {
+export type OrganizationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "organization";
+};
+
+export type ThenAndNow = {
   _id: string;
-  _type: "category";
+  _type: "thenAndNow";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   title?: string;
   slug?: Slug;
-  description?: string;
+  featuredOnSite?: boolean;
+  featuredRank?: number;
+  authorText?: string;
+  issueRef?: QuarterlyIssueReference;
+  startPage?: number;
+  endPage?: number;
+  introduction?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  then?: ThenAndNowView;
+  now?: ThenAndNowView;
+  notesAndReferences?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  townships?: Array<
+    {
+      _key: string;
+    } & TownshipReference
+  >;
+  peopleMentioned?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+  propertiesMentioned?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  organizations?: ArrayOf<BusinessReference | OrganizationReference>;
+  internalComments?: string;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
+export type ResearchArticle = {
+  _id: string;
+  _type: "researchArticle";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  archiveId?: string;
+  title?: string;
+  slug?: Slug;
+  featuredOnSite?: boolean;
+  featuredRank?: number;
+  townships?: Array<
+    {
+      _key: string;
+    } & TownshipReference
+  >;
+  peopleMentioned?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+  propertiesMentioned?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  organizations?: ArrayOf<BusinessReference | OrganizationReference>;
+  body?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | ({
+        _key: string;
+      } & HistoricalImageEmbed)
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "figure" | "aside";
+        _type: "image";
+        _key: string;
+      }
+    | ({
+        _key: string;
+      } & MapEmbed)
+    | ({
+        _key: string;
+      } & InternalSubLinks)
+  >;
+  notesAndReferences?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  internalComments?: string;
+};
+
+export type LocationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "location";
+};
+
+export type CategoryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "category";
+};
+
+export type QuarterlyArticleReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "quarterlyArticle";
+};
+
+export type ThenAndNowReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "thenAndNow";
+};
+
+export type DonationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "donation";
 };
 
 export type HistoricalImage = {
@@ -148,94 +449,92 @@ export type HistoricalImage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  title?: string;
   archiveId?: string;
-  description?: string;
+  serialNumber?: string;
+  title?: string;
   dateTaken?: HistoricalDate;
-  featuredOnSite?: boolean;
-  featuredRank?: number;
   imageFile?: {
-    _type?: "image";
     asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
     alt?: string;
+    _type: "image";
   };
-  township?: TownshipReference;
-  location?: LocationReference;
+  description?: string;
   people?: Array<
     {
       _key: string;
     } & PersonReference
   >;
-  subjects?: Array<
-    {
-      _key: string;
-    } & CategoryReference
-  >;
-  rights?: string;
-};
-
-export type PrimarySource = {
-  _id: string;
-  _type: "primarySource";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  archiveId?: string;
-  newspaper?: string;
-  date?: HistoricalDate;
-  transcription?: Array<
-    | {
-        _key: string;
-        _type: "block";
-        style?: string;
-        children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
-          marks?: Array<string>;
-        }>;
-        markDefs?: Array<unknown>;
-      }
-    | {
-        _key: string;
-        _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
-        historicalImage?: HistoricalImageReference;
-      }
-  >;
-  articleImage?: {
-    _type?: "image";
-    asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
-  };
+  location?: LocationReference;
   township?: TownshipReference;
+  coordinates?: Geopoint;
+  organizations?: ArrayOf<BusinessReference | OrganizationReference>;
   subjects?: Array<
     {
       _key: string;
     } & CategoryReference
   >;
+  citations?: ArrayOf<QuarterlyArticleReference | ThenAndNowReference>;
+  references?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  source?: string;
+  contributor?: string;
+  donation?: DonationReference;
+  photographer?: string;
+  rights?: string;
+  notes?: string;
+  featuredOnSite?: boolean;
+  featuredRank?: number;
 };
 
-export type QuarterlyIssue = {
+export type DonationCategoryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "donationCategory";
+};
+
+export type Donation = {
   _id: string;
-  _type: "quarterlyIssue";
+  _type: "donation";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  volume?: number;
-  issueNumber?: number;
-  season?: string;
-  coverImage?: {
-    _type?: "image";
-    asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
-  };
+  name?: string;
+  donationId?: number;
+  acquisitionDate?: HistoricalDate;
+  description?: string;
+  donor?: string;
+  donationCategories?: Array<
+    {
+      _key: string;
+    } & DonationCategoryReference
+  >;
+};
+
+export type Geopoint = {
+  _type: "geopoint";
+  lat?: number;
+  lng?: number;
+  alt?: number;
 };
 
 export type QuarterlyArticle = {
@@ -246,117 +545,606 @@ export type QuarterlyArticle = {
   _rev: string;
   title?: string;
   authorText?: string;
-  startPage?: number;
-  sourceUrl?: string;
-  sourceKey?: string;
   issueRef?: QuarterlyIssueReference;
+  startPage?: number;
+  endPage?: number;
+  sourceKey?: string;
+  sourceUrl?: string;
+  summary?: string;
+  body?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | ({
+        _key: string;
+      } & HistoricalImageEmbed)
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "figure" | "aside";
+        _type: "image";
+        _key: string;
+      }
+    | ({
+        _key: string;
+      } & PageBreak)
+  >;
+  notesAndReferences?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  internalComments?: string;
+  subjects?: Array<
+    {
+      _key: string;
+    } & CategoryReference
+  >;
+  propertiesMentioned?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  peopleMentioned?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+  organizations?: ArrayOf<BusinessReference | OrganizationReference>;
 };
 
-export type ResearchArticle = {
+export type SanityFileAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+};
+
+export type QuarterlyIssue = {
   _id: string;
-  _type: "researchArticle";
+  _type: "quarterlyIssue";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  title?: string;
+  volume?: number;
+  issueNumber?: number;
+  combinedIssue?: boolean;
+  issueNumberEnd?: number;
+  season?: "spring" | "summer" | "autumn" | "winter";
+  publicationDate?: HistoricalDate;
+  yearSearch?: string;
+  sourceKey?: string;
+  coverImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  pdfAsset?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: "file";
+  };
+  tocNotes?: string;
+};
+
+export type Organization = {
+  _id: string;
+  _type: "organization";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  migrationKey?: string;
+  migrationKeyAliases?: Array<string>;
+  description?: string;
+  activeFrom?: HistoricalDate;
+  activeTo?: HistoricalDate;
+  associatedProperties?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  owners?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+};
+
+export type Business = {
+  _id: string;
+  _type: "business";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  migrationKey?: string;
+  migrationKeyAliases?: Array<string>;
+  description?: string;
+  activeFrom?: HistoricalDate;
+  activeTo?: HistoricalDate;
+  associatedProperties?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  owners?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+};
+
+export type PrimarySourceReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "primarySource";
+};
+
+export type Deed = {
+  _id: string;
+  _type: "deed";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   archiveId?: string;
-  slug?: Slug;
-  featuredOnSite?: boolean;
-  featuredRank?: number;
-  body?: Array<
-    | {
-        _key: string;
-        _type: "block";
-        style?: string;
-        children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
-          marks?: Array<string>;
-        }>;
-        markDefs?: Array<unknown>;
-      }
-    | {
-        _key: string;
-        _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
-        historicalImage?: HistoricalImageReference;
-      }
+  instrumentType?:
+    | "patent"
+    | "deed"
+    | "will"
+    | "probate"
+    | "warrant"
+    | "survey"
+    | "taxReturn"
+    | "atlas"
+    | "other";
+  reference?: string;
+  dateText?: string;
+  date?: HistoricalDate;
+  grantors?: Array<
+    {
+      _key: string;
+    } & PersonReference
   >;
-  notesAndReferences?: Array<
-    | {
-        _key: string;
-        _type: "block";
-        style?: string;
-        children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
-          marks?: Array<string>;
-        }>;
-        markDefs?: Array<unknown>;
-      }
-    | {
-        _key: string;
-        _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
-        historicalImage?: HistoricalImageReference;
-      }
+  grantorsText?: string;
+  grantees?: Array<
+    {
+      _key: string;
+    } & PersonReference
   >;
+  granteesText?: string;
+  areaText?: string;
+  costText?: string;
+  costKind?: "sale" | "groundRent" | "other";
+  costCurrency?: "gbp" | "usd";
+  costAmount?: number;
+  associatedProperties?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  branchLabel?: string;
+  notes?: string;
+  scanImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  scanSource?: PrimarySourceReference;
+};
+
+export type PrimarySource = {
+  _id: string;
+  _type: "primarySource";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  archiveId?: string;
+  title?: string;
+  date?: HistoricalDate;
+  newspaper?: string;
+  articleImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  transcription?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | ({
+        _key: string;
+      } & HistoricalImageEmbed)
+  >;
+  isSheriffSale?: boolean;
+  legalWrit?: "fieriFacias" | "levariFacias" | "venditioniExponas";
+  associatedProperties?: Array<
+    {
+      _key: string;
+    } & PropertyReference
+  >;
+  township?: TownshipReference;
+  peopleMentioned?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+  organizations?: ArrayOf<BusinessReference | OrganizationReference>;
+  subjects?: Array<
+    {
+      _key: string;
+    } & CategoryReference
+  >;
+  citations?: ArrayOf<QuarterlyArticleReference | ThenAndNowReference>;
+};
+
+export type DeedReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "deed";
+};
+
+export type Property = {
+  _id: string;
+  _type: "property";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  historicalName?: string;
+  propertyType?:
+    | "dwelling"
+    | "estate"
+    | "church"
+    | "inn"
+    | "industrial"
+    | "institutional"
+    | "railroad";
+  coordinates?: Geopoint;
+  parentEstate?: PropertyReference;
+  location?: LocationReference;
+  township?: TownshipReference;
+  evolutionNotes?: string;
+  notableResidents?: Array<
+    {
+      _key: string;
+    } & PersonReference
+  >;
+  modernAddress?: string;
+  yearBuilt?: HistoricalDate;
+  titleChain?: Array<
+    {
+      _key: string;
+    } & DeedReference
+  >;
+};
+
+export type Location = {
+  _id: string;
+  _type: "location";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
   townships?: Array<
     {
       _key: string;
     } & TownshipReference
   >;
+  coordinates?: Geopoint;
 };
 
-export type SiteNavigation = {
+export type FamilyLineReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "familyLine";
+};
+
+export type Person = {
   _id: string;
-  _type: "siteNavigation";
+  _type: "person";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  primaryLinks?: Array<{
+  prefix?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  suffix?: string;
+  born?: HistoricalDate;
+  died?: HistoricalDate;
+  alternateSpellings?: Array<string>;
+  censusAppearances?: Array<
+    {
+      _key: string;
+    } & CensusRecord
+  >;
+  notesAndReferences?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
     _key: string;
-    _type?: string;
-    label?: string;
-    href?: string;
-    kind?: "page" | "search";
-    purpose?: string;
   }>;
-  secondaryLinks?: Array<{
-    _key: string;
-    _type?: string;
-    label?: string;
-    href?: string;
-    kind?: "page" | "search";
-    purpose?: string;
-  }>;
+  familyLines?: Array<
+    {
+      _key: string;
+    } & FamilyLineReference
+  >;
+  immediateRelatives?: Array<
+    {
+      _key: string;
+    } & ImmediateRelative
+  >;
+};
+
+export type CountyReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "county";
+};
+
+export type Township = {
+  _id: string;
+  _type: "township";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  county?: CountyReference;
+  migrationKey?: string;
+};
+
+export type County = {
+  _id: string;
+  _type: "county";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+};
+
+export type Category = {
+  _id: string;
+  _type: "category";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  description?: string;
+  migrationKey?: string;
+  migrationKeyAliases?: Array<string>;
+};
+
+export type GeopointRadius = {
+  _type: "geopointRadius";
+  lat?: number;
+  lng?: number;
+  alt?: number;
+  radius?: number;
+};
+
+export type SanityImagePaletteSwatch = {
+  _type: "sanity.imagePaletteSwatch";
+  background?: string;
+  foreground?: string;
+  population?: number;
+  title?: string;
+};
+
+export type SanityImagePalette = {
+  _type: "sanity.imagePalette";
+  darkMuted?: SanityImagePaletteSwatch;
+  lightVibrant?: SanityImagePaletteSwatch;
+  darkVibrant?: SanityImagePaletteSwatch;
+  vibrant?: SanityImagePaletteSwatch;
+  dominant?: SanityImagePaletteSwatch;
+  lightMuted?: SanityImagePaletteSwatch;
+  muted?: SanityImagePaletteSwatch;
+};
+
+export type SanityImageDimensions = {
+  _type: "sanity.imageDimensions";
+  height?: number;
+  width?: number;
+  aspectRatio?: number;
+};
+
+export type SanityImageMetadata = {
+  _type: "sanity.imageMetadata";
+  location?: Geopoint;
+  dimensions?: SanityImageDimensions;
+  palette?: SanityImagePalette;
+  lqip?: string;
+  blurHash?: string;
+  thumbHash?: string;
+  hasAlpha?: boolean;
+  isOpaque?: boolean;
+};
+
+export type SanityFileAsset = {
+  _id: string;
+  _type: "sanity.fileAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  originalFilename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  sha1hash?: string;
+  extension?: string;
+  mimeType?: string;
+  size?: number;
+  assetId?: string;
+  uploadId?: string;
+  path?: string;
+  url?: string;
+  source?: SanityAssetSourceData;
+};
+
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
+};
+
+export type SanityImageAsset = {
+  _id: string;
+  _type: "sanity.imageAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  originalFilename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  sha1hash?: string;
+  extension?: string;
+  mimeType?: string;
+  size?: number;
+  assetId?: string;
+  uploadId?: string;
+  path?: string;
+  url?: string;
+  metadata?: SanityImageMetadata;
+  source?: SanityAssetSourceData;
 };
 
 export type AllSanitySchemaTypes =
-  | Slug
-  | HistoricalDate
-  | SanityImageAssetReference
-  | SanityImageAsset
-  | TownshipReference
-  | LocationReference
+  | PageBreak
   | PersonReference
-  | CategoryReference
+  | ImmediateRelative
+  | HistoricalDate
+  | CensusRecord
+  | NavLink
+  | ResearchArticleReference
+  | InternalSubLinks
   | HistoricalImageReference
+  | SanityImageAssetReference
+  | ThenAndNowView
+  | HistoricalImageEmbed
+  | MapEmbed
+  | SiteNavigation
+  | ImageIdentifier
+  | DonationCategory
+  | FamilyLine
   | QuarterlyIssueReference
-  | Township
-  | Location
-  | Person
-  | Category
-  | HistoricalImage
-  | PrimarySource
-  | QuarterlyIssue
-  | QuarterlyArticle
+  | TownshipReference
+  | PropertyReference
+  | BusinessReference
+  | OrganizationReference
+  | ThenAndNow
+  | SanityImageCrop
+  | SanityImageHotspot
+  | Slug
   | ResearchArticle
-  | SiteNavigation;
+  | LocationReference
+  | CategoryReference
+  | QuarterlyArticleReference
+  | ThenAndNowReference
+  | DonationReference
+  | HistoricalImage
+  | DonationCategoryReference
+  | Donation
+  | Geopoint
+  | QuarterlyArticle
+  | SanityFileAssetReference
+  | QuarterlyIssue
+  | Organization
+  | Business
+  | PrimarySourceReference
+  | Deed
+  | PrimarySource
+  | DeedReference
+  | Property
+  | Location
+  | FamilyLineReference
+  | Person
+  | CountyReference
+  | Township
+  | County
+  | Category
+  | GeopointRadius
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset;
 
 // Source: src/lib/catalog.ts
 // Variable: FEATURED_IMAGES_QUERY
@@ -370,11 +1158,12 @@ export type FEATURED_IMAGES_QUERY_RESULT = Array<{
   featuredOnSite: true;
   featuredRank: number | null;
   imageFile: {
-    _type?: "image";
     asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
     alt: string | null;
+    _type: "image";
   } | null;
   township: string | null;
   location: string | null;
@@ -393,11 +1182,12 @@ export type FALLBACK_IMAGES_QUERY_RESULT = Array<{
   featuredOnSite: boolean | null;
   featuredRank: number | null;
   imageFile: {
-    _type?: "image";
     asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
     alt: string | null;
+    _type: "image";
   } | null;
   township: string | null;
   location: string | null;
@@ -430,7 +1220,7 @@ export type SUBJECTS_QUERY_RESULT = Array<{
 
 // Source: src/lib/catalog.ts
 // Variable: IMAGE_BY_ARCHIVE_ID_QUERY
-// Query: *[_type == "historicalImage" && archiveId == $archiveId][0]{			_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	rights	}
+// Query: *[_type == "historicalImage" && archiveId == $archiveId][0]{			_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights	}
 export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -438,7 +1228,6 @@ export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
   description: string | null;
   dateTaken: HistoricalDate | null;
   imageFile: {
-    _type?: "image";
     asset: {
       _id: string;
       metadata: {
@@ -448,9 +1237,11 @@ export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
         } | null;
       } | null;
     } | null;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
     alt: string | null;
+    _type: "image";
   } | null;
   township: string | null;
   location: {
@@ -469,12 +1260,14 @@ export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
     title: string | null;
     slug: string;
   }> | null;
+  photographer: string | null;
+  contributor: string | null;
   rights: string | null;
 } | null;
 
 // Source: src/lib/catalog.ts
 // Variable: IMAGE_STATIC_PATHS_QUERY
-// Query: *[_type == "historicalImage" && defined(archiveId)]{	_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	rights}
+// Query: *[_type == "historicalImage" && defined(archiveId)]{	_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights}
 export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
   _id: string;
   title: string | null;
@@ -482,7 +1275,6 @@ export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
   description: string | null;
   dateTaken: HistoricalDate | null;
   imageFile: {
-    _type?: "image";
     asset: {
       _id: string;
       metadata: {
@@ -492,9 +1284,11 @@ export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
         } | null;
       } | null;
     } | null;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
     alt: string | null;
+    _type: "image";
   } | null;
   township: string | null;
   location: {
@@ -513,6 +1307,8 @@ export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
     title: string | null;
     slug: string;
   }> | null;
+  photographer: string | null;
+  contributor: string | null;
   rights: string | null;
 }>;
 
@@ -534,10 +1330,11 @@ export type DOCUMENTS_PAGE_QUERY_RESULT = {
     year: number | null;
     excerpt: string;
     articleImage: {
-      _type?: "image";
       asset?: SanityImageAssetReference;
-      hotspot?: unknown;
-      crop?: unknown;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
     } | null;
   }>;
 };
@@ -553,28 +1350,32 @@ export type DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT = {
   date: HistoricalDate | null;
   transcription: Array<
     | {
-        _key: string;
-        _type: "block";
-        style?: string;
         children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
           marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
         }>;
-        markDefs?: Array<unknown>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
       }
     | {
         _key: string;
         _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
         historicalImage: {
           _id: string;
           title: string | null;
           archiveId: string | null;
           imageFile: {
-            _type?: "image";
             asset: {
               _id: string;
               metadata: {
@@ -584,15 +1385,19 @@ export type DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT = {
                 } | null;
               } | null;
             } | null;
-            hotspot?: unknown;
-            crop?: unknown;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
             alt: string | null;
+            _type: "image";
           } | null;
         } | null;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
       }
   > | null;
   articleImage: {
-    _type?: "image";
     asset: {
       _id: string;
       metadata: {
@@ -602,8 +1407,10 @@ export type DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT = {
         } | null;
       } | null;
     } | null;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
   } | null;
 } | null;
 
@@ -636,11 +1443,12 @@ export type PERSON_HUB_QUERY_RESULT = {
     archiveId: string | null;
     dateTaken: HistoricalDate | null;
     imageFile: {
-      _type?: "image";
       asset?: SanityImageAssetReference;
-      hotspot?: unknown;
-      crop?: unknown;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
       alt: string | null;
+      _type: "image";
     } | null;
     township: string | null;
   }>;
@@ -685,11 +1493,12 @@ export type LINKED_PEOPLE_PATHS_QUERY_RESULT = Array<{
     archiveId: string | null;
     dateTaken: HistoricalDate | null;
     imageFile: {
-      _type?: "image";
       asset?: SanityImageAssetReference;
-      hotspot?: unknown;
-      crop?: unknown;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
       alt: string | null;
+      _type: "image";
     } | null;
     township: string | null;
   }>;
@@ -750,11 +1559,12 @@ export type PLACE_HUB_QUERY_RESULT =
         archiveId: string | null;
         dateTaken: HistoricalDate | null;
         imageFile: {
-          _type?: "image";
           asset?: SanityImageAssetReference;
-          hotspot?: unknown;
-          crop?: unknown;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
           alt: string | null;
+          _type: "image";
         } | null;
         township: string | null;
       }>;
@@ -782,11 +1592,12 @@ export type PLACE_HUB_QUERY_RESULT =
         archiveId: string | null;
         dateTaken: HistoricalDate | null;
         imageFile: {
-          _type?: "image";
           asset?: SanityImageAssetReference;
-          hotspot?: unknown;
-          crop?: unknown;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
           alt: string | null;
+          _type: "image";
         } | null;
         township: string | null;
       }>;
@@ -820,11 +1631,12 @@ export type PLACE_PATHS_QUERY_RESULT = Array<
         archiveId: string | null;
         dateTaken: HistoricalDate | null;
         imageFile: {
-          _type?: "image";
           asset?: SanityImageAssetReference;
-          hotspot?: unknown;
-          crop?: unknown;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
           alt: string | null;
+          _type: "image";
         } | null;
         township: string | null;
       }>;
@@ -852,11 +1664,12 @@ export type PLACE_PATHS_QUERY_RESULT = Array<
         archiveId: string | null;
         dateTaken: HistoricalDate | null;
         imageFile: {
-          _type?: "image";
           asset?: SanityImageAssetReference;
-          hotspot?: unknown;
-          crop?: unknown;
+          media?: unknown;
+          hotspot?: SanityImageHotspot;
+          crop?: SanityImageCrop;
           alt: string | null;
+          _type: "image";
         } | null;
         township: string | null;
       }>;
@@ -880,12 +1693,13 @@ export type LATEST_QUARTERLY_ISSUE_QUERY_RESULT = {
   _id: string;
   volume: number | null;
   issueNumber: number | null;
-  season: string | null;
+  season: "autumn" | "spring" | "summer" | "winter" | null;
   coverImage: {
-    _type?: "image";
     asset?: SanityImageAssetReference;
-    hotspot?: unknown;
-    crop?: unknown;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
   } | null;
   articles: Array<{
     _id: string;
@@ -903,7 +1717,7 @@ export type QUARTERLY_ISSUES_QUERY_RESULT = Array<{
   _id: string;
   volume: number | null;
   issueNumber: number | null;
-  season: string | null;
+  season: "autumn" | "spring" | "summer" | "winter" | null;
   articles: Array<{
     _id: string;
     title: string | null;
@@ -949,28 +1763,32 @@ export type RESEARCH_BY_SLUG_QUERY_RESULT = {
   title: string | null;
   body: Array<
     | {
-        _key: string;
-        _type: "block";
-        style?: string;
         children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
           marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
         }>;
-        markDefs?: Array<unknown>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
       }
     | {
         _key: string;
         _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
         historicalImage: {
           _id: string;
           title: string | null;
           archiveId: string | null;
           imageFile: {
-            _type?: "image";
             asset: {
               _id: string;
               metadata: {
@@ -980,53 +1798,62 @@ export type RESEARCH_BY_SLUG_QUERY_RESULT = {
                 } | null;
               } | null;
             } | null;
-            hotspot?: unknown;
-            crop?: unknown;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
             alt: string | null;
+            _type: "image";
           } | null;
         } | null;
-      }
-  > | null;
-  notesAndReferences: Array<
-    | {
-        _key: string;
-        _type: "block";
-        style?: string;
-        children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
-          marks?: Array<string>;
-        }>;
-        markDefs?: Array<unknown>;
-      }
-    | {
-        _key: string;
-        _type: "historicalImageEmbed";
+        caption?: string;
         alt?: string;
-        imageRole?: string;
-        historicalImage: {
-          _id: string;
-          title: string | null;
-          archiveId: string | null;
-          imageFile: {
-            _type?: "image";
-            asset: {
-              _id: string;
-              metadata: {
-                dimensions: {
-                  width: number | null;
-                  height: number | null;
-                } | null;
-              } | null;
-            } | null;
-            hotspot?: unknown;
-            crop?: unknown;
-            alt: string | null;
-          } | null;
-        } | null;
+        imageRole?: "aside" | "figure";
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+        _type: "image";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "internalSubLinks";
+        links?: Array<
+          {
+            _key: string;
+          } & ResearchArticleReference
+        >;
+      }
+    | {
+        _key: string;
+        _type: "mapEmbed";
+        mapYear?: string;
+        mapUrl?: string;
       }
   > | null;
+  notesAndReferences: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
 } | null;
 
 // Source: src/lib/research.ts
@@ -1037,28 +1864,32 @@ export type RESEARCH_PATHS_QUERY_RESULT = Array<{
   title: string | null;
   body: Array<
     | {
-        _key: string;
-        _type: "block";
-        style?: string;
         children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
           marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
         }>;
-        markDefs?: Array<unknown>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
       }
     | {
         _key: string;
         _type: "historicalImageEmbed";
-        alt?: string;
-        imageRole?: string;
         historicalImage: {
           _id: string;
           title: string | null;
           archiveId: string | null;
           imageFile: {
-            _type?: "image";
             asset: {
               _id: string;
               metadata: {
@@ -1068,53 +1899,62 @@ export type RESEARCH_PATHS_QUERY_RESULT = Array<{
                 } | null;
               } | null;
             } | null;
-            hotspot?: unknown;
-            crop?: unknown;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
             alt: string | null;
+            _type: "image";
           } | null;
         } | null;
-      }
-  > | null;
-  notesAndReferences: Array<
-    | {
-        _key: string;
-        _type: "block";
-        style?: string;
-        children?: Array<{
-          _key: string;
-          _type: "span";
-          text?: string;
-          marks?: Array<string>;
-        }>;
-        markDefs?: Array<unknown>;
-      }
-    | {
-        _key: string;
-        _type: "historicalImageEmbed";
+        caption?: string;
         alt?: string;
-        imageRole?: string;
-        historicalImage: {
-          _id: string;
-          title: string | null;
-          archiveId: string | null;
-          imageFile: {
-            _type?: "image";
-            asset: {
-              _id: string;
-              metadata: {
-                dimensions: {
-                  width: number | null;
-                  height: number | null;
-                } | null;
-              } | null;
-            } | null;
-            hotspot?: unknown;
-            crop?: unknown;
-            alt: string | null;
-          } | null;
-        } | null;
+        imageRole?: "aside" | "figure";
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+        _type: "image";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "internalSubLinks";
+        links?: Array<
+          {
+            _key: string;
+          } & ResearchArticleReference
+        >;
+      }
+    | {
+        _key: string;
+        _type: "mapEmbed";
+        mapYear?: string;
+        mapUrl?: string;
       }
   > | null;
+  notesAndReferences: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
   slug: string | null;
 }>;
 
@@ -1224,11 +2064,12 @@ export type SUBJECT_HUB_QUERY_RESULT = {
     archiveId: string | null;
     dateTaken: HistoricalDate | null;
     imageFile: {
-      _type?: "image";
       asset?: SanityImageAssetReference;
-      hotspot?: unknown;
-      crop?: unknown;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
       alt: string | null;
+      _type: "image";
     } | null;
     township: string | null;
   }>;
@@ -1259,11 +2100,12 @@ export type SUBJECT_PATHS_QUERY_RESULT = Array<{
     archiveId: string | null;
     dateTaken: HistoricalDate | null;
     imageFile: {
-      _type?: "image";
       asset?: SanityImageAssetReference;
-      hotspot?: unknown;
-      crop?: unknown;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
       alt: string | null;
+      _type: "image";
     } | null;
     township: string | null;
   }>;
@@ -1287,8 +2129,8 @@ declare global {
     '\n\t*[_type == "township"] | order(name asc){_id, name}\n': TOWNSHIPS_QUERY_RESULT;
     '\n\t*[_type == "location"] | order(name asc){_id, name}\n': LOCATIONS_QUERY_RESULT;
     '\n\t*[_type == "category"] | order(title asc){_id, title}\n': SUBJECTS_QUERY_RESULT;
-    '\n\t*[_type == "historicalImage" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\trights\n\n\t}\n': IMAGE_BY_ARCHIVE_ID_QUERY_RESULT;
-    '\n\t*[_type == "historicalImage" && defined(archiveId)]{\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\trights\n}\n': IMAGE_STATIC_PATHS_QUERY_RESULT;
+    '\n\t*[_type == "historicalImage" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights\n\n\t}\n': IMAGE_BY_ARCHIVE_ID_QUERY_RESULT;
+    '\n\t*[_type == "historicalImage" && defined(archiveId)]{\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights\n}\n': IMAGE_STATIC_PATHS_QUERY_RESULT;
     '\n\tcount(*[_type == "historicalImage" && defined(imageFile.asset)])\n': IMAGE_CATALOG_TOTAL_QUERY_RESULT;
     '{\n\t"total": count(*[_type == "primarySource"]),\n\t"documents": *[_type == "primarySource"] | order(title asc)[0...24]{\n\t\t\n\t_id, title, archiveId, newspaper, "year": date.year,\n\t"excerpt": pt::text(transcription),\n\tarticleImage\n\n\t}\n}': DOCUMENTS_PAGE_QUERY_RESULT;
     '\n\t*[_type == "primarySource" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, newspaper, date,\n\t"transcription": transcription\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\tarticleImage {\n\t\t...,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t}\n\n\t}\n': DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT;

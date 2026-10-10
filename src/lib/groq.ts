@@ -88,6 +88,8 @@ export const IMAGE_DETAIL_PROJECTION = /* groq */ `
 	"location": location->{_id, name, "slug": ${ENTITY_SLUG}},
 	"people": people[]->{_id, firstName, lastName, "slug": ${ENTITY_SLUG}},
 	"subjects": subjects[]->{_id, title, "slug": ${ENTITY_SLUG}},
+	photographer,
+	contributor,
 	rights
 `
 

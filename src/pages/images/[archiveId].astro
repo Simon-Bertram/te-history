@@ -75,6 +75,18 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 				</dd>
 			</div>
 		) : null}
+		{image.photographer ? (
+			<div>
+				<dt class="text-on-surface-variant">Photographer</dt>
+				<dd>{image.photographer}</dd>
+			</div>
+		) : null}
+		{image.contributor ? (
+			<div>
+				<dt class="text-on-surface-variant">Contributor</dt>
+				<dd>{image.contributor}</dd>
+			</div>
+		) : null}
 		{image.rights ? (
 			<div>
 				<dt class="text-on-surface-variant">Rights</dt>
