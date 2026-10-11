@@ -21,6 +21,38 @@ type ArrayOf<T> = Array<
 >;
 
 // Source: schema.json
+export type Table = {
+  _type: "table";
+  headerRows?: number;
+  rows?: Array<{
+    cells?: Array<{
+      value?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      _type: "cell";
+      _key: string;
+    }>;
+    _type: "row";
+    _key: string;
+  }>;
+};
+
 export type PageBreak = {
   _type: "pageBreak";
   pageNumber?: string;
@@ -386,6 +418,9 @@ export type ResearchArticle = {
     | ({
         _key: string;
       } & InternalSubLinks)
+    | ({
+        _key: string;
+      } & Table)
   >;
   notesAndReferences?: Array<{
     children?: Array<{
@@ -811,6 +846,9 @@ export type PrimarySource = {
     | ({
         _key: string;
       } & HistoricalImageEmbed)
+    | ({
+        _key: string;
+      } & Table)
   >;
   isSheriffSale?: boolean;
   legalWrit?: "fieriFacias" | "levariFacias" | "venditioniExponas";
@@ -1084,6 +1122,7 @@ export type SanityImageAsset = {
 };
 
 export type AllSanitySchemaTypes =
+  | Table
   | PageBreak
   | PersonReference
   | ImmediateRelative
@@ -1395,6 +1434,45 @@ export type DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT = {
         caption?: string;
         alt?: string;
         imageRole?: "aside" | "figure";
+      }
+    | {
+        _key: string;
+        _type: "table";
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
+            _key: string;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
       }
   > | null;
   articleImage: {
@@ -1835,6 +1913,45 @@ export type RESEARCH_BY_SLUG_QUERY_RESULT = {
         mapYear?: string;
         mapUrl?: string;
       }
+    | {
+        _key: string;
+        _type: "table";
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
+            _key: string;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
+      }
   > | null;
   notesAndReferences: Array<{
     children?: Array<{
@@ -1935,6 +2052,45 @@ export type RESEARCH_PATHS_QUERY_RESULT = Array<{
         _type: "mapEmbed";
         mapYear?: string;
         mapUrl?: string;
+      }
+    | {
+        _key: string;
+        _type: "table";
+        headerRows?: number;
+        rows?: Array<{
+          cells?: Array<{
+            value?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?:
+                | "blockquote"
+                | "h1"
+                | "h2"
+                | "h3"
+                | "h4"
+                | "h5"
+                | "h6"
+                | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+            _type: "cell";
+            _key: string;
+          }>;
+          _type: "row";
+          _key: string;
+        }>;
       }
   > | null;
   notesAndReferences: Array<{
