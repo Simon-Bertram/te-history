@@ -9,6 +9,7 @@ import {
 	getFilteredImages,
 	getHighlightImages,
 	getLocations,
+	getPhotographers,
 	getSubjects,
 	getTownships,
 } from '../../lib/catalog'
@@ -27,18 +28,22 @@ const township = params.get('township') ?? ''
 const location = params.get('location') ?? ''
 const subject = params.get('subject') ?? ''
 const decade = params.get('decade') ?? ''
+const photographer = params.get('photographer') ?? ''
 const sort = params.get('sort') ?? ''
 const all = params.get('all') === '1'
 const page = parsePage(params.get('page') ?? undefined)
 const hasCustomSort = Boolean(sort) && sort !== 'date-desc'
-const hasFilters = Boolean(q || township || location || subject || decade || hasCustomSort || all)
+const hasFilters = Boolean(
+	q || township || location || subject || decade || photographer || hasCustomSort || all,
+)
 
-const [townships, locations, subjects, filtered, highlights] = await Promise.all([
+const [townships, locations, subjects, photographers, filtered, highlights] = await Promise.all([
 	getTownships(),
 	getLocations(),
 	getSubjects(),
+	getPhotographers(),
 	hasFilters
-		? getFilteredImages({q, township, location, subject, decade, sort, page})
+		? getFilteredImages({q, township, location, subject, decade, photographer, sort, page})
 		: Promise.resolve(null),
 	hasFilters ? Promise.resolve([]) : getHighlightImages(IMAGES_PAGE_SIZE),
 ])
@@ -75,7 +80,9 @@ const resultsSummary = hasFilters
 		townships={townships ?? []}
 		subjects={subjects ?? []}
 		locations={locations ?? []}
+		photographers={photographers ?? []}
 		showPlace
+		showPhotographer
 		showSort
 	/>
 

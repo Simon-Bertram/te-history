@@ -29,8 +29,8 @@ Fetch with `sanityClient` from `sanity:client`. Catalog routes keep `export cons
 Filters are GET query params, not client cache libraries.
 
 - Search: `GET /search?q=` (header form posts here)
-- Images: `GET /images?q=&township=&location=&subject=&decade=&sort=&page=&all=`
-- Documents: same facet pattern on `/documents`
+- Images: `GET /images?q=&township=&location=&subject=&decade=&photographer=&sort=&page=&all=`
+- Documents: same facet pattern on `/documents` (no photographer)
 
 Do not add TanStack Query, SWR, or a React search island unless header typeahead starts issuing many overlapping client requests.
 
@@ -42,7 +42,7 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `D
 
 | Type | Typical filters |
 | --- | --- |
-| `historicalImage` | `defined(imageFile.asset)`; facets via township/location/subject refs and `dateTaken.year` |
+| `historicalImage` | `defined(imageFile.asset)`; facets via township/location/subject refs, `dateTaken.year`, and string `photographer` (`unattributed` sentinel for empty) |
 | `primarySource` | documents by `archiveId` |
 | `quarterlyIssue` / `quarterlyArticle` | issue order `volume desc, issueNumber desc` |
 | `researchArticle` | `defined(slug.current)` |

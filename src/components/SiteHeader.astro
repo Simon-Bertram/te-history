@@ -56,6 +56,24 @@ const {links, showSearch, searchAction} = Astro.props
 	</nav>
 </header>
 
+<noscript>
+	<style>
+		@media (width < 64rem) {
+			.site-menu {
+				position: static;
+				opacity: 1;
+				pointer-events: auto;
+				transform: none;
+				box-shadow: none;
+			}
+
+			.menu-toggle {
+				display: none;
+			}
+		}
+	</style>
+</noscript>
+
 <script>
 	const header = document.querySelector<HTMLElement>('.site-header')
 	const toggle = document.querySelector<HTMLButtonElement>('#menu-toggle')
@@ -138,18 +156,6 @@ const {links, showSearch, searchAction} = Astro.props
 			opacity: 1;
 			pointer-events: auto;
 			transform: none;
-		}
-
-		:global(html.no-js) .site-menu {
-			position: static;
-			opacity: 1;
-			pointer-events: auto;
-			transform: none;
-			box-shadow: none;
-		}
-
-		:global(html.no-js) .menu-toggle {
-			display: none;
 		}
 	}
 

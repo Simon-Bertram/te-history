@@ -1,4 +1,5 @@
 ---
+import {Font} from 'astro:assets'
 import '../styles/global.css'
 import ExploreFooter from '../components/ExploreFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
@@ -37,9 +38,8 @@ const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 ---
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="en">
 	<head>
-		<script is:inline>document.documentElement.classList.remove('no-js')</script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -59,6 +59,8 @@ const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 		{description ? <meta name="twitter:description" content={description} /> : null}
 		{absoluteOgImage ? <meta name="twitter:image" content={absoluteOgImage} /> : null}
 		<title>{title}</title>
+		<Font cssVariable="--font-public-sans" preload />
+		<Font cssVariable="--font-newsreader" preload />
 	</head>
 	<body class="flex min-h-full flex-col">
 		<a

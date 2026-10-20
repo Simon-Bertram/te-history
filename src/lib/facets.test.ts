@@ -1,11 +1,37 @@
 import {describe, expect, test} from 'bun:test'
 
-import {buildFacetQuery, pageSlice} from './facets'
+import {
+	UNATTRIBUTED_PHOTOGRAPHER,
+	buildFacetQuery,
+	normalizePhotographerNames,
+	pageSlice,
+} from './facets'
 
 describe('pageSlice', () => {
 	test('uses exclusive GROQ end indexes', () => {
 		expect(pageSlice(1, 24)).toEqual({start: 0, end: 24})
 		expect(pageSlice(2, 24)).toEqual({start: 24, end: 48})
+	})
+})
+
+describe('normalizePhotographerNames', () => {
+	test('dedupes case-insensitively and prefers the most common casing', () => {
+		expect(
+			normalizePhotographerNames([
+				'john doe',
+				'John Doe',
+				'John Doe',
+				'  Jane Smith  ',
+				'jane smith',
+				'',
+				null,
+				undefined,
+			]),
+		).toEqual(['Jane Smith', 'John Doe'])
+	})
+
+	test('breaks casing ties alphabetically', () => {
+		expect(normalizePhotographerNames(['alpha', 'Alpha'])).toEqual(['Alpha'])
 	})
 })
 
@@ -56,9 +82,49 @@ describe('buildFacetQuery', () => {
 		expect(documents.filter).not.toContain('dateTaken.year')
 	})
 
-	test('ignores blank query, invalid decade, and location unless opted in', () => {
+	test('matches photographer case-insensitively when opted in', () => {
 		const images = buildFacetQuery(
-			{q: '   ', location: 'loc-1', decade: 'nineteen', page: 0},
+			{photographer: 'John Doe'},
+			{
+				type: 'historicalImage',
+				qFields: ['title'],
+				yearField: 'dateTaken.year',
+				includePhotographer: true,
+				pageSize: 24,
+			},
+		)
+		expect(images.filter).toContain(
+			'defined(photographer) && lower(trim(photographer)) == $photographerKey',
+		)
+		expect(images.groqParams).toEqual({photographerKey: 'john doe'})
+	})
+
+	test('filters unattributed photographers when opted in', () => {
+		const images = buildFacetQuery(
+			{photographer: UNATTRIBUTED_PHOTOGRAPHER},
+			{
+				type: 'historicalImage',
+				qFields: ['title'],
+				yearField: 'dateTaken.year',
+				includePhotographer: true,
+				pageSize: 24,
+			},
+		)
+		expect(images.filter).toContain(
+			'(!defined(photographer) || length(trim(photographer)) == 0)',
+		)
+		expect(images.groqParams).toEqual({})
+	})
+
+	test('ignores blank query, invalid decade, location, and photographer unless opted in', () => {
+		const images = buildFacetQuery(
+			{
+				q: '   ',
+				location: 'loc-1',
+				decade: 'nineteen',
+				photographer: 'John Doe',
+				page: 0,
+			},
 			{
 				type: 'historicalImage',
 				qFields: ['title'],
@@ -70,5 +136,6 @@ describe('buildFacetQuery', () => {
 		expect(images.filter).toBe('_type == "historicalImage"')
 		expect(images.groqParams).toEqual({})
 		expect(images.filter).not.toContain('location._ref')
+		expect(images.filter).not.toContain('photographer')
 	})
 })

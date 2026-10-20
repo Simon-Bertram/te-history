@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
 
@@ -19,6 +19,29 @@ const apiVersion = env.PUBLIC_SANITY_API_VERSION || '2026-01-01';
 export default defineConfig({
   site,
   output: 'static',
+  build: {
+    inlineStylesheets: 'always',
+  },
+  fonts: [
+    {
+      name: 'Newsreader',
+      cssVariable: '--font-newsreader',
+      provider: fontProviders.google(),
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+      display: 'swap',
+    },
+    {
+      name: 'Public Sans',
+      cssVariable: '--font-public-sans',
+      provider: fontProviders.google(),
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin'],
+      display: 'swap',
+    },
+  ],
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {

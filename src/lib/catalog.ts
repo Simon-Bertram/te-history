@@ -7,7 +7,7 @@ import type {
 	SUBJECTS_QUERY_RESULT,
 	TOWNSHIPS_QUERY_RESULT,
 } from '../../sanity.types'
-import {buildFacetQuery} from './facets'
+import {buildFacetQuery, normalizePhotographerNames} from './facets'
 import {IMAGE_DETAIL_PROJECTION, IMAGE_PROJECTION} from './groq'
 import {archiveIdStaticPaths} from './href'
 import type {CatalogImage} from './imageHighlights'
@@ -52,6 +52,14 @@ export const SUBJECTS_QUERY = defineQuery(/* groq */ `
 	*[_type == "category"] | order(title asc){_id, title}
 `)
 
+export const PHOTOGRAPHERS_QUERY = defineQuery(/* groq */ `
+	*[_type == "historicalImage"
+		&& defined(imageFile.asset)
+		&& defined(photographer)
+		&& length(trim(photographer)) > 0
+	].photographer
+`)
+
 export const IMAGE_BY_ARCHIVE_ID_QUERY = defineQuery(/* groq */ `
 	*[_type == "historicalImage" && archiveId == $archiveId][0]{
 		${IMAGE_DETAIL_PROJECTION}
@@ -91,6 +99,7 @@ export interface ImageFacetParams {
 	location?: string
 	subject?: string
 	decade?: string
+	photographer?: string
 	sort?: string
 	page?: number
 }
@@ -108,6 +117,7 @@ export async function getFilteredImages(params: ImageFacetParams): Promise<{
 		qFields: ['title', 'archiveId', 'description'],
 		yearField: 'dateTaken.year',
 		includeLocation: true,
+		includePhotographer: true,
 		pageSize: IMAGES_PAGE_SIZE,
 	})
 	// @sanity-typegen-ignore — facet filters are interpolated at runtime
@@ -150,4 +160,9 @@ export async function getLocations(): Promise<LocationOption[]> {
 export async function getSubjects(): Promise<SubjectOption[]> {
 	const items = await sanityClient.fetch(SUBJECTS_QUERY)
 	return sortSubjectsDemoteFuzzy(items ?? [])
+}
+
+export async function getPhotographers(): Promise<string[]> {
+	const items = await sanityClient.fetch(PHOTOGRAPHERS_QUERY)
+	return normalizePhotographerNames(items ?? [])
 }

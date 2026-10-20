@@ -1,35 +1,42 @@
 ---
 import type {LocationOption, SubjectOption, TownshipOption} from '../lib/catalog'
+import {UNATTRIBUTED_PHOTOGRAPHER} from '../lib/facets'
 import {DECADE_STARTS} from '../lib/limits'
 
 interface Props {
 	townships: TownshipOption[]
 	subjects: SubjectOption[]
 	locations?: LocationOption[]
+	photographers?: string[]
 	action?: string
 	showPlace?: boolean
 	showDecade?: boolean
 	showSort?: boolean
+	showPhotographer?: boolean
 }
 
 const {
 	townships,
 	subjects,
 	locations = [],
+	photographers = [],
 	action = '/images',
 	showPlace = false,
 	showDecade = true,
 	showSort = false,
+	showPhotographer = false,
 } = Astro.props
 const q = Astro.url.searchParams.get('q') ?? ''
 const township = Astro.url.searchParams.get('township') ?? ''
 const location = Astro.url.searchParams.get('location') ?? ''
 const subject = Astro.url.searchParams.get('subject') ?? ''
 const decade = Astro.url.searchParams.get('decade') ?? ''
+const photographer = Astro.url.searchParams.get('photographer') ?? ''
 const sort = Astro.url.searchParams.get('sort') ?? 'date-desc'
 const inputClass =
 	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
-const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).length + 1
+const columns =
+	[true, showPlace, true, showDecade, showPhotographer, showSort].filter(Boolean).length + 1
 ---
 
 <form
@@ -92,6 +99,30 @@ const columns = [true, showPlace, true, showDecade, showSort].filter(Boolean).le
 							{year}s
 						</option>
 					))}
+				</select>
+			</label>
+		) : null
+	}
+	{
+		showPhotographer ? (
+			<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+				Photographer
+				<select class={inputClass} name="photographer">
+					<option value="">All photographers</option>
+					{photographers.map((name) => (
+						<option
+							value={name}
+							selected={photographer.toLowerCase() === name.toLowerCase()}
+						>
+							{name}
+						</option>
+					))}
+					<option
+						value={UNATTRIBUTED_PHOTOGRAPHER}
+						selected={photographer === UNATTRIBUTED_PHOTOGRAPHER}
+					>
+						Unattributed
+					</option>
 				</select>
 			</label>
 		) : null
