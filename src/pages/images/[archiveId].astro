@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro'
+import PortableTextBody from '../../components/PortableTextBody.astro'
 import {getImageStaticPaths} from '../../lib/catalog'
 import {hrefFor} from '../../lib/href'
 import {catalogImageAlt} from '../../lib/imageAlt'
@@ -91,6 +92,16 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 			<div>
 				<dt class="text-on-surface-variant">Rights</dt>
 				<dd>{image.rights}</dd>
+			</div>
+		) : null}
+		{image.references?.length ? (
+			<div>
+				<dt class="text-on-surface-variant">References</dt>
+				<dd>
+					<div class="prose font-sans">
+						<PortableTextBody value={image.references} />
+					</div>
+				</dd>
 			</div>
 		) : null}
 	</dl>

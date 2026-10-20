@@ -90,7 +90,8 @@ export const IMAGE_DETAIL_PROJECTION = /* groq */ `
 	"subjects": subjects[]->{_id, title, "slug": ${ENTITY_SLUG}},
 	photographer,
 	contributor,
-	rights
+	rights,
+	references
 `
 
 export const DOCUMENT_DETAIL_PROJECTION = /* groq */ `

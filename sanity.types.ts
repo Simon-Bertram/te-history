@@ -1259,7 +1259,7 @@ export type SUBJECTS_QUERY_RESULT = Array<{
 
 // Source: src/lib/catalog.ts
 // Variable: IMAGE_BY_ARCHIVE_ID_QUERY
-// Query: *[_type == "historicalImage" && archiveId == $archiveId][0]{			_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights	}
+// Query: *[_type == "historicalImage" && archiveId == $archiveId][0]{			_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights,	references	}
 export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -1302,11 +1302,29 @@ export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
   photographer: string | null;
   contributor: string | null;
   rights: string | null;
+  references: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
 } | null;
 
 // Source: src/lib/catalog.ts
 // Variable: IMAGE_STATIC_PATHS_QUERY
-// Query: *[_type == "historicalImage" && defined(archiveId)]{	_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights}
+// Query: *[_type == "historicalImage" && defined(archiveId)]{	_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights,	references}
 export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
   _id: string;
   title: string | null;
@@ -1349,6 +1367,24 @@ export type IMAGE_STATIC_PATHS_QUERY_RESULT = Array<{
   photographer: string | null;
   contributor: string | null;
   rights: string | null;
+  references: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
 }>;
 
 // Source: src/lib/catalog.ts
@@ -2285,8 +2321,8 @@ declare global {
     '\n\t*[_type == "township"] | order(name asc){_id, name}\n': TOWNSHIPS_QUERY_RESULT;
     '\n\t*[_type == "location"] | order(name asc){_id, name}\n': LOCATIONS_QUERY_RESULT;
     '\n\t*[_type == "category"] | order(title asc){_id, title}\n': SUBJECTS_QUERY_RESULT;
-    '\n\t*[_type == "historicalImage" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights\n\n\t}\n': IMAGE_BY_ARCHIVE_ID_QUERY_RESULT;
-    '\n\t*[_type == "historicalImage" && defined(archiveId)]{\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights\n}\n': IMAGE_STATIC_PATHS_QUERY_RESULT;
+    '\n\t*[_type == "historicalImage" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights,\n\treferences\n\n\t}\n': IMAGE_BY_ARCHIVE_ID_QUERY_RESULT;
+    '\n\t*[_type == "historicalImage" && defined(archiveId)]{\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights,\n\treferences\n}\n': IMAGE_STATIC_PATHS_QUERY_RESULT;
     '\n\tcount(*[_type == "historicalImage" && defined(imageFile.asset)])\n': IMAGE_CATALOG_TOTAL_QUERY_RESULT;
     '{\n\t"total": count(*[_type == "primarySource"]),\n\t"documents": *[_type == "primarySource"] | order(title asc)[0...24]{\n\t\t\n\t_id, title, archiveId, newspaper, "year": date.year,\n\t"excerpt": pt::text(transcription),\n\tarticleImage\n\n\t}\n}': DOCUMENTS_PAGE_QUERY_RESULT;
     '\n\t*[_type == "primarySource" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, newspaper, date,\n\t"transcription": transcription\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\tarticleImage {\n\t\t...,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t}\n\n\t}\n': DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT;
