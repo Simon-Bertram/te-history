@@ -94,7 +94,7 @@ describe('buildFacetQuery', () => {
 			},
 		)
 		expect(images.filter).toContain(
-			'defined(photographer) && lower(trim(photographer)) == $photographerKey',
+			'defined(photographer) && lower(photographer) == $photographerKey',
 		)
 		expect(images.groqParams).toEqual({photographerKey: 'john doe'})
 	})
@@ -111,7 +111,7 @@ describe('buildFacetQuery', () => {
 			},
 		)
 		expect(images.filter).toContain(
-			'(!defined(photographer) || length(trim(photographer)) == 0)',
+			'(!defined(photographer) || photographer == "")',
 		)
 		expect(images.groqParams).toEqual({})
 	})

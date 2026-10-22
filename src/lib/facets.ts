@@ -93,9 +93,9 @@ export function buildFacetQuery(params: FacetParams, options: FacetBuildOptions)
 	if (options.includePhotographer && params.photographer?.trim()) {
 		const photographer = params.photographer.trim()
 		if (photographer === UNATTRIBUTED_PHOTOGRAPHER) {
-			filters.push('(!defined(photographer) || length(trim(photographer)) == 0)')
+			filters.push('(!defined(photographer) || photographer == "")')
 		} else {
-			filters.push('defined(photographer) && lower(trim(photographer)) == $photographerKey')
+			filters.push('defined(photographer) && lower(photographer) == $photographerKey')
 			groqParams.photographerKey = photographer.toLowerCase()
 		}
 	}

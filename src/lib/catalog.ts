@@ -56,7 +56,7 @@ export const PHOTOGRAPHERS_QUERY = defineQuery(/* groq */ `
 	*[_type == "historicalImage"
 		&& defined(imageFile.asset)
 		&& defined(photographer)
-		&& length(trim(photographer)) > 0
+		&& photographer != ""
 	].photographer
 `)
 
