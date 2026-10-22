@@ -63,6 +63,6 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `D
 | `/images`, `/images/[archiveId]` | `catalog.ts` |
 | `/documents`, `/documents/[archiveId]` | `documents.ts` |
 | `/search` | `searchCatalog` |
-| `/people`, `/places`, `/research`, `/subjects`, `/quarterly` | `people.ts`, `places.ts`, `research.ts`, `subjects.ts`, `quarterly.ts` |
+| `/people`, `/places`, `/research`, `/subjects`, `/quarterly`, `/quarterly/[slug]` | `people.ts`, `places.ts`, `research.ts`, `subjects.ts`, `quarterly.ts` |
 
 Images: `urlFor` from `src/lib/imageUrl.ts`. Portable Text: `astro-portabletext` on research and document detail pages (`portable-text-serialization` skill for custom components).

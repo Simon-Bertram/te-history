@@ -16,8 +16,8 @@ describe('hrefFor', () => {
 		expect(hrefFor({_type: 'researchArticle', slug: 'my-people-the-sioux'})).toBe(
 			'/research/my-people-the-sioux',
 		)
-		expect(hrefFor({_type: 'quarterlyArticle', sourceUrl: 'https://tehistory.org/q'})).toBe(
-			'https://tehistory.org/q',
+		expect(hrefFor({_type: 'quarterlyArticle', slug: 'five-boys-eat-apple-dumplings'})).toBe(
+			'/quarterly/five-boys-eat-apple-dumplings',
 		)
 		expect(hrefFor({_type: 'person', slug: 'croasdale-john', _id: 'p1'})).toBe(
 			'/people/croasdale-john',

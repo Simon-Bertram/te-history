@@ -14,8 +14,8 @@ export const SEARCH_CATALOG_QUERY = defineQuery(/* groq */ `{
 	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, archiveId, newspaper
 	},
-	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
-		_id, _type, title, sourceUrl, sourceKey
+	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact || slug.current match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
+		_id, _type, title, "slug": slug.current, sourceKey
 	},
 	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...${SEARCH_RESULT_LIMIT}]{
 		_id, _type, title, "slug": slug.current, archiveId

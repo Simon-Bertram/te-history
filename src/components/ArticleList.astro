@@ -5,7 +5,7 @@ export interface ArticleListItem {
 	title?: string | null
 	_type?: string | null
 	slug?: string | null
-	sourceUrl?: string | null
+	_id?: string | null
 	authorText?: string | null
 }
 
@@ -17,9 +17,11 @@ interface Props {
 const {items, heading} = Astro.props
 
 function itemHref(item: ArticleListItem): string | undefined {
-	const type = item._type ?? (item.slug ? 'researchArticle' : item.sourceUrl ? 'quarterlyArticle' : '')
+	const type =
+		item._type ??
+		(item.slug ? 'researchArticle' : '')
 	if (!type) return undefined
-	const href = hrefFor({_type: type, slug: item.slug, sourceUrl: item.sourceUrl}, '')
+	const href = hrefFor({_type: type, slug: item.slug, _id: item._id ?? undefined}, '')
 	return href || undefined
 }
 ---

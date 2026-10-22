@@ -115,7 +115,7 @@ export const PERSON_HUB_PROJECTION = /* groq */ `
 		${HUB_DOCUMENT_PROJECTION}
 	},
 	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
-		_id, _type, title, "slug": slug.current, sourceUrl
+		_id, _type, title, "slug": slug.current
 	}
 `
 
@@ -144,6 +144,6 @@ export const SUBJECT_HUB_PROJECTION = /* groq */ `
 		${HUB_DOCUMENT_PROJECTION}
 	},
 	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
-		_id, title, sourceUrl
+		_id, title, "slug": slug.current
 	}
 `

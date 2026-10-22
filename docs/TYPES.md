@@ -52,7 +52,7 @@ Pages import readable names from lib, not raw `*_QUERY_RESULT` types.
 | `SubjectHubListItem`, `SubjectHub` | [`subjects.ts`](../src/lib/subjects.ts) |
 | `DocumentsPage`, `DocumentDetail` | [`documents.ts`](../src/lib/documents.ts) |
 | `ImageDetail` | [`catalog.ts`](../src/lib/catalog.ts) |
-| `LatestQuarterlyIssue`, `QuarterlyIssueListItem` | [`quarterly.ts`](../src/lib/quarterly.ts) |
+| `LatestQuarterlyIssue`, `QuarterlyIssueListItem`, `QuarterlyArticleDetail` | [`quarterly.ts`](../src/lib/quarterly.ts) |
 | `FeaturedResearchArticle`, `ResearchListItem`, `ResearchArticleDetail` | [`research.ts`](../src/lib/research.ts) |
 
 Useful TypeScript:

@@ -579,6 +579,7 @@ export type QuarterlyArticle = {
   _updatedAt: string;
   _rev: string;
   title?: string;
+  slug?: Slug;
   authorText?: string;
   issueRef?: QuarterlyIssueReference;
   startPage?: number;
@@ -1258,6 +1259,11 @@ export type SUBJECTS_QUERY_RESULT = Array<{
 }>;
 
 // Source: src/lib/catalog.ts
+// Variable: PHOTOGRAPHERS_QUERY
+// Query: *[_type == "historicalImage"		&& defined(imageFile.asset)		&& defined(photographer)		&& photographer != ""	].photographer
+export type PHOTOGRAPHERS_QUERY_RESULT = Array<string | null>;
+
+// Source: src/lib/catalog.ts
 // Variable: IMAGE_BY_ARCHIVE_ID_QUERY
 // Query: *[_type == "historicalImage" && archiveId == $archiveId][0]{			_id, title, archiveId, description, dateTaken,	imageFile {		...,		alt,			asset->{		_id,		metadata { dimensions { width, height } }	}	},	"township": township->name,	"location": location->{_id, name, "slug": coalesce(slug.current, _id)},	"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},	"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},	photographer,	contributor,	rights,	references	}
 export type IMAGE_BY_ARCHIVE_ID_QUERY_RESULT = {
@@ -1541,7 +1547,7 @@ export type LINKED_PEOPLE_QUERY_RESULT = Array<{
 
 // Source: src/lib/people.ts
 // Variable: PERSON_HUB_QUERY
-// Query: *[_type == "person" && (_id == $slug || slug.current == $slug)][0]{			_id, firstName, lastName, "slug": coalesce(slug.current, _id),	"born": born.year, "died": died.year,	"hasPublicLink": 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{		_id, _type, title, "slug": slug.current, sourceUrl	}	}
+// Query: *[_type == "person" && (_id == $slug || slug.current == $slug)][0]{			_id, firstName, lastName, "slug": coalesce(slug.current, _id),	"born": born.year, "died": died.year,	"hasPublicLink": 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{		_id, _type, title, "slug": slug.current	}	}
 export type PERSON_HUB_QUERY_RESULT = {
   _id: string;
   firstName: string | null;
@@ -1576,22 +1582,20 @@ export type PERSON_HUB_QUERY_RESULT = {
         _id: string;
         _type: "quarterlyArticle";
         title: string | null;
-        slug: null;
-        sourceUrl: string | null;
+        slug: string | null;
       }
     | {
         _id: string;
         _type: "researchArticle";
         title: string | null;
         slug: string | null;
-        sourceUrl: null;
       }
   >;
 } | null;
 
 // Source: src/lib/people.ts
 // Variable: LINKED_PEOPLE_PATHS_QUERY
-// Query: *[_type == "person" && 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)]{	_id, firstName, lastName, "slug": coalesce(slug.current, _id),	"born": born.year, "died": died.year,	"hasPublicLink": 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{		_id, _type, title, "slug": slug.current, sourceUrl	}}
+// Query: *[_type == "person" && 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)]{	_id, firstName, lastName, "slug": coalesce(slug.current, _id),	"born": born.year, "died": died.year,	"hasPublicLink": 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{		_id, _type, title, "slug": slug.current	}}
 export type LINKED_PEOPLE_PATHS_QUERY_RESULT = Array<{
   _id: string;
   firstName: string | null;
@@ -1626,15 +1630,13 @@ export type LINKED_PEOPLE_PATHS_QUERY_RESULT = Array<{
         _id: string;
         _type: "quarterlyArticle";
         title: string | null;
-        slug: null;
-        sourceUrl: string | null;
+        slug: string | null;
       }
     | {
         _id: string;
         _type: "researchArticle";
         title: string | null;
         slug: string | null;
-        sourceUrl: null;
       }
   >;
 }>;
@@ -1802,7 +1804,7 @@ export type PLACE_PATHS_QUERY_RESULT = Array<
 
 // Source: src/lib/quarterly.ts
 // Variable: LATEST_QUARTERLY_ISSUE_QUERY
-// Query: *[_type == "quarterlyIssue" && count(*[_type == "quarterlyArticle" && issueRef._ref == ^._id]) > 0] | order(volume desc, issueNumber desc)[0]{		_id,		volume,		issueNumber,		season,		coverImage,		"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc)[0...8]{			_id, title, authorText, startPage, sourceUrl		}	}
+// Query: *[_type == "quarterlyIssue" && count(*[_type == "quarterlyArticle" && issueRef._ref == ^._id]) > 0] | order(volume desc, issueNumber desc)[0]{		_id,		volume,		issueNumber,		season,		coverImage,		"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc)[0...8]{				_id, title, authorText, startPage, "slug": slug.current		}	}
 export type LATEST_QUARTERLY_ISSUE_QUERY_RESULT = {
   _id: string;
   volume: number | null;
@@ -1820,13 +1822,13 @@ export type LATEST_QUARTERLY_ISSUE_QUERY_RESULT = {
     title: string | null;
     authorText: string | null;
     startPage: number | null;
-    sourceUrl: string | null;
+    slug: string | null;
   }>;
 } | null;
 
 // Source: src/lib/quarterly.ts
 // Variable: QUARTERLY_ISSUES_QUERY
-// Query: *[_type == "quarterlyIssue"] | order(volume desc, issueNumber desc){		_id, volume, issueNumber, season,		"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc){			_id, title, authorText, startPage, sourceUrl		}	}
+// Query: *[_type == "quarterlyIssue"] | order(volume desc, issueNumber desc){		_id, volume, issueNumber, season,		"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc){				_id, title, authorText, startPage, "slug": slug.current		}	}
 export type QUARTERLY_ISSUES_QUERY_RESULT = Array<{
   _id: string;
   volume: number | null;
@@ -1837,8 +1839,210 @@ export type QUARTERLY_ISSUES_QUERY_RESULT = Array<{
     title: string | null;
     authorText: string | null;
     startPage: number | null;
-    sourceUrl: string | null;
+    slug: string | null;
   }>;
+}>;
+
+// Source: src/lib/quarterly.ts
+// Variable: QUARTERLY_ARTICLE_BY_SLUG_QUERY
+// Query: *[_type == "quarterlyArticle" && slug.current == $slug][0]{			_id,	title,	authorText,	startPage,	endPage,	summary,	"slug": slug.current,	"issue": issueRef->{volume, issueNumber, season},	"body": body	[]{		...,		_type == "historicalImageEmbed" => {			...,			historicalImage->{				_id,				title,				archiveId,				imageFile {					...,					alt,						asset->{		_id,		metadata { dimensions { width, height } }	}				}			}		}	},	"notesAndReferences": notesAndReferences	[]{		...,		_type == "historicalImageEmbed" => {			...,			historicalImage->{				_id,				title,				archiveId,				imageFile {					...,					alt,						asset->{		_id,		metadata { dimensions { width, height } }	}				}			}		}	}	}
+export type QUARTERLY_ARTICLE_BY_SLUG_QUERY_RESULT = {
+  _id: string;
+  title: string | null;
+  authorText: string | null;
+  startPage: number | null;
+  endPage: number | null;
+  summary: string | null;
+  slug: string | null;
+  issue: {
+    volume: number | null;
+    issueNumber: number | null;
+    season: "autumn" | "spring" | "summer" | "winter" | null;
+  } | null;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "historicalImageEmbed";
+        historicalImage: {
+          _id: string;
+          title: string | null;
+          archiveId: string | null;
+          imageFile: {
+            asset: {
+              _id: string;
+              metadata: {
+                dimensions: {
+                  width: number | null;
+                  height: number | null;
+                } | null;
+              } | null;
+            } | null;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
+            alt: string | null;
+            _type: "image";
+          } | null;
+        } | null;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+        _type: "image";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "pageBreak";
+        pageNumber?: string;
+      }
+  > | null;
+  notesAndReferences: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+} | null;
+
+// Source: src/lib/quarterly.ts
+// Variable: QUARTERLY_ARTICLE_PATHS_QUERY
+// Query: *[_type == "quarterlyArticle" && defined(slug.current)]{			_id,	title,	authorText,	startPage,	endPage,	summary,	"slug": slug.current,	"issue": issueRef->{volume, issueNumber, season},	"body": body	[]{		...,		_type == "historicalImageEmbed" => {			...,			historicalImage->{				_id,				title,				archiveId,				imageFile {					...,					alt,						asset->{		_id,		metadata { dimensions { width, height } }	}				}			}		}	},	"notesAndReferences": notesAndReferences	[]{		...,		_type == "historicalImageEmbed" => {			...,			historicalImage->{				_id,				title,				archiveId,				imageFile {					...,					alt,						asset->{		_id,		metadata { dimensions { width, height } }	}				}			}		}	}	}
+export type QUARTERLY_ARTICLE_PATHS_QUERY_RESULT = Array<{
+  _id: string;
+  title: string | null;
+  authorText: string | null;
+  startPage: number | null;
+  endPage: number | null;
+  summary: string | null;
+  slug: string | null;
+  issue: {
+    volume: number | null;
+    issueNumber: number | null;
+    season: "autumn" | "spring" | "summer" | "winter" | null;
+  } | null;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "historicalImageEmbed";
+        historicalImage: {
+          _id: string;
+          title: string | null;
+          archiveId: string | null;
+          imageFile: {
+            asset: {
+              _id: string;
+              metadata: {
+                dimensions: {
+                  width: number | null;
+                  height: number | null;
+                } | null;
+              } | null;
+            } | null;
+            media?: unknown;
+            hotspot?: SanityImageHotspot;
+            crop?: SanityImageCrop;
+            alt: string | null;
+            _type: "image";
+          } | null;
+        } | null;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+      }
+    | {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        caption?: string;
+        alt?: string;
+        imageRole?: "aside" | "figure";
+        _type: "image";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "pageBreak";
+        pageNumber?: string;
+      }
+  > | null;
+  notesAndReferences: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal";
+    listItem?: "bullet";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
 }>;
 
 // Source: src/lib/research.ts
@@ -2152,7 +2356,7 @@ export type RESEARCH_PATHS_QUERY_RESULT = Array<{
 
 // Source: src/lib/search.ts
 // Variable: SEARCH_CATALOG_QUERY
-// Query: {	"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{		_id, _type, title, archiveId	},	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{		_id, _type, title, archiveId, newspaper	},	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...12]{		_id, _type, title, sourceUrl, sourceKey	},	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{		_id, _type, title, "slug": slug.current, archiveId	},	"people": *[_type == "person" && (firstName match $q || lastName match $q) && 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)] | order(lastName asc)[0...12]{		_id, _type, firstName, lastName, "slug": coalesce(slug.current, _id)	},	"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{		_id, _type, name, "slug": coalesce(slug.current, _id)	}}
+// Query: {	"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{		_id, _type, title, archiveId	},	"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{		_id, _type, title, archiveId, newspaper	},	"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact || slug.current match $exact)] | order(title asc)[0...12]{		_id, _type, title, "slug": slug.current, sourceKey	},	"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{		_id, _type, title, "slug": slug.current, archiveId	},	"people": *[_type == "person" && (firstName match $q || lastName match $q) && 	defined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)] | order(lastName asc)[0...12]{		_id, _type, firstName, lastName, "slug": coalesce(slug.current, _id)	},	"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{		_id, _type, name, "slug": coalesce(slug.current, _id)	}}
 export type SEARCH_CATALOG_QUERY_RESULT = {
   images: Array<{
     _id: string;
@@ -2171,7 +2375,7 @@ export type SEARCH_CATALOG_QUERY_RESULT = {
     _id: string;
     _type: "quarterlyArticle";
     title: string | null;
-    sourceUrl: string | null;
+    slug: string | null;
     sourceKey: string | null;
   }>;
   research: Array<{
@@ -2243,7 +2447,7 @@ export type SUBJECT_HUBS_QUERY_RESULT = Array<{
 
 // Source: src/lib/subjects.ts
 // Variable: SUBJECT_HUB_QUERY
-// Query: *[_type == "category" && (_id == $slug || slug.current == $slug)][0]{			_id, title, description, "slug": coalesce(slug.current, _id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{		_id, title, sourceUrl	}	}
+// Query: *[_type == "category" && (_id == $slug || slug.current == $slug)][0]{			_id, title, description, "slug": coalesce(slug.current, _id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{		_id, title, "slug": slug.current	}	}
 export type SUBJECT_HUB_QUERY_RESULT = {
   _id: string;
   title: string | null;
@@ -2273,13 +2477,13 @@ export type SUBJECT_HUB_QUERY_RESULT = {
   quarterly: Array<{
     _id: string;
     title: string | null;
-    sourceUrl: string | null;
+    slug: string | null;
   }>;
 } | null;
 
 // Source: src/lib/subjects.ts
 // Variable: SUBJECT_PATHS_QUERY
-// Query: *[_type == "category"]{	_id, title, description, "slug": coalesce(slug.current, _id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{		_id, title, sourceUrl	}}
+// Query: *[_type == "category"]{	_id, title, description, "slug": coalesce(slug.current, _id),	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{			_id, title, archiveId, dateTaken,	imageFile {		...,		alt	},	"township": township->name	},	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{			_id, title, archiveId	},	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{		_id, title, "slug": slug.current	}}
 export type SUBJECT_PATHS_QUERY_RESULT = Array<{
   _id: string;
   title: string | null;
@@ -2309,7 +2513,7 @@ export type SUBJECT_PATHS_QUERY_RESULT = Array<{
   quarterly: Array<{
     _id: string;
     title: string | null;
-    sourceUrl: string | null;
+    slug: string | null;
   }>;
 }>;
 
@@ -2321,29 +2525,32 @@ declare global {
     '\n\t*[_type == "township"] | order(name asc){_id, name}\n': TOWNSHIPS_QUERY_RESULT;
     '\n\t*[_type == "location"] | order(name asc){_id, name}\n': LOCATIONS_QUERY_RESULT;
     '\n\t*[_type == "category"] | order(title asc){_id, title}\n': SUBJECTS_QUERY_RESULT;
+    '\n\t*[_type == "historicalImage"\n\t\t&& defined(imageFile.asset)\n\t\t&& defined(photographer)\n\t\t&& photographer != ""\n\t].photographer\n': PHOTOGRAPHERS_QUERY_RESULT;
     '\n\t*[_type == "historicalImage" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights,\n\treferences\n\n\t}\n': IMAGE_BY_ARCHIVE_ID_QUERY_RESULT;
     '\n\t*[_type == "historicalImage" && defined(archiveId)]{\n\t_id, title, archiveId, description, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t},\n\t"township": township->name,\n\t"location": location->{_id, name, "slug": coalesce(slug.current, _id)},\n\t"people": people[]->{_id, firstName, lastName, "slug": coalesce(slug.current, _id)},\n\t"subjects": subjects[]->{_id, title, "slug": coalesce(slug.current, _id)},\n\tphotographer,\n\tcontributor,\n\trights,\n\treferences\n}\n': IMAGE_STATIC_PATHS_QUERY_RESULT;
     '\n\tcount(*[_type == "historicalImage" && defined(imageFile.asset)])\n': IMAGE_CATALOG_TOTAL_QUERY_RESULT;
     '{\n\t"total": count(*[_type == "primarySource"]),\n\t"documents": *[_type == "primarySource"] | order(title asc)[0...24]{\n\t\t\n\t_id, title, archiveId, newspaper, "year": date.year,\n\t"excerpt": pt::text(transcription),\n\tarticleImage\n\n\t}\n}': DOCUMENTS_PAGE_QUERY_RESULT;
     '\n\t*[_type == "primarySource" && archiveId == $archiveId][0]{\n\t\t\n\t_id, title, archiveId, newspaper, date,\n\t"transcription": transcription\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\tarticleImage {\n\t\t...,\n\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t}\n\n\t}\n': DOCUMENT_BY_ARCHIVE_ID_QUERY_RESULT;
     '\n\t*[_type == "person" && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n] | order(lastName asc, firstName asc){\n\t\t_id, firstName, lastName, "slug": coalesce(slug.current, _id),\n\t\t"imageCount": count(*[_type == "historicalImage" && references(^._id)])\n\t}\n': LINKED_PEOPLE_QUERY_RESULT;
-    '\n\t*[_type == "person" && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, firstName, lastName, "slug": coalesce(slug.current, _id),\n\t"born": born.year, "died": died.year,\n\t"hasPublicLink": \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n,\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, _type, title, "slug": slug.current, sourceUrl\n\t}\n\n\t}\n': PERSON_HUB_QUERY_RESULT;
-    '\n\t*[_type == "person" && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n]{\n\t_id, firstName, lastName, "slug": coalesce(slug.current, _id),\n\t"born": born.year, "died": died.year,\n\t"hasPublicLink": \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n,\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, _type, title, "slug": slug.current, sourceUrl\n\t}\n}\n': LINKED_PEOPLE_PATHS_QUERY_RESULT;
+    '\n\t*[_type == "person" && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, firstName, lastName, "slug": coalesce(slug.current, _id),\n\t"born": born.year, "died": died.year,\n\t"hasPublicLink": \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n,\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, _type, title, "slug": slug.current\n\t}\n\n\t}\n': PERSON_HUB_QUERY_RESULT;
+    '\n\t*[_type == "person" && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n]{\n\t_id, firstName, lastName, "slug": coalesce(slug.current, _id),\n\t"born": born.year, "died": died.year,\n\t"hasPublicLink": \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n,\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"articles": *[_type in ["quarterlyArticle", "researchArticle"] && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, _type, title, "slug": slug.current\n\t}\n}\n': LINKED_PEOPLE_PATHS_QUERY_RESULT;
     '{\n\t"townships": *[_type == "township"] | order(name asc){_id, name, "slug": coalesce(slug.current, _id)},\n\t"locations": *[_type == "location"] | order(name asc){\n\t\t_id, name, "slug": coalesce(slug.current, _id), "townships": townships[]->name\n\t}\n}': PLACES_QUERY_RESULT;
     '\n\t*[_type in ["township", "location"] && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, _type, name, "slug": coalesce(slug.current, _id),\n\t"townships": townships[]->name,\n\t"imageCount": count(*[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)]),\n\t"images": *[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && (township._ref == ^._id || references(^._id))] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"research": *[_type == "researchArticle" && ^._id in townships[]._ref] | order(title asc)[0...6]{\n\t\t_id, title, "slug": slug.current\n\t}\n\n\t}\n': PLACE_HUB_QUERY_RESULT;
     '\n\t*[_type in ["township", "location"]]{\n\t_id, _type, name, "slug": coalesce(slug.current, _id),\n\t"townships": townships[]->name,\n\t"imageCount": count(*[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)]),\n\t"images": *[_type == "historicalImage" && (township._ref == ^._id || location._ref == ^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && (township._ref == ^._id || references(^._id))] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"research": *[_type == "researchArticle" && ^._id in townships[]._ref] | order(title asc)[0...6]{\n\t\t_id, title, "slug": slug.current\n\t}\n}\n': PLACE_PATHS_QUERY_RESULT;
-    '\n\t*[_type == "quarterlyIssue" && count(*[_type == "quarterlyArticle" && issueRef._ref == ^._id]) > 0] | order(volume desc, issueNumber desc)[0]{\n\t\t_id,\n\t\tvolume,\n\t\tissueNumber,\n\t\tseason,\n\t\tcoverImage,\n\t\t"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc)[0...8]{\n\t\t\t_id, title, authorText, startPage, sourceUrl\n\t\t}\n\t}\n': LATEST_QUARTERLY_ISSUE_QUERY_RESULT;
-    '\n\t*[_type == "quarterlyIssue"] | order(volume desc, issueNumber desc){\n\t\t_id, volume, issueNumber, season,\n\t\t"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc){\n\t\t\t_id, title, authorText, startPage, sourceUrl\n\t\t}\n\t}\n': QUARTERLY_ISSUES_QUERY_RESULT;
+    '\n\t*[_type == "quarterlyIssue" && count(*[_type == "quarterlyArticle" && issueRef._ref == ^._id]) > 0] | order(volume desc, issueNumber desc)[0]{\n\t\t_id,\n\t\tvolume,\n\t\tissueNumber,\n\t\tseason,\n\t\tcoverImage,\n\t\t"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc)[0...8]{\n\t\t\t\n\t_id, title, authorText, startPage, "slug": slug.current\n\n\t\t}\n\t}\n': LATEST_QUARTERLY_ISSUE_QUERY_RESULT;
+    '\n\t*[_type == "quarterlyIssue"] | order(volume desc, issueNumber desc){\n\t\t_id, volume, issueNumber, season,\n\t\t"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc){\n\t\t\t\n\t_id, title, authorText, startPage, "slug": slug.current\n\n\t\t}\n\t}\n': QUARTERLY_ISSUES_QUERY_RESULT;
+    '\n\t*[_type == "quarterlyArticle" && slug.current == $slug][0]{\n\t\t\n\t_id,\n\ttitle,\n\tauthorText,\n\tstartPage,\n\tendPage,\n\tsummary,\n\t"slug": slug.current,\n\t"issue": issueRef->{volume, issueNumber, season},\n\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\n\n\t}\n': QUARTERLY_ARTICLE_BY_SLUG_QUERY_RESULT;
+    '\n\t*[_type == "quarterlyArticle" && defined(slug.current)]{\n\t\t\n\t_id,\n\ttitle,\n\tauthorText,\n\tstartPage,\n\tendPage,\n\tsummary,\n\t"slug": slug.current,\n\t"issue": issueRef->{volume, issueNumber, season},\n\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\n\n\t}\n': QUARTERLY_ARTICLE_PATHS_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && featuredOnSite == true] | order(featuredRank asc, title asc)[0...3]{\n\t\t_id, title, "slug": slug.current, featuredRank\n\t}\n': FEATURED_RESEARCH_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && defined(slug.current)] | order(title asc)[0...3]{\n\t\t_id, title, "slug": slug.current\n\t}\n': FEATURED_RESEARCH_FALLBACK_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && defined(slug.current)] | order(title asc){\n\t\t_id, title, "slug": slug.current\n\t}\n': RESEARCH_ARTICLES_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && slug.current == $slug][0]{\n\t\t_id, title,\n\t\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\n\t}\n': RESEARCH_BY_SLUG_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && defined(slug.current)]{\n\t\t_id, title,\n\t\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"slug": slug.current\n\t}\n': RESEARCH_PATHS_QUERY_RESULT;
-    '{\n\t"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId\n\t},\n\t"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId, newspaper\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, sourceUrl, sourceKey\n\t},\n\t"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, "slug": slug.current, archiveId\n\t},\n\t"people": *[_type == "person" && (firstName match $q || lastName match $q) && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n] | order(lastName asc)[0...12]{\n\t\t_id, _type, firstName, lastName, "slug": coalesce(slug.current, _id)\n\t},\n\t"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{\n\t\t_id, _type, name, "slug": coalesce(slug.current, _id)\n\t}\n}': SEARCH_CATALOG_QUERY_RESULT;
+    '{\n\t"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId\n\t},\n\t"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId, newspaper\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact || slug.current match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, "slug": slug.current, sourceKey\n\t},\n\t"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, "slug": slug.current, archiveId\n\t},\n\t"people": *[_type == "person" && (firstName match $q || lastName match $q) && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n] | order(lastName asc)[0...12]{\n\t\t_id, _type, firstName, lastName, "slug": coalesce(slug.current, _id)\n\t},\n\t"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{\n\t\t_id, _type, name, "slug": coalesce(slug.current, _id)\n\t}\n}': SEARCH_CATALOG_QUERY_RESULT;
     '\n\t*[_id == "siteNavigation"][0]{\n\t\tprimaryLinks[]{_key, label, href, kind, purpose},\n\t\tsecondaryLinks[]{_key, label, href, kind, purpose}\n\t}\n': SITE_NAVIGATION_QUERY_RESULT;
     '\n\t*[_type == "category"] | order(title asc){\n\t\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t\t"imageCount": count(*[_type == "historicalImage" && references(^._id)])\n\t}\n': SUBJECT_HUBS_QUERY_RESULT;
-    '\n\t*[_type == "category" && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, sourceUrl\n\t}\n\n\t}\n': SUBJECT_HUB_QUERY_RESULT;
-    '\n\t*[_type == "category"]{\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, sourceUrl\n\t}\n}\n': SUBJECT_PATHS_QUERY_RESULT;
+    '\n\t*[_type == "category" && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, "slug": slug.current\n\t}\n\n\t}\n': SUBJECT_HUB_QUERY_RESULT;
+    '\n\t*[_type == "category"]{\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, "slug": slug.current\n\t}\n}\n': SUBJECT_PATHS_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

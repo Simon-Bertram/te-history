@@ -1,0 +1,39 @@
+---
+import {
+	catalogDetailSrc,
+	intrinsicSize,
+	type CatalogImageField,
+} from '../lib/imageUrl'
+
+interface Props {
+	node: CatalogImageField & {
+		caption?: string | null
+		alt?: string | null
+	}
+}
+
+const {node} = Astro.props
+const src = node ? catalogDetailSrc(node, 800) : undefined
+const size = node ? intrinsicSize(node, 800) : undefined
+const alt = node?.alt ?? node?.caption ?? ''
+const caption = node?.caption
+---
+
+{
+	src && size ? (
+		<figure class="my-8">
+			<img
+				src={src}
+				alt={alt}
+				width={size.width}
+				height={size.height}
+				class="h-auto w-full"
+			/>
+			{caption ? (
+				<figcaption class="mt-2 font-sans text-sm text-on-surface-variant">
+					{caption}
+				</figcaption>
+			) : null}
+		</figure>
+	) : null
+}

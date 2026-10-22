@@ -3,7 +3,6 @@ export type CatalogRef = {
 	_id?: string | null
 	archiveId?: string | null
 	slug?: string | null
-	sourceUrl?: string | null
 }
 
 type HrefBuilder = (doc: CatalogRef) => string | undefined
@@ -18,7 +17,7 @@ const HREF_FOR: Record<string, HrefBuilder> = {
 	historicalImage: (doc) => (doc.archiveId ? `/images/${doc.archiveId}` : undefined),
 	primarySource: (doc) => (doc.archiveId ? `/documents/${doc.archiveId}` : undefined),
 	researchArticle: (doc) => (doc.slug ? `/research/${doc.slug}` : undefined),
-	quarterlyArticle: (doc) => doc.sourceUrl ?? undefined,
+	quarterlyArticle: (doc) => (doc.slug ? `/quarterly/${doc.slug}` : undefined),
 	person: (doc) => slugPath('/people', doc),
 	location: (doc) => slugPath('/places', doc),
 	township: (doc) => slugPath('/places', doc),

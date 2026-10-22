@@ -3522,6 +3522,14 @@
         },
         "optional": true
       },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": true
+      },
       "authorText": {
         "type": "objectAttribute",
         "value": {

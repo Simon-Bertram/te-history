@@ -29,7 +29,6 @@ type SearchDoc = {
 	archiveId?: string | null
 	newspaper?: string | null
 	sourceKey?: string | null
-	sourceUrl?: string | null
 	slug?: string | null
 	firstName?: string | null
 	lastName?: string | null
@@ -52,7 +51,6 @@ function toHits(
 			_type: doc._type,
 			archiveId: doc.archiveId ?? undefined,
 			slug: doc.slug ?? undefined,
-			sourceUrl: doc.sourceUrl ?? undefined,
 		}),
 		meta: metaOf?.(doc) ?? undefined,
 	}))
