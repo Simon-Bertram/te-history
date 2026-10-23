@@ -49,7 +49,7 @@ export const LATEST_QUARTERLY_ISSUE_QUERY = defineQuery(/* groq */ `
 
 export const QUARTERLY_ISSUES_QUERY = defineQuery(/* groq */ `
 	*[_type == "quarterlyIssue"] | order(volume desc, issueNumber desc){
-		_id, volume, issueNumber, season,
+		_id, volume, issueNumber, season, publicationDate,
 		"articles": *[_type == "quarterlyArticle" && issueRef._ref == ^._id] | order(startPage asc){
 			${QUARTERLY_ARTICLE_LIST_PROJECTION}
 		}

@@ -26,17 +26,19 @@ const meta = [volIssue, article.authorText, pages].filter(Boolean).join(' · ')
 ---
 
 <Layout title={article.title ?? slug} ogType="article">
+	<div class="mx-auto max-w-3xl">
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
 		<a href="/quarterly" class="text-on-surface-variant no-underline hover:text-primary">
-			Quarterly
+			Back to the Quarterly Index
 		</a>
 	</p>
-	<h1 class="mt-3 text-display-sm">{article.title}</h1>
+	<h1 class="mt-6 text-display-sm">{article.title}</h1>
 	{
 		meta ? (
 			<p class="mt-3 font-sans text-on-surface-variant">{meta}</p>
 		) : null
 	}
+	
 	{
 		article.summary ? (
 			<p class="mt-6 max-w-3xl font-sans text-on-surface-variant">{article.summary}</p>
@@ -59,4 +61,5 @@ const meta = [volIssue, article.authorText, pages].filter(Boolean).join(' · ')
 			</section>
 		) : null
 	}
+	</div>
 </Layout>
