@@ -112,6 +112,53 @@
   --outline-variant: #5a4644;
 }
 
+/* Long-form Portable Text: map typography plugin vars to parchment/ink. */
+@utility prose {
+  --tw-prose-body: var(--on-surface);
+  --tw-prose-headings: var(--on-surface);
+  --tw-prose-lead: var(--on-surface-variant);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--on-surface);
+  --tw-prose-counters: var(--on-surface-variant);
+  --tw-prose-bullets: var(--outline-variant);
+  --tw-prose-hr: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  --tw-prose-quotes: var(--on-surface-variant);
+  --tw-prose-quote-borders: var(--primary-fixed);
+  --tw-prose-captions: var(--on-surface-variant);
+  --tw-prose-code: var(--on-surface);
+  --tw-prose-pre-code: var(--on-surface);
+  --tw-prose-pre-bg: var(--surface-dim);
+  --tw-prose-th-borders: var(--outline-variant);
+  --tw-prose-td-borders: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+
+  --tw-prose-invert-body: var(--on-surface);
+  --tw-prose-invert-headings: var(--on-surface);
+  --tw-prose-invert-lead: var(--on-surface-variant);
+  --tw-prose-invert-links: var(--primary);
+  --tw-prose-invert-bold: var(--on-surface);
+  --tw-prose-invert-counters: var(--on-surface-variant);
+  --tw-prose-invert-bullets: var(--outline-variant);
+  --tw-prose-invert-hr: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+  --tw-prose-invert-quotes: var(--on-surface-variant);
+  --tw-prose-invert-quote-borders: var(--primary-fixed);
+  --tw-prose-invert-captions: var(--on-surface-variant);
+  --tw-prose-invert-code: var(--on-surface);
+  --tw-prose-invert-pre-code: var(--on-surface);
+  --tw-prose-invert-pre-bg: var(--surface-dim);
+  --tw-prose-invert-th-borders: var(--outline-variant);
+  --tw-prose-invert-td-borders: color-mix(in srgb, var(--outline-variant) 40%, transparent);
+
+  & :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+
+  & :where(a) {
+    text-decoration-color: var(--primary-fixed);
+  }
+}
+
 @layer base {
   * {
     @apply border-outline-variant/40 outline-primary/50;
