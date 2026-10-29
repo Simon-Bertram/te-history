@@ -54,6 +54,17 @@
   --text-display-sm--line-height: 1.1;
   --text-display-sm--letter-spacing: -0.01em;
 
+  /* Reading scale — Public Sans. Measure ~65–75ch via max-w-2xl on pages. */
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.65;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.04em;
+
   /* Clipped, academic radii. DESIGN.md: sm or none — not lg/xl. */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -152,10 +163,16 @@
   --tw-prose-invert-th-borders: var(--outline-variant);
   --tw-prose-invert-td-borders: color-mix(in srgb, var(--outline-variant) 40%, transparent);
 
+  /* Prefer `prose prose-lg` on articles; line-height aids bare `prose` too. */
+  & :where(p) {
+    line-height: 1.75;
+  }
+
   & :where(h1, h2, h3, h4, h5, h6) {
     font-family: var(--font-display);
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
+    text-wrap: pretty;
   }
 
   & :where(a) {
@@ -201,6 +218,7 @@
     @apply font-display;
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
+    text-wrap: pretty;
   }
   ::selection {
     background: color-mix(in srgb, var(--primary) 18%, transparent);

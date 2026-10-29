@@ -37,7 +37,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 		{' / '}
 		{image.archiveId}
 	</p>
-	<h1 class="mt-3 text-display-sm">{image.title}</h1>
+	<h1 class="mt-3 text-display-sm text-pretty">{image.title}</h1>
 	{
 		src && size ? (
 			<img
@@ -54,10 +54,10 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 	}
 	{
 		image.description ? (
-			<p class="mt-6 max-w-2xl font-sans text-on-surface">{image.description}</p>
+			<p class="mt-6 max-w-2xl font-sans text-body text-on-surface">{image.description}</p>
 		) : null
 	}
-	<dl class="mt-8 grid max-w-xl gap-3 font-sans text-sm">
+	<dl class="mt-8 grid max-w-xl gap-3 font-sans text-body-sm">
 		{image.dateTaken?.year ? (
 			<div>
 				<dt class="text-on-surface-variant">Date</dt>
@@ -100,7 +100,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 			<div>
 				<dt class="text-on-surface-variant">References</dt>
 				<dd>
-					<div class="prose font-sans">
+					<div class="prose prose-lg max-w-2xl font-sans">
 						<PortableTextBody value={image.references} />
 					</div>
 				</dd>
