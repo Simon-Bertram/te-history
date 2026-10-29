@@ -59,8 +59,17 @@ const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 		{description ? <meta name="twitter:description" content={description} /> : null}
 		{absoluteOgImage ? <meta name="twitter:image" content={absoluteOgImage} /> : null}
 		<title>{title}</title>
-		<Font cssVariable="--font-public-sans" preload />
-		<Font cssVariable="--font-newsreader" preload />
+		<Font
+			cssVariable="--font-public-sans"
+			preload={[
+				{weight: 400, style: 'normal', subset: 'latin'},
+				{weight: 500, style: 'normal', subset: 'latin'},
+			]}
+		/>
+		<Font
+			cssVariable="--font-newsreader"
+			preload={[{weight: 400, style: 'normal', subset: 'latin'}]}
+		/>
 	</head>
 	<body class="flex min-h-full flex-col">
 		<a

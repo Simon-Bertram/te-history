@@ -24,6 +24,7 @@
 
   /* Brand tones */
   --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
   --color-primary-container: var(--primary-container);
   --color-primary-fixed: var(--primary-fixed);
 
@@ -36,11 +37,12 @@
 
   --color-outline-variant: var(--outline-variant);
 
-  /* Typography — Newsreader (display) + Public Sans (utility) */
-  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
-  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
-  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-newsreader), ui-serif, Georgia, serif;
+  /* Typography — Newsreader (display) + Public Sans (utility).
+     Astro --font-* vars already include Capsize metric fallbacks. */
+  --font-display: var(--font-newsreader);
+  --font-serif: var(--font-newsreader);
+  --font-sans: var(--font-public-sans);
+  --font-heading: var(--font-newsreader);
 
   --text-display-lg: 3.5rem;
   --text-display-lg--line-height: 1.02;
@@ -70,6 +72,7 @@
   --on-surface-variant: #554241;
 
   --primary: #4d0408;
+  --on-primary: #fcf9f2;
   --primary-container: #6b1b1b;
   --primary-fixed: #7a1a1f;
 
@@ -99,6 +102,7 @@
   --on-surface-variant: #cfb7b5;
 
   --primary: #b33a3f;
+  --on-primary: #fcf9f2;
   --primary-container: #8a2328;
   --primary-fixed: #e08e90;
 

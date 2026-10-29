@@ -31,6 +31,7 @@ export default defineConfig({
       styles: ['normal'],
       subsets: ['latin'],
       display: 'swap',
+      fallbacks: ['Georgia', 'Times New Roman', 'serif'],
     },
     {
       name: 'Public Sans',
@@ -39,7 +40,8 @@ export default defineConfig({
       weights: [400, 500, 600, 700],
       styles: ['normal'],
       subsets: ['latin'],
-      display: 'swap',
+      display: 'optional',
+      fallbacks: ['Arial', 'Helvetica', 'sans-serif'],
     },
   ],
   vite: {
