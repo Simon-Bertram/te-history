@@ -7,6 +7,7 @@ import {catalogImageAlt} from '../../lib/imageAlt'
 import {
 	DETAIL_IMAGE_WIDTHS,
 	catalogDetailSrc,
+	hasCatalogImageAsset,
 	intrinsicSize,
 	srcsetFromWidths,
 } from '../../lib/imageUrl'
@@ -18,9 +19,10 @@ export async function getStaticPaths() {
 const {image} = Astro.props
 const archiveId = image.archiveId ?? Astro.params.archiveId ?? ''
 const file = image.imageFile
-const src = file ? catalogDetailSrc(file, 1600) : undefined
-const srcset = file ? srcsetFromWidths(file, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
-const size = file ? intrinsicSize(file, 1600) : undefined
+const hasFile = hasCatalogImageAsset(file)
+const src = hasFile ? catalogDetailSrc(file, 1600) : undefined
+const srcset = hasFile ? srcsetFromWidths(file, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
+const size = hasFile ? intrinsicSize(file, 1600) : undefined
 const alt = catalogImageAlt({imageFile: file, title: image.title})
 ---
 

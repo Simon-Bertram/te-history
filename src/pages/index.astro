@@ -3,7 +3,7 @@ import ArticleList from '../components/ArticleList.astro'
 import ImageGrid from '../components/ImageGrid.astro'
 import Layout from '../layouts/Layout.astro'
 import {getHighlightImages} from '../lib/catalog'
-import {catalogDetailSrc} from '../lib/imageUrl'
+import {catalogDetailSrc, hasCatalogImageAsset} from '../lib/imageUrl'
 import {HOME_IMAGE_LIMIT} from '../lib/limits'
 import {getLatestQuarterlyIssue} from '../lib/quarterly'
 import {getFeaturedResearch} from '../lib/research'
@@ -17,7 +17,10 @@ const articles = (issue?.articles ?? []).map((article) => ({
 	...article,
 	_type: 'quarterlyArticle',
 }))
-const ogImage = images[0]?.imageFile ? catalogDetailSrc(images[0].imageFile, 1200) : undefined
+const leadImage = images[0]?.imageFile
+const ogImage = hasCatalogImageAsset(leadImage)
+	? catalogDetailSrc(leadImage, 1200)
+	: undefined
 ---
 
 <Layout

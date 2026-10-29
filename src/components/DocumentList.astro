@@ -1,6 +1,6 @@
 ---
 import {hrefFor} from '../lib/href'
-import {catalogGridSrc} from '../lib/imageUrl'
+import {catalogGridSrc, hasCatalogImageAsset} from '../lib/imageUrl'
 import {EXCERPT_LENGTH} from '../lib/limits'
 import type {CatalogImageField} from '../lib/imageUrl'
 
@@ -28,7 +28,7 @@ const {items, heading, showMeta = false} = Astro.props
 			{heading ? <h2 class="text-2xl">{heading}</h2> : null}
 			<ul class:list={['list-none p-0', heading && 'mt-4']}>
 				{items.map((doc) => {
-					const thumb = showMeta && doc.articleImage
+					const thumb = showMeta && hasCatalogImageAsset(doc.articleImage)
 						? catalogGridSrc(doc.articleImage, 160)
 						: undefined
 					const excerpt = showMeta

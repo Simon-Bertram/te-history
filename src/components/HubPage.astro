@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro'
 import ImageGrid from './ImageGrid.astro'
 import type {CatalogImageCard} from '../lib/imageHighlights'
-import {catalogDetailSrc} from '../lib/imageUrl'
+import {catalogDetailSrc, hasCatalogImageAsset} from '../lib/imageUrl'
 import {ENTITY_IMAGE_STRIP} from '../lib/limits'
 
 interface Props {
@@ -30,7 +30,10 @@ const {
 	seeAllHref,
 	emptyImages = 'No photographs are linked yet.',
 } = Astro.props
-const ogImage = images[0]?.imageFile ? catalogDetailSrc(images[0].imageFile, 1200) : undefined
+const leadImage = images[0]?.imageFile
+const ogImage = hasCatalogImageAsset(leadImage)
+	? catalogDetailSrc(leadImage, 1200)
+	: undefined
 ---
 
 <Layout title={title} description={description} ogImage={ogImage}>

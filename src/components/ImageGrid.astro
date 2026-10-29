@@ -5,6 +5,7 @@ import type {CatalogImageCard} from '../lib/imageHighlights'
 import {
 	GRID_IMAGE_WIDTHS,
 	catalogGridSrc,
+	hasCatalogImageAsset,
 	srcsetFromWidths,
 } from '../lib/imageUrl'
 
@@ -30,8 +31,9 @@ const sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, calc(100vw - 4
 		<ul class="m-0 grid list-none grid-cols-1 gap-8 p-0 sm:grid-cols-2 lg:grid-cols-3">
 			{images.map((image, index) => {
 				const file = image.imageFile
-				const src = file ? catalogGridSrc(file, 720) : undefined
-				const srcset = file
+				const hasFile = hasCatalogImageAsset(file)
+				const src = hasFile ? catalogGridSrc(file, 720) : undefined
+				const srcset = hasFile
 					? srcsetFromWidths(file, GRID_IMAGE_WIDTHS, catalogGridSrc)
 					: undefined
 				const href = hrefFor(

@@ -1,6 +1,7 @@
 ---
 import {
 	catalogDetailSrc,
+	hasCatalogImageAsset,
 	intrinsicSize,
 	type CatalogImageField,
 } from '../lib/imageUrl'
@@ -13,8 +14,9 @@ interface Props {
 }
 
 const {node} = Astro.props
-const src = node ? catalogDetailSrc(node, 800) : undefined
-const size = node ? intrinsicSize(node, 800) : undefined
+const hasNode = hasCatalogImageAsset(node)
+const src = hasNode ? catalogDetailSrc(node, 800) : undefined
+const size = hasNode ? intrinsicSize(node, 800) : undefined
 const alt = node?.alt ?? node?.caption ?? ''
 const caption = node?.caption
 ---

@@ -8,6 +8,7 @@ import {getDocumentByArchiveId} from '../../lib/documents'
 import {
 	DETAIL_IMAGE_WIDTHS,
 	catalogDetailSrc,
+	hasCatalogImageAsset,
 	intrinsicSize,
 	srcsetFromWidths,
 } from '../../lib/imageUrl'
@@ -21,9 +22,10 @@ const doc = archiveId ? await getDocumentByArchiveId(archiveId) : null
 if (!doc) rewriteNotFound(Astro)
 
 const scan = doc?.articleImage
-const src = scan ? catalogDetailSrc(scan, 1200) : undefined
-const srcset = scan ? srcsetFromWidths(scan, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
-const size = scan ? intrinsicSize(scan, 1200) : undefined
+const hasScan = hasCatalogImageAsset(scan)
+const src = hasScan ? catalogDetailSrc(scan, 1200) : undefined
+const srcset = hasScan ? srcsetFromWidths(scan, DETAIL_IMAGE_WIDTHS, catalogDetailSrc) : undefined
+const size = hasScan ? intrinsicSize(scan, 1200) : undefined
 ---
 
 {

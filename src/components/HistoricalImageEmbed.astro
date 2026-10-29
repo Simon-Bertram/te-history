@@ -3,6 +3,7 @@ import {hrefFor} from '../lib/href'
 import {catalogImageAlt} from '../lib/imageAlt'
 import {
 	catalogDetailSrc,
+	hasCatalogImageAsset,
 	intrinsicSize,
 	type CatalogImageField,
 } from '../lib/imageUrl'
@@ -23,8 +24,9 @@ interface Props {
 const {node} = Astro.props
 const image = node.historicalImage
 const file = image?.imageFile
-const src = file ? catalogDetailSrc(file, 800) : undefined
-const size = file ? intrinsicSize(file, 800) : undefined
+const hasFile = hasCatalogImageAsset(file)
+const src = hasFile ? catalogDetailSrc(file, 800) : undefined
+const size = hasFile ? intrinsicSize(file, 800) : undefined
 const alt = catalogImageAlt({
 	override: node.alt,
 	imageFile: file,
