@@ -4473,6 +4473,28 @@
           }
         },
         "optional": true
+      },
+      "subjects": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "category.reference"
+            }
+          }
+        },
+        "optional": true
       }
     }
   },
@@ -4597,6 +4619,28 @@
             "rest": {
               "type": "inline",
               "name": "person.reference"
+            }
+          }
+        },
+        "optional": true
+      },
+      "subjects": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "category.reference"
             }
           }
         },

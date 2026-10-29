@@ -50,6 +50,7 @@ Pages import readable names from lib, not raw `*_QUERY_RESULT` types.
 | `LinkedPerson`, `PersonHub` | [`people.ts`](../src/lib/people.ts) |
 | `PlacesIndex`, `PlaceHub` | [`places.ts`](../src/lib/places.ts) |
 | `SubjectHubListItem`, `SubjectHub` | [`subjects.ts`](../src/lib/subjects.ts) |
+| `OrganizationsPage`, `OrganizationListItem`, `OrganizationHub` | [`organizations.ts`](../src/lib/organizations.ts) |
 | `DocumentsPage`, `DocumentDetail` | [`documents.ts`](../src/lib/documents.ts) |
 | `ImageDetail` | [`catalog.ts`](../src/lib/catalog.ts) |
 | `LatestQuarterlyIssue`, `QuarterlyIssueListItem`, `QuarterlyArticleDetail` | [`quarterly.ts`](../src/lib/quarterly.ts) |

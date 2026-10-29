@@ -1,0 +1,128 @@
+---
+import ArticleList from '../../components/ArticleList.astro'
+import DocumentList from '../../components/DocumentList.astro'
+import HubPage from '../../components/HubPage.astro'
+import {hrefFor} from '../../lib/href'
+import {getOrganizationHubPaths} from '../../lib/organizations'
+
+export async function getStaticPaths() {
+	return getOrganizationHubPaths()
+}
+
+const {organization} = Astro.props
+const name = organization.name ?? organization._id
+const from = organization.activeFrom
+const to = organization.activeTo
+const years =
+	from && to ? `${from}–${to}` : from ? `${from}–` : to ? `–${to}` : ''
+const owners = organization.owners ?? []
+const properties = (organization.associatedProperties ?? []).filter(
+	(property) => property?.historicalName,
+)
+const thenAndNow = organization.thenAndNow ?? []
+---
+
+<HubPage
+	title={name}
+	description={organization.description ?? undefined}
+	parentHref="/organizations"
+	parentLabel="Organizations"
+	heading={name}
+	images={organization.images ?? []}
+	imageCount={organization.imageCount ?? 0}
+	seeAllHref={`/search?q=${encodeURIComponent(name)}`}
+>
+	{
+		organization.description || years || organization._type === 'business' ? (
+			<div slot="lede" class="mt-4 max-w-2xl">
+				{organization._type === 'business' ? (
+					<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+						Business
+					</p>
+				) : null}
+				{years ? (
+					<p class="mt-2 font-sans text-on-surface-variant">{years}</p>
+				) : null}
+				{organization.description ? (
+					<p class="mt-4 font-sans text-on-surface-variant">{organization.description}</p>
+				) : null}
+			</div>
+		) : null
+	}
+
+	{
+		properties.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Associated properties / sites</h2>
+				<ul class="mt-4 list-none p-0">
+					{properties.map((property) => (
+						<li class="border-b border-outline-variant/20 py-3 font-display text-xl">
+							{property.historicalName}
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+
+	{
+		owners.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Leaders / associated people</h2>
+				<ul class="mt-4 list-none p-0">
+					{owners.map((person) => {
+						const personName = [person.firstName, person.lastName]
+							.filter(Boolean)
+							.join(' ')
+						const href = hrefFor({
+							_type: 'person',
+							slug: person.slug,
+							_id: person._id,
+						})
+						return (
+							<li class="border-b border-outline-variant/20 py-3">
+								<a
+									href={href}
+									class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								>
+									{personName || person._id}
+								</a>
+							</li>
+						)
+					})}
+				</ul>
+			</section>
+		) : null
+	}
+
+	<DocumentList items={organization.documents ?? []} heading="Documents" />
+	<ArticleList
+		items={(organization.quarterly ?? []).map((article) => ({
+			...article,
+			_type: 'quarterlyArticle',
+		}))}
+		heading="TEHS Quarterly articles"
+	/>
+	<ArticleList
+		items={(organization.research ?? []).map((article) => ({
+			...article,
+			_type: 'researchArticle',
+		}))}
+		heading="Research articles"
+	/>
+
+	{
+		thenAndNow.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Then &amp; Now</h2>
+				<ul class="mt-4 list-none p-0">
+					{thenAndNow.map((article) => (
+						<li class="border-b border-outline-variant/20 py-3 font-display text-xl">
+							{article.title}
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+</HubPage>

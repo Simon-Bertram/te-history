@@ -1,6 +1,7 @@
 export const HOME_IMAGE_LIMIT = 8
 export const IMAGES_PAGE_SIZE = 24
 export const DOCUMENTS_PAGE_SIZE = 24
+export const ORGANIZATIONS_PAGE_SIZE = 24
 export const ENTITY_IMAGE_STRIP = 12
 export const HUB_DOCUMENT_LIMIT = 8
 export const HUB_ARTICLE_LIMIT = 8

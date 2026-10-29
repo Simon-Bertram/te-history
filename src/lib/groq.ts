@@ -147,3 +147,36 @@ export const SUBJECT_HUB_PROJECTION = /* groq */ `
 		_id, title, "slug": slug.current
 	}
 `
+
+export const ORGANIZATION_LIST_PROJECTION = /* groq */ `
+	_id, _type, name, "slug": ${ENTITY_SLUG},
+	"activeFrom": activeFrom.year,
+	"activeTo": activeTo.year,
+	"subjectTitle": subjects[0]->title,
+	"subjectCount": count(subjects)
+`
+
+export const ORGANIZATION_HUB_PROJECTION = /* groq */ `
+	_id, _type, name, description, "slug": ${ENTITY_SLUG},
+	"activeFrom": activeFrom.year,
+	"activeTo": activeTo.year,
+	"subjects": subjects[]->{_id, title, "slug": ${ENTITY_SLUG}},
+	"associatedProperties": associatedProperties[]->{_id, historicalName},
+	"owners": owners[]->{_id, firstName, lastName, "slug": ${ENTITY_SLUG}},
+	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
+	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	},
+	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...${HUB_DOCUMENT_LIMIT}]{
+		${HUB_DOCUMENT_PROJECTION}
+	},
+	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
+		_id, title, "slug": slug.current
+	},
+	"research": *[_type == "researchArticle" && references(^._id)] | order(title asc)[0...${HUB_RESEARCH_LIMIT}]{
+		_id, title, "slug": slug.current
+	},
+	"thenAndNow": *[_type == "thenAndNow" && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
+		_id, title, "slug": slug.current
+	}
+`

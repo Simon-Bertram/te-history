@@ -1,0 +1,211 @@
+---
+export const prerender = false
+
+import CatalogResultsBar from '../../components/CatalogResultsBar.astro'
+import Layout from '../../layouts/Layout.astro'
+import {getSubjects, type SubjectOption} from '../../lib/catalog'
+import {
+	catalogPageCount,
+	formatCatalogResultsSummary,
+} from '../../lib/catalogResults'
+import {hrefFor} from '../../lib/href'
+import {ORGANIZATIONS_PAGE_SIZE, parsePage, sortSubjectsDemoteFuzzy} from '../../lib/limits'
+import {
+	getOrganizationsPage,
+	parseOrganizationLetter,
+} from '../../lib/organizations'
+import {setSsrCacheControl} from '../../lib/ssrCache'
+
+setSsrCacheControl(Astro.response.headers)
+
+const params = Astro.url.searchParams
+const q = params.get('q') ?? ''
+const subject = params.get('subject') ?? ''
+const letter = parseOrganizationLetter(params.get('letter') ?? undefined)
+const page = parsePage(params.get('page') ?? undefined)
+
+const [subjectsRaw, result] = await Promise.all([
+	getSubjects(),
+	getOrganizationsPage({q, subject, letter, page}),
+])
+const subjects = sortSubjectsDemoteFuzzy(subjectsRaw ?? [])
+
+const total = result?.total ?? 0
+const pageCount = catalogPageCount(total, ORGANIZATIONS_PAGE_SIZE)
+const showNavigation = pageCount > 1
+const resultsSummary = formatCatalogResultsSummary({
+	total,
+	page,
+	pageSize: ORGANIZATIONS_PAGE_SIZE,
+	singular: 'organization',
+	plural: 'organizations',
+	pageInSummary: showNavigation,
+})
+
+const inputClass =
+	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
+
+const LETTERS = [
+	...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+	'#',
+] as const
+
+function activeLetterHref(next: string) {
+	const nextParams = new URLSearchParams()
+	if (q.trim()) nextParams.set('q', q.trim())
+	if (subject.trim()) nextParams.set('subject', subject.trim())
+	if (next !== letter) nextParams.set('letter', next)
+	const query = nextParams.toString()
+	return query ? `/organizations?${query}` : '/organizations'
+}
+
+function activeYears(from?: number | null, to?: number | null) {
+	if (from && to) return `${from}–${to}`
+	if (from) return `${from}–`
+	if (to) return `–${to}`
+	return ''
+}
+
+function subjectMeta(item: {
+	subjectTitle?: string | null
+	subjectCount?: number | null
+}) {
+	const title = item.subjectTitle?.trim()
+	if (!title) return ''
+	const extra = (item.subjectCount ?? 0) > 1 ? ` +${(item.subjectCount ?? 0) - 1}` : ''
+	return `${title}${extra}`
+}
+---
+
+<Layout
+	title="Organizations"
+	description="Businesses and organizations in the Tredyffrin Easttown historical catalog."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+		Organizations
+	</p>
+	<h1 class="mt-3 text-display-sm">Organizations</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		Civic groups, institutions, and businesses. Search by name or browse by subject.
+	</p>
+
+	<form
+		class="mb-6 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2 lg:grid-cols-3"
+		action="/organizations"
+		method="get"
+	>
+		<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+			Name
+			<input class={inputClass} type="search" name="q" value={q} />
+		</label>
+		<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+			Subject Category
+			<select class={inputClass} name="subject">
+				<option value="">All</option>
+				{subjects.map((item: SubjectOption) => (
+					<option value={item._id} selected={subject === item._id}>
+						{item.title}
+					</option>
+				))}
+			</select>
+		</label>
+		{
+			letter ? <input type="hidden" name="letter" value={letter} /> : null
+		}
+		<div class="flex items-end">
+			<button
+				type="submit"
+				class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary"
+			>
+				Apply
+			</button>
+		</div>
+	</form>
+
+	<nav class="mb-8 flex flex-wrap gap-2 font-sans text-sm" aria-label="Alphabet">
+		{LETTERS.map((item) => {
+			const active = letter === item
+			return (
+				<a
+					href={activeLetterHref(item)}
+					class:list={[
+						'no-underline',
+						active ? 'text-primary underline' : 'text-on-surface-variant hover:text-primary',
+					]}
+					aria-current={active ? 'true' : undefined}
+				>
+					{item === '#' ? 'Other' : item}
+				</a>
+			)
+		})}
+	</nav>
+
+	<CatalogResultsBar
+		summary={resultsSummary}
+		page={page}
+		pageSize={ORGANIZATIONS_PAGE_SIZE}
+		total={total}
+		basePath="/organizations"
+		showNavigation={showNavigation}
+		class="mb-6"
+		ariaLabel="Results pagination"
+	/>
+
+	{
+		total === 0 ? (
+			<p class="font-sans text-on-surface-variant">
+				No organizations match these filters.{' '}
+				<a href="/organizations" class="text-primary">
+					Clear filters
+				</a>
+			</p>
+		) : (
+			<ul class="list-none p-0">
+				{(result?.organizations ?? []).map((item) => {
+					const years = activeYears(item.activeFrom, item.activeTo)
+					const subjectLabel = subjectMeta(item)
+					const meta = [
+						item._type === 'business' ? 'Business' : null,
+						years || null,
+						subjectLabel || null,
+					].filter(Boolean)
+					return (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a
+								href={hrefFor({
+									_type: item._type,
+									slug: item.slug,
+									_id: item._id,
+								})}
+								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+							>
+								{item.name}
+							</a>
+							{meta.length ? (
+								<span class="font-sans text-sm text-on-surface-variant">
+									{' '}
+									· {meta.join(' · ')}
+								</span>
+							) : null}
+						</li>
+					)
+				})}
+			</ul>
+		)
+	}
+
+	{
+		showNavigation ? (
+			<CatalogResultsBar
+				summary={resultsSummary}
+				page={page}
+				pageSize={ORGANIZATIONS_PAGE_SIZE}
+				total={total}
+				basePath="/organizations"
+				showNavigation
+				class="mt-10"
+				ariaLabel="Results pagination bottom"
+			/>
+		) : null
+	}
+</Layout>
