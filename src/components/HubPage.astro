@@ -38,7 +38,7 @@ const ogImage = hasCatalogImageAsset(leadImage)
 
 <Layout title={title} description={description} ogImage={ogImage}>
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
-		<a href={parentHref} class="text-on-surface-variant no-underline hover:text-primary">
+		<a href={parentHref} class="link-quiet text-on-surface-variant hover:text-primary">
 			{parentLabel}
 		</a>
 		{crumb ? <>{' / '}{crumb}</> : null}
@@ -50,7 +50,7 @@ const ogImage = hasCatalogImageAsset(leadImage)
 			<h2 class="text-2xl">Photographs</h2>
 			{
 				seeAllHref && imageCount > ENTITY_IMAGE_STRIP ? (
-					<a href={seeAllHref} class="font-sans text-sm text-primary no-underline">
+					<a href={seeAllHref} class="font-sans text-sm">
 						See all {imageCount} images
 					</a>
 				) : null

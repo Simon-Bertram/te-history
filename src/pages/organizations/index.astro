@@ -129,7 +129,7 @@ function subjectMeta(item: {
 				<a
 					href={activeLetterHref(item)}
 					class:list={[
-						'no-underline',
+						'link-quiet',
 						active ? 'text-primary underline' : 'text-on-surface-variant hover:text-primary',
 					]}
 					aria-current={active ? 'true' : undefined}
@@ -155,7 +155,7 @@ function subjectMeta(item: {
 		total === 0 ? (
 			<p class="font-sans text-on-surface-variant">
 				No organizations match these filters.{' '}
-				<a href="/organizations" class="text-primary">
+				<a href="/organizations">
 					Clear filters
 				</a>
 			</p>
@@ -177,7 +177,7 @@ function subjectMeta(item: {
 									slug: item.slug,
 									_id: item._id,
 								})}
-								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
 							>
 								{item.name}
 							</a>

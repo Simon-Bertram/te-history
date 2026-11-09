@@ -1,0 +1,44 @@
+---
+import {hrefFor} from '../lib/href'
+
+interface LinkedArticle {
+	_id?: string | null
+	title?: string | null
+	slug?: string | null
+}
+
+interface Props {
+	node: {
+		links?: Array<LinkedArticle | null> | null
+	}
+}
+
+const {node} = Astro.props
+const links = (node.links ?? []).flatMap((link) => {
+	if (!link?.slug || !link.title) return []
+	return [
+		{
+			href: hrefFor({_type: 'researchArticle', slug: link.slug}),
+			title: link.title,
+			key: link._id ?? link.slug,
+		},
+	]
+})
+---
+
+{
+	links.length > 0 ? (
+		<ul class="not-prose my-8 list-none p-0">
+			{links.map((link) => (
+				<li class="border-b border-outline-variant/20 py-3">
+					<a
+						href={link.href}
+						class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+					>
+						{link.title}
+					</a>
+				</li>
+			))}
+		</ul>
+	) : null
+}

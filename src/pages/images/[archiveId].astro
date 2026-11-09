@@ -33,7 +33,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 	ogType="article"
 >
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
-		<a href="/images" class="text-on-surface-variant no-underline hover:text-primary">Images</a>
+		<a href="/images" class="link-quiet text-on-surface-variant hover:text-primary">Images</a>
 		{' / '}
 		{image.archiveId}
 	</p>
@@ -69,7 +69,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 				<dt class="text-on-surface-variant">Place</dt>
 				<dd>
 					{image.location ? (
-						<a href={hrefFor({_type: 'location', slug: image.location.slug, _id: image.location._id})} class="text-primary no-underline">
+						<a href={hrefFor({_type: 'location', slug: image.location.slug, _id: image.location._id})}>
 							{image.location.name}
 						</a>
 					) : null}
@@ -114,7 +114,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 				<ul class="mt-2 list-none p-0">
 					{image.people.map((person) => (
 						<li>
-							<a href={hrefFor({_type: 'person', slug: person.slug, _id: person._id})} class="text-primary no-underline">
+							<a href={hrefFor({_type: 'person', slug: person.slug, _id: person._id})}>
 								{[person.firstName, person.lastName].filter(Boolean).join(' ')}
 							</a>
 						</li>
@@ -132,7 +132,7 @@ const alt = catalogImageAlt({imageFile: file, title: image.title})
 						<li>
 							<a
 								href={hrefFor({_type: 'category', slug: item.slug, _id: item._id})}
-								class="bg-secondary-fixed px-3 py-1 font-sans text-sm text-on-secondary-fixed no-underline"
+								class="link-quiet bg-secondary-fixed px-3 py-1 font-sans text-sm text-on-secondary-fixed"
 							>
 								{item.title}
 							</a>

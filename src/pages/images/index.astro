@@ -73,7 +73,7 @@ const resultsSummary = hasFilters
 	<h1 class="mt-3 text-display-sm">Photographs</h1>
 	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
 		The landing grid is a curated set of local views. Use the filters to search the full catalog,
-		or <a href="/images?all=1" class="text-primary">browse all images</a>.
+		or <a href="/images?all=1">browse all images</a>.
 	</p>
 
 	<FacetForm
@@ -100,7 +100,7 @@ const resultsSummary = hasFilters
 	{
 		hasFilters && total === 0 ? (
 			<p class="font-sans text-on-surface-variant">
-				No images match these filters. <a href="/images" class="text-primary">Clear filters</a>
+				No images match these filters. <a href="/images">Clear filters</a>
 			</p>
 		) : (
 			<ImageGrid images={images} priorityCount={hasFilters ? 0 : 1} />

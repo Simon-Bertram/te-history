@@ -35,6 +35,7 @@ High-end museum / rare book room. Clinical precision, editorial elegance, genero
 
 - Primary button: `bg-primary` / `text-on-primary`, `rounded-sm` (0.125rem) or none. Not `rounded-lg`.
 - Secondary: `bg-secondary-container` / `text-on-secondary-container`.
+- Content links (`#main`): primary + underline in `primary-fixed` (site default). Quiet hit-targets (titles, grids, breadcrumbs, chips): `link-quiet`. Header/footer stay outside `#main` — variant text, no default underline.
 - Editorial link: Newsreader, underline in `primary-fixed`, no fill.
 - Cards: `bg-surface-container-low`, hover to `bg-surface-container-highest` plus ambient shadow. Padding at least `p-8`. No divider lines.
 - Inputs: `bg-surface-container-lowest`, bottom border `outline-variant` 40%; focus `primary` plus `primary-container` glow.

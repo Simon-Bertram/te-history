@@ -176,8 +176,15 @@
   }
 
   & :where(a) {
+    text-decoration: underline;
     text-decoration-color: var(--primary-fixed);
+    text-underline-offset: 0.2em;
   }
+}
+
+/* Quiet hit-targets inside #main (titles, grids, breadcrumbs, chips). */
+@utility link-quiet {
+  text-decoration-line: none;
 }
 
 @layer base {
@@ -208,6 +215,17 @@
       url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     /* Default attachment (scroll). `fixed` triggers Firefox’s scroll-linked
 		   positioning warning and can fight async panning. */
+  }
+  /* Content links only — header/footer sit outside #main.
+     :where() keeps specificity low so utilities (no-underline, text-*) win. */
+  :where(#main) a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-color: var(--primary-fixed);
+    text-underline-offset: 0.2em;
+  }
+  :where(#main) a:hover {
+    color: var(--primary-container);
   }
   h1,
   h2,

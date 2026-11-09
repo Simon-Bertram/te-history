@@ -51,7 +51,7 @@ const results = q.trim() ? await searchCatalog(q) : {query: q, groups: []}
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
 								href={hit.href}
-								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
 								rel={isExternalHref(hit.href) ? 'noreferrer noopener' : undefined}
 							>
 								{hit.title}

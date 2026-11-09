@@ -73,6 +73,14 @@ export const PORTABLE_TEXT_WITH_EMBEDS = /* groq */ `
 					${IMAGE_ASSET_DIMENSIONS}
 				}
 			}
+		},
+		_type == "internalSubLinks" => {
+			...,
+			links[]->{
+				_id,
+				title,
+				"slug": slug.current
+			}
 		}
 	}
 `

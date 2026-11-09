@@ -38,7 +38,7 @@ const ogImage = hasCatalogImageAsset(leadImage)
 	<section class="mt-14">
 		<div class="mb-6 flex items-end justify-between gap-4">
 			<h2 class="text-2xl">From the collection</h2>
-			<a href="/images" class="font-sans text-sm text-primary no-underline">Browse images</a>
+			<a href="/images" class="font-sans text-sm">Browse images</a>
 		</div>
 		<ImageGrid
 			images={images}
@@ -58,7 +58,7 @@ const ogImage = hasCatalogImageAsset(leadImage)
 					{issue.season ? ` · ${issue.season}` : ''}
 				</h2>
 				<ArticleList items={articles} />
-				<a href="/quarterly" class="mt-4 inline-block font-sans text-sm text-primary no-underline">
+				<a href="/quarterly" class="mt-4 inline-block font-sans text-sm">
 					Volume index
 				</a>
 			</section>

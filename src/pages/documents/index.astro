@@ -70,7 +70,7 @@ const resultsSummary = formatCatalogResultsSummary({
 	{
 		total === 0 ? (
 			<p class="font-sans text-on-surface-variant">
-				No documents match these filters. <a href="/documents" class="text-primary">Clear filters</a>
+				No documents match these filters. <a href="/documents">Clear filters</a>
 			</p>
 		) : (
 			<DocumentList items={result?.documents ?? []} showMeta />

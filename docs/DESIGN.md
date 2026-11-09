@@ -56,6 +56,13 @@ In this design system, depth is a matter of light and material, not artificial s
 *   **Secondary:** Background `secondary_container` (`#cfe2f9`), text `on_secondary_container` (`#526478`).
 *   **Tertiary (Editorial):** No background. Use `Newsreader` bold with a subtle underline in `primary_fixed`.
 
+### Links
+Links must be recognizable without relying on color alone. Roles differ by chrome vs content:
+
+*   **Content (`#main`):** Default anchors use `primary` text with an underline in `primary_fixed` and a short underline offset. Hover shifts to `primary_container`. Portable Text (`prose`) follows the same decoration.
+*   **Quiet hit-targets:** Catalog titles, image grids, breadcrumbs, metadata chips, letter indexes, facet resets, and pagination use `link-quiet` (no underline). Affordance comes from layout or chip fill, not underline.
+*   **Header / footer:** Outside `#main`. Stay quiet — `on_surface_variant` with hover to `primary`; active nav may underline with `primary_fixed`.
+
 ### Cards & Artifact Previews
 *   **Rule:** Forbid divider lines. 
 *   **Styling:** Use `surface_container_low` for the card body. On hover, transition to `surface_container_highest` (`#e5e2db`) and apply an ambient shadow. Ensure padding is generous—use 32px (2rem) minimum to let the "artifact" breathe.

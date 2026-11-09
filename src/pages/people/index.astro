@@ -33,7 +33,7 @@ const groups = [...grouped.entries()]
 		groups.length ? (
 			<nav class="mt-6 flex flex-wrap gap-2 font-sans text-sm" aria-label="Alphabet">
 				{groups.map(([letter]) => (
-					<a href={`#letter-${letter}`} class="text-primary no-underline">
+					<a href={`#letter-${letter}`} class="link-quiet text-primary">
 						{letter === '#' ? 'Other' : letter}
 					</a>
 				))}
@@ -54,7 +54,7 @@ const groups = [...grouped.entries()]
 						<li class="border-b border-outline-variant/20 py-3">
 							<a
 								href={hrefFor({_type: 'person', slug: person.slug, _id: person._id})}
-								class="font-display text-xl text-on-surface no-underline hover:text-primary"
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
 							>
 								{[person.lastName, person.firstName].filter(Boolean).join(', ')}
 							</a>
