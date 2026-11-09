@@ -1,34 +1,174 @@
 ---
-import type {NavLink} from '../lib/nav'
+import type {NavItem} from '../lib/nav'
+import {isNavMenu} from '../lib/nav'
 
 interface Props {
-	links: NavLink[]
+	links: NavItem[]
 }
 
 const {links} = Astro.props
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/'
-const isActive = (href: string) =>
-	(href.replace(/\/$/, '') || '/') === currentPath
+const normalize = (href: string) => href.replace(/\/$/, '') || '/'
+const isActive = (href: string) => normalize(href) === currentPath
+const menuHasActiveChild = (item: Extract<NavItem, {children: unknown}>) =>
+	item.children.some((child) => isActive(child.href))
+
+const linkClass = (active: boolean) => [
+	'block py-3 font-sans text-base tracking-[0.04em] transition-colors',
+	'lg:inline lg:py-0 lg:text-sm',
+	active
+		? 'font-medium text-primary underline decoration-primary-fixed underline-offset-4'
+		: 'text-on-surface-variant no-underline hover:text-primary',
+]
 ---
 
-<ul class="flex list-none flex-col gap-0 p-0 lg:flex-row lg:flex-wrap lg:gap-8">
+<ul class="nav-links flex list-none flex-col gap-0 p-0 lg:flex-row lg:flex-wrap lg:gap-8">
 	{
-		links.map((link) => (
-			<li>
-				<a
-					href={link.href}
-					aria-current={isActive(link.href) ? 'page' : undefined}
-					class:list={[
-						'block py-3 font-sans text-base tracking-[0.04em] transition-colors',
-						'lg:inline lg:py-0 lg:text-sm',
-						isActive(link.href)
-							? 'font-medium text-primary underline decoration-primary-fixed underline-offset-4'
-							: 'text-on-surface-variant no-underline hover:text-primary',
-					]}
-				>
-					{link.label}
-				</a>
-			</li>
-		))
+		links.map((link) =>
+			isNavMenu(link) ? (
+				<li class="nav-menu-item relative">
+					<details class="nav-menu group" open={menuHasActiveChild(link) ? true : undefined}>
+						<summary
+							class:list={[
+								'nav-menu-summary cursor-pointer list-none py-3 font-sans text-base tracking-[0.04em]',
+								'lg:inline-flex lg:items-center lg:gap-1 lg:py-0 lg:text-sm',
+								menuHasActiveChild(link)
+									? 'font-medium text-primary'
+									: 'text-on-surface-variant hover:text-primary',
+							]}
+						>
+							{link.label}
+							<span class="nav-menu-chevron" aria-hidden="true" />
+						</summary>
+						<ul class="nav-submenu list-none p-0">
+							{link.children.map((child) => (
+								<li>
+									<a
+										href={child.href}
+										aria-current={isActive(child.href) ? 'page' : undefined}
+										class:list={[
+											'block py-2 pl-4 font-sans text-base tracking-[0.04em] transition-colors lg:py-2 lg:pl-0 lg:text-sm',
+											isActive(child.href)
+												? 'font-medium text-primary underline decoration-primary-fixed underline-offset-4'
+												: 'text-on-surface-variant no-underline hover:text-primary',
+										]}
+									>
+										{child.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</details>
+				</li>
+			) : (
+				<li>
+					<a
+						href={link.href}
+						aria-current={isActive(link.href) ? 'page' : undefined}
+						class:list={linkClass(isActive(link.href))}
+					>
+						{link.label}
+					</a>
+				</li>
+			),
+		)
 	}
 </ul>
+
+<style>
+	.nav-menu-summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.nav-menu-chevron {
+		display: inline-block;
+		width: 0.4rem;
+		height: 0.4rem;
+		margin-inline-start: 0.35rem;
+		border-inline-end: 1.5px solid currentColor;
+		border-bottom: 1.5px solid currentColor;
+		transform: rotate(45deg) translateY(-0.1rem);
+		transition: transform 180ms ease-out;
+	}
+
+	.nav-menu[open] > .nav-menu-summary .nav-menu-chevron {
+		transform: rotate(225deg) translateY(-0.05rem);
+	}
+
+	.nav-submenu {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+	}
+
+	@media (width >= 64rem) {
+		.nav-menu {
+			position: relative;
+		}
+
+		.nav-submenu {
+			position: absolute;
+			inset-inline-start: 0;
+			top: calc(100% + 0.75rem);
+			z-index: 2;
+			min-width: 12rem;
+			gap: 0.125rem;
+			padding: 0.75rem 1rem;
+			background: var(--surface);
+			box-shadow: 0 12px 32px
+				color-mix(in srgb, var(--on-surface) 8%, transparent);
+		}
+
+		.nav-menu:not([open]) .nav-submenu {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.nav-menu-chevron {
+			transition-duration: 0s;
+		}
+	}
+</style>
+
+<script>
+	const desktopQuery = window.matchMedia('(min-width: 64rem)')
+
+	function closeOtherMenus(current: HTMLDetailsElement) {
+		document
+			.querySelectorAll<HTMLDetailsElement>('.nav-menu[open]')
+			.forEach((menu) => {
+				if (menu !== current) menu.open = false
+			})
+	}
+
+	function onDocumentClick(event: MouseEvent) {
+		if (!desktopQuery.matches) return
+		const target = event.target
+		if (!(target instanceof Node)) return
+		document
+			.querySelectorAll<HTMLDetailsElement>('.nav-menu[open]')
+			.forEach((menu) => {
+				if (!menu.contains(target)) menu.open = false
+			})
+	}
+
+	function onDocumentKeydown(event: KeyboardEvent) {
+		if (event.key !== 'Escape') return
+		document
+			.querySelectorAll<HTMLDetailsElement>('.nav-menu[open]')
+			.forEach((menu) => {
+				menu.open = false
+			})
+	}
+
+	document.querySelectorAll<HTMLDetailsElement>('.nav-menu').forEach((menu) => {
+		menu.addEventListener('toggle', () => {
+			if (!menu.open || !desktopQuery.matches) return
+			closeOtherMenus(menu)
+		})
+	})
+
+	document.addEventListener('click', onDocumentClick)
+	document.addEventListener('keydown', onDocumentKeydown)
+</script>

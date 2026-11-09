@@ -535,6 +535,95 @@
     }
   },
   {
+    "name": "navSubLink",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "navSubLink"
+          }
+        },
+        "label": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "href": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "purpose": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "navMenu",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "navMenu"
+          }
+        },
+        "label": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "children": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "navSubLink"
+              }
+            }
+          },
+          "optional": true
+        },
+        "purpose": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "navLink",
     "type": "type",
     "value": {
@@ -1105,19 +1194,39 @@
         "value": {
           "type": "array",
           "of": {
-            "type": "object",
-            "attributes": {
-              "_key": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
+            "type": "union",
+            "of": [
+              {
+                "type": "object",
+                "attributes": {
+                  "_key": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rest": {
+                  "type": "inline",
+                  "name": "navLink"
+                }
+              },
+              {
+                "type": "object",
+                "attributes": {
+                  "_key": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rest": {
+                  "type": "inline",
+                  "name": "navMenu"
                 }
               }
-            },
-            "rest": {
-              "type": "inline",
-              "name": "navLink"
-            }
+            ]
           }
         },
         "optional": true
@@ -1127,19 +1236,39 @@
         "value": {
           "type": "array",
           "of": {
-            "type": "object",
-            "attributes": {
-              "_key": {
-                "type": "objectAttribute",
-                "value": {
-                  "type": "string"
+            "type": "union",
+            "of": [
+              {
+                "type": "object",
+                "attributes": {
+                  "_key": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rest": {
+                  "type": "inline",
+                  "name": "navLink"
+                }
+              },
+              {
+                "type": "object",
+                "attributes": {
+                  "_key": {
+                    "type": "objectAttribute",
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rest": {
+                  "type": "inline",
+                  "name": "navMenu"
                 }
               }
-            },
-            "rest": {
-              "type": "inline",
-              "name": "navLink"
-            }
+            ]
           }
         },
         "optional": true
@@ -1305,6 +1434,13 @@
         "optional": true
       },
       "description": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "internalComments": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -2088,6 +2224,36 @@
     }
   },
   {
+    "type": "type",
+    "name": "category.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "category"
+    }
+  },
+  {
     "name": "researchArticle",
     "type": "document",
     "attributes": {
@@ -2240,6 +2406,28 @@
                 "name": "organization.reference"
               }
             ]
+          }
+        },
+        "optional": true
+      },
+      "subjects": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "category.reference"
+            }
           }
         },
         "optional": true
@@ -2761,7 +2949,7 @@
   },
   {
     "type": "type",
-    "name": "category.reference",
+    "name": "placeCollection.reference",
     "value": {
       "type": "object",
       "attributes": {
@@ -2786,7 +2974,7 @@
           "optional": true
         }
       },
-      "dereferencesTo": "category"
+      "dereferencesTo": "placeCollection"
     }
   },
   {
@@ -2921,6 +3109,19 @@
         },
         "optional": true
       },
+      "origin": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "aerial"
+            }
+          ]
+        },
+        "optional": true
+      },
       "serialNumber": {
         "type": "objectAttribute",
         "value": {
@@ -2929,6 +3130,13 @@
         "optional": true
       },
       "title": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "caption": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -3047,6 +3255,60 @@
         "value": {
           "type": "inline",
           "name": "geopoint"
+        },
+        "optional": true
+      },
+      "placeCollection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "placeCollection.reference"
+        },
+        "optional": true
+      },
+      "direction": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "addToSelectedPhotosCollection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "selectedCollection": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "airfields"
+            },
+            {
+              "type": "string",
+              "value": "bridges"
+            },
+            {
+              "type": "string",
+              "value": "railroads"
+            },
+            {
+              "type": "string",
+              "value": "philadelphia-art-museum"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "addedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       },
@@ -3295,13 +3557,6 @@
         },
         "optional": true
       },
-      "notes": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
       "featuredOnSite": {
         "type": "objectAttribute",
         "value": {
@@ -3313,6 +3568,13 @@
         "type": "objectAttribute",
         "value": {
           "type": "number"
+        },
+        "optional": true
+      },
+      "notes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       }
@@ -3440,6 +3702,13 @@
           }
         },
         "optional": true
+      },
+      "internalComments": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       }
     }
   },
@@ -3477,6 +3746,58 @@
           },
           "optional": true
         }
+      }
+    }
+  },
+  {
+    "name": "placeCollection",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "placeCollection"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "title": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": true
       }
     }
   },
@@ -5046,6 +5367,83 @@
         },
         "optional": true
       },
+      "documentKind": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "newspaperArticle"
+            },
+            {
+              "type": "string",
+              "value": "newspaperAdvertisement"
+            },
+            {
+              "type": "string",
+              "value": "newspaperClipping"
+            },
+            {
+              "type": "string",
+              "value": "letter"
+            },
+            {
+              "type": "string",
+              "value": "will"
+            },
+            {
+              "type": "string",
+              "value": "petition"
+            },
+            {
+              "type": "string",
+              "value": "obituary"
+            },
+            {
+              "type": "string",
+              "value": "interview"
+            },
+            {
+              "type": "string",
+              "value": "diary"
+            },
+            {
+              "type": "string",
+              "value": "census"
+            },
+            {
+              "type": "string",
+              "value": "deedRelated"
+            },
+            {
+              "type": "string",
+              "value": "orphanCourt"
+            },
+            {
+              "type": "string",
+              "value": "schoolAccounts"
+            },
+            {
+              "type": "string",
+              "value": "administration"
+            },
+            {
+              "type": "string",
+              "value": "genealogical"
+            },
+            {
+              "type": "string",
+              "value": "familyHistory"
+            },
+            {
+              "type": "string",
+              "value": "originalDocument"
+            }
+          ]
+        },
+        "optional": true
+      },
       "date": {
         "type": "objectAttribute",
         "value": {
@@ -5461,6 +5859,13 @@
               }
             ]
           }
+        },
+        "optional": true
+      },
+      "internalComments": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       }
@@ -6085,6 +6490,13 @@
               "name": "immediateRelative"
             }
           }
+        },
+        "optional": true
+      },
+      "internalComments": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       }

@@ -74,7 +74,13 @@ GROQ optional fields are `string | null`, not `string?`. Helpers that sort or co
 
 ## Navigation types
 
-`NavLink` and `SiteNavigation` live in [`src/lib/nav.ts`](../src/lib/nav.ts) so [`siteNavigation.ts`](../src/lib/siteNavigation.ts) and [`navFallback.ts`](../src/lib/navFallback.ts) do not import each other. Components import `NavLink` from `nav.ts`.
+`NavLink`, `NavMenu`, `NavSubLink`, `NavItem`, and `SiteNavigation` live in [`src/lib/nav.ts`](../src/lib/nav.ts) so [`siteNavigation.ts`](../src/lib/siteNavigation.ts) and [`navFallback.ts`](../src/lib/navFallback.ts) do not import each other. Components import those types from `nav.ts`.
+
+- `NavLink` — leaf header/footer link (`href`, `kind: 'page' | 'search'`)
+- `NavMenu` — collapsible parent (`label` + `children: NavSubLink[]`; no `href`)
+- `NavItem` — `NavLink | NavMenu` (discriminate with `isNavMenu` / `isNavLink`)
+
+For the full Studio → Astro checklist when wiring a new field or nested object, see [FETCHING.md](FETCHING.md).
 
 ## Workflow
 

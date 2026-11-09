@@ -87,6 +87,24 @@ export type CensusRecord = {
   occupation?: string;
 };
 
+export type NavSubLink = {
+  _type: "navSubLink";
+  label?: string;
+  href?: string;
+  purpose?: string;
+};
+
+export type NavMenu = {
+  _type: "navMenu";
+  label?: string;
+  children?: Array<
+    {
+      _key: string;
+    } & NavSubLink
+  >;
+  purpose?: string;
+};
+
 export type NavLink = {
   _type: "navLink";
   label?: string;
@@ -180,14 +198,20 @@ export type SiteNavigation = {
   _updatedAt: string;
   _rev: string;
   primaryLinks?: Array<
-    {
-      _key: string;
-    } & NavLink
+    | ({
+        _key: string;
+      } & NavLink)
+    | ({
+        _key: string;
+      } & NavMenu)
   >;
   secondaryLinks?: Array<
-    {
-      _key: string;
-    } & NavLink
+    | ({
+        _key: string;
+      } & NavLink)
+    | ({
+        _key: string;
+      } & NavMenu)
   >;
 };
 
@@ -221,6 +245,7 @@ export type FamilyLine = {
   _rev: string;
   title?: string;
   description?: string;
+  internalComments?: string;
 };
 
 export type QuarterlyIssueReference = {
@@ -351,6 +376,13 @@ export type Slug = {
   source?: string;
 };
 
+export type CategoryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "category";
+};
+
 export type ResearchArticle = {
   _id: string;
   _type: "researchArticle";
@@ -378,6 +410,11 @@ export type ResearchArticle = {
     } & PropertyReference
   >;
   organizations?: ArrayOf<BusinessReference | OrganizationReference>;
+  subjects?: Array<
+    {
+      _key: string;
+    } & CategoryReference
+  >;
   body?: Array<
     | {
         children?: Array<{
@@ -450,11 +487,11 @@ export type LocationReference = {
   [internalGroqTypeReferenceTo]?: "location";
 };
 
-export type CategoryReference = {
+export type PlaceCollectionReference = {
   _ref: string;
   _type: "reference";
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "category";
+  [internalGroqTypeReferenceTo]?: "placeCollection";
 };
 
 export type QuarterlyArticleReference = {
@@ -485,8 +522,10 @@ export type HistoricalImage = {
   _updatedAt: string;
   _rev: string;
   archiveId?: string;
+  origin?: "aerial";
   serialNumber?: string;
   title?: string;
+  caption?: string;
   dateTaken?: HistoricalDate;
   imageFile?: {
     asset?: SanityImageAssetReference;
@@ -505,6 +544,12 @@ export type HistoricalImage = {
   location?: LocationReference;
   township?: TownshipReference;
   coordinates?: Geopoint;
+  placeCollection?: PlaceCollectionReference;
+  direction?: string;
+  addToSelectedPhotosCollection?: boolean;
+  selectedCollection?:
+    "airfields" | "bridges" | "railroads" | "philadelphia-art-museum";
+  addedAt?: string;
   organizations?: ArrayOf<BusinessReference | OrganizationReference>;
   subjects?: Array<
     {
@@ -535,9 +580,9 @@ export type HistoricalImage = {
   donation?: DonationReference;
   photographer?: string;
   rights?: string;
-  notes?: string;
   featuredOnSite?: boolean;
   featuredRank?: number;
+  notes?: string;
 };
 
 export type DonationCategoryReference = {
@@ -563,6 +608,7 @@ export type Donation = {
       _key: string;
     } & DonationCategoryReference
   >;
+  internalComments?: string;
 };
 
 export type Geopoint = {
@@ -570,6 +616,16 @@ export type Geopoint = {
   lat?: number;
   lng?: number;
   alt?: number;
+};
+
+export type PlaceCollection = {
+  _id: string;
+  _type: "placeCollection";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
 };
 
 export type QuarterlyArticle = {
@@ -825,6 +881,24 @@ export type PrimarySource = {
   _rev: string;
   archiveId?: string;
   title?: string;
+  documentKind?:
+    | "newspaperArticle"
+    | "newspaperAdvertisement"
+    | "newspaperClipping"
+    | "letter"
+    | "will"
+    | "petition"
+    | "obituary"
+    | "interview"
+    | "diary"
+    | "census"
+    | "deedRelated"
+    | "orphanCourt"
+    | "schoolAccounts"
+    | "administration"
+    | "genealogical"
+    | "familyHistory"
+    | "originalDocument";
   date?: HistoricalDate;
   newspaper?: string;
   articleImage?: {
@@ -881,6 +955,7 @@ export type PrimarySource = {
     } & CategoryReference
   >;
   citations?: ArrayOf<QuarterlyArticleReference | ThenAndNowReference>;
+  internalComments?: string;
 };
 
 export type DeedReference = {
@@ -993,6 +1068,7 @@ export type Person = {
       _key: string;
     } & ImmediateRelative
   >;
+  internalComments?: string;
 };
 
 export type CountyReference = {
@@ -1139,6 +1215,8 @@ export type AllSanitySchemaTypes =
   | ImmediateRelative
   | HistoricalDate
   | CensusRecord
+  | NavSubLink
+  | NavMenu
   | NavLink
   | ResearchArticleReference
   | InternalSubLinks
@@ -1160,9 +1238,10 @@ export type AllSanitySchemaTypes =
   | SanityImageCrop
   | SanityImageHotspot
   | Slug
+  | CategoryReference
   | ResearchArticle
   | LocationReference
-  | CategoryReference
+  | PlaceCollectionReference
   | QuarterlyArticleReference
   | ThenAndNowReference
   | DonationReference
@@ -1170,6 +1249,7 @@ export type AllSanitySchemaTypes =
   | DonationCategoryReference
   | Donation
   | Geopoint
+  | PlaceCollection
   | QuarterlyArticle
   | SanityFileAssetReference
   | QuarterlyIssue
@@ -2702,27 +2782,65 @@ export type SEARCH_CATALOG_QUERY_RESULT = {
 
 // Source: src/lib/siteNavigation.ts
 // Variable: SITE_NAVIGATION_QUERY
-// Query: *[_id == "siteNavigation"][0]{		primaryLinks[]{_key, label, href, kind, purpose},		secondaryLinks[]{_key, label, href, kind, purpose}	}
+// Query: *[_id == "siteNavigation"][0]{		primaryLinks[]{			_key,			_type,			label,			href,			kind,			purpose,			children[]{_key, _type, label, href, purpose}		},		secondaryLinks[]{			_key,			_type,			label,			href,			kind,			purpose,			children[]{_key, _type, label, href, purpose}		}	}
 export type SITE_NAVIGATION_QUERY_RESULT =
   | {
       primaryLinks: null;
       secondaryLinks: null;
     }
   | {
-      primaryLinks: Array<{
-        _key: string;
-        label: string | null;
-        href: string | null;
-        kind: "page" | "search" | null;
-        purpose: string | null;
-      }> | null;
-      secondaryLinks: Array<{
-        _key: string;
-        label: string | null;
-        href: string | null;
-        kind: "page" | "search" | null;
-        purpose: string | null;
-      }> | null;
+      primaryLinks: Array<
+        | {
+            _key: string;
+            _type: "navLink";
+            label: string | null;
+            href: string | null;
+            kind: "page" | "search" | null;
+            purpose: string | null;
+            children: null;
+          }
+        | {
+            _key: string;
+            _type: "navMenu";
+            label: string | null;
+            href: null;
+            kind: null;
+            purpose: string | null;
+            children: Array<{
+              _key: string;
+              _type: "navSubLink";
+              label: string | null;
+              href: string | null;
+              purpose: string | null;
+            }> | null;
+          }
+      > | null;
+      secondaryLinks: Array<
+        | {
+            _key: string;
+            _type: "navLink";
+            label: string | null;
+            href: string | null;
+            kind: "page" | "search" | null;
+            purpose: string | null;
+            children: null;
+          }
+        | {
+            _key: string;
+            _type: "navMenu";
+            label: string | null;
+            href: null;
+            kind: null;
+            purpose: string | null;
+            children: Array<{
+              _key: string;
+              _type: "navSubLink";
+              label: string | null;
+              href: string | null;
+              purpose: string | null;
+            }> | null;
+          }
+      > | null;
     }
   | null;
 
@@ -2842,7 +2960,7 @@ declare global {
     '\n\t*[_type == "researchArticle" && slug.current == $slug][0]{\n\t\t_id, title,\n\t\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t_type == "internalSubLinks" => {\n\t\t\t...,\n\t\t\tlinks[]->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\t"slug": slug.current\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t_type == "internalSubLinks" => {\n\t\t\t...,\n\t\t\tlinks[]->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\t"slug": slug.current\n\t\t\t}\n\t\t}\n\t}\n\n\t}\n': RESEARCH_BY_SLUG_QUERY_RESULT;
     '\n\t*[_type == "researchArticle" && defined(slug.current)]{\n\t\t_id, title,\n\t\t"body": body\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t_type == "internalSubLinks" => {\n\t\t\t...,\n\t\t\tlinks[]->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\t"slug": slug.current\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"notesAndReferences": notesAndReferences\n\t[]{\n\t\t...,\n\t\t_type == "historicalImageEmbed" => {\n\t\t\t...,\n\t\t\thistoricalImage->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\tarchiveId,\n\t\t\t\timageFile {\n\t\t\t\t\t...,\n\t\t\t\t\talt,\n\t\t\t\t\t\n\tasset->{\n\t\t_id,\n\t\tmetadata { dimensions { width, height } }\n\t}\n\n\t\t\t\t}\n\t\t\t}\n\t\t},\n\t\t_type == "internalSubLinks" => {\n\t\t\t...,\n\t\t\tlinks[]->{\n\t\t\t\t_id,\n\t\t\t\ttitle,\n\t\t\t\t"slug": slug.current\n\t\t\t}\n\t\t}\n\t}\n,\n\t\t"slug": slug.current\n\t}\n': RESEARCH_PATHS_QUERY_RESULT;
     '{\n\t"images": *[_type == "historicalImage" && (archiveId match $exact || title match $q || archiveId match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId\n\t},\n\t"documents": *[_type == "primarySource" && (archiveId match $exact || title match $q)] | order(title asc)[0...12]{\n\t\t_id, _type, title, archiveId, newspaper\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && (title match $q || sourceKey match $exact || slug.current match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, "slug": slug.current, sourceKey\n\t},\n\t"research": *[_type == "researchArticle" && (title match $q || archiveId match $exact)] | order(title asc)[0...12]{\n\t\t_id, _type, title, "slug": slug.current, archiveId\n\t},\n\t"people": *[_type == "person" && (firstName match $q || lastName match $q) && \n\tdefined(*[_type in ["historicalImage", "primarySource", "quarterlyArticle", "researchArticle"] && references(^._id)][0]._id)\n] | order(lastName asc)[0...12]{\n\t\t_id, _type, firstName, lastName, "slug": coalesce(slug.current, _id)\n\t},\n\t"places": *[_type in ["township", "location"] && name match $q] | order(name asc)[0...12]{\n\t\t_id, _type, name, "slug": coalesce(slug.current, _id)\n\t}\n}': SEARCH_CATALOG_QUERY_RESULT;
-    '\n\t*[_id == "siteNavigation"][0]{\n\t\tprimaryLinks[]{_key, label, href, kind, purpose},\n\t\tsecondaryLinks[]{_key, label, href, kind, purpose}\n\t}\n': SITE_NAVIGATION_QUERY_RESULT;
+    '\n\t*[_id == "siteNavigation"][0]{\n\t\tprimaryLinks[]{\n\t\t\t_key,\n\t\t\t_type,\n\t\t\tlabel,\n\t\t\thref,\n\t\t\tkind,\n\t\t\tpurpose,\n\t\t\tchildren[]{_key, _type, label, href, purpose}\n\t\t},\n\t\tsecondaryLinks[]{\n\t\t\t_key,\n\t\t\t_type,\n\t\t\tlabel,\n\t\t\thref,\n\t\t\tkind,\n\t\t\tpurpose,\n\t\t\tchildren[]{_key, _type, label, href, purpose}\n\t\t}\n\t}\n': SITE_NAVIGATION_QUERY_RESULT;
     '\n\t*[_type == "category"] | order(title asc){\n\t\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t\t"imageCount": count(*[_type == "historicalImage" && references(^._id)])\n\t}\n': SUBJECT_HUBS_QUERY_RESULT;
     '\n\t*[_type == "category" && (_id == $slug || slug.current == $slug)][0]{\n\t\t\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, "slug": slug.current\n\t}\n\n\t}\n': SUBJECT_HUB_QUERY_RESULT;
     '\n\t*[_type == "category"]{\n\t_id, title, description, "slug": coalesce(slug.current, _id),\n\t"imageCount": count(*[_type == "historicalImage" && references(^._id)]),\n\t"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...12]{\n\t\t\n\t_id, title, archiveId, dateTaken,\n\timageFile {\n\t\t...,\n\t\talt\n\t},\n\t"township": township->name\n\n\t},\n\t"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...8]{\n\t\t\n\t_id, title, archiveId\n\n\t},\n\t"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...8]{\n\t\t_id, title, "slug": slug.current\n\t}\n}\n': SUBJECT_PATHS_QUERY_RESULT;

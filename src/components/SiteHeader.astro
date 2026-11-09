@@ -1,11 +1,11 @@
 ---
-import type {NavLink} from '../lib/nav'
+import type {NavItem} from '../lib/nav'
 import Navlinks from './Navlinks.astro'
 import Search from './Search.astro'
 import SiteLogo from './SiteLogo.astro'
 
 interface Props {
-	links: NavLink[]
+	links: NavItem[]
 	showSearch: boolean
 	searchAction: string
 }

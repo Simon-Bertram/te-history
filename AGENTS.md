@@ -37,7 +37,7 @@ Use `bun` / `bunx` for every install, script, binary, and one-off CLI. Do not us
 
 GROQ helpers in `src/lib/` (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `organizations.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`) call `sanityClient.fetch`. Pages import those helpers and render `.astro` components. Prefer existing lib functions over new ad-hoc GROQ in pages. Catalog links go through `hrefFor` in `href.ts`; image/document facets share `buildFacetQuery` in `facets.ts`. People, places, subjects, and organizations use `slug.current` when present, otherwise `_id` (old `_id` URLs 301 to the slug). Images and documents use `archiveId`.
 
-Follow [docs/TYPES.md](docs/TYPES.md) for TypeGen, `defineQuery`, and catalog result types. Do not re-declare `{ _id: string; title: string }` in pages.
+Follow [docs/FETCHING.md](docs/FETCHING.md) for the Studio → `schema.json` → GROQ → page checklist. Follow [docs/TYPES.md](docs/TYPES.md) for TypeGen, `defineQuery`, and catalog result types. Do not re-declare `{ _id: string; title: string }` in pages.
 
 - Images: `urlFor` / `catalogGridSrc` / `catalogDetailSrc` in `src/lib/imageUrl.ts` (`@sanity/image-url`, `auto('format')`, srcset)
 - Rich text: `astro-portabletext` via `PortableTextBody.astro` (`historicalImageEmbed` in research body/notes and document transcription)

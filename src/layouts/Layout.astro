@@ -5,6 +5,7 @@ import ExploreFooter from '../components/ExploreFooter.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 import {absoluteUrl} from '../lib/href'
 import {
+	flattenPageLinks,
 	getSiteNavigation,
 	hasSearchControl,
 	pageLinks,
@@ -94,7 +95,7 @@ const twitterCard = absoluteOgImage ? 'summary_large_image' : 'summary'
 		>
 			<slot />
 		</main>
-		<ExploreFooter links={nav.secondaryLinks} />
+		<ExploreFooter links={flattenPageLinks(nav.secondaryLinks)} />
 	</body>
 </html>
 
