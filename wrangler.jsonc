@@ -16,7 +16,13 @@
 			"/documents",
 			"/documents/*",
 			"/research",
-			"/research/"
+			"/research/",
+			"/organizations",
+			"/organizations/",
+			"/properties",
+			"/properties/",
+			"/businesses",
+			"/businesses/"
 		]
 	},
 	"observability": {

@@ -75,6 +75,8 @@ export default defineConfig({
         `${site}/images`,
         `${site}/documents`,
         `${site}/research`,
+        `${site}/organizations`,
+        `${site}/properties`,
       ],
     }),
   ],
