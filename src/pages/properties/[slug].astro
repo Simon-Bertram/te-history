@@ -1,0 +1,154 @@
+---
+import ArticleList from '../../components/ArticleList.astro'
+import DocumentList from '../../components/DocumentList.astro'
+import HubPage from '../../components/HubPage.astro'
+import {hrefFor} from '../../lib/href'
+import {getPropertyHubPaths} from '../../lib/properties'
+import {propertyTypeLabel} from '../../lib/propertyTypes'
+
+export async function getStaticPaths() {
+	return getPropertyHubPaths()
+}
+
+const {property} = Astro.props
+const name = property.historicalName ?? property._id
+const typeLabel = propertyTypeLabel(property.propertyType)
+const place = [property.location?.name, property.township?.name].filter(Boolean).join(', ')
+const residents = property.notableResidents ?? []
+const related = property.relatedEntities ?? []
+const parent = property.parentEstate
+---
+
+<HubPage
+	title={name}
+	description={property.evolutionNotes ?? undefined}
+	parentHref="/properties"
+	parentLabel="Properties"
+	heading={name}
+	images={property.images ?? []}
+	imageCount={property.imageCount ?? 0}
+	seeAllHref={`/search?q=${encodeURIComponent(name)}`}
+>
+	<div slot="lede" class="mt-4 max-w-2xl">
+		{
+			typeLabel ? (
+				<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+					{typeLabel}
+				</p>
+			) : null
+		}
+		{
+			property.yearBuilt != null || place || property.modernAddress ? (
+				<p class="mt-2 font-sans text-on-surface-variant">
+					{[
+						property.yearBuilt != null ? String(property.yearBuilt) : null,
+						place || null,
+						property.modernAddress || null,
+					]
+						.filter(Boolean)
+						.join(' · ')}
+				</p>
+			) : null
+		}
+		{
+			property.evolutionNotes ? (
+				<p class="mt-4 font-sans text-on-surface-variant">{property.evolutionNotes}</p>
+			) : null
+		}
+	</div>
+
+	{
+		parent?.historicalName ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Parent estate</h2>
+				<ul class="mt-4 list-none p-0">
+					<li class="border-b border-outline-variant/20 py-3">
+						<a
+							href={hrefFor({
+								_type: 'property',
+								slug: parent.slug,
+								_id: parent._id,
+							})}
+							class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+						>
+							{parent.historicalName}
+						</a>
+					</li>
+				</ul>
+			</section>
+		) : null
+	}
+
+	{
+		residents.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Notable residents / owners</h2>
+				<ul class="mt-4 list-none p-0">
+					{residents.map((person) => {
+						const personName = [person.firstName, person.lastName]
+							.filter(Boolean)
+							.join(' ')
+						return (
+							<li class="border-b border-outline-variant/20 py-3">
+								<a
+									href={hrefFor({
+										_type: 'person',
+										slug: person.slug,
+										_id: person._id,
+									})}
+									class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+								>
+									{personName || person._id}
+								</a>
+							</li>
+						)
+					})}
+				</ul>
+			</section>
+		) : null
+	}
+
+	{
+		related.length ? (
+			<section class="mt-12">
+				<h2 class="text-2xl">Related businesses &amp; organizations</h2>
+				<ul class="mt-4 list-none p-0">
+					{related.map((entity) => (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a
+								href={hrefFor({
+									_type: entity._type,
+									slug: entity.slug,
+									_id: entity._id,
+								})}
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+							>
+								{entity.name}
+							</a>
+							<span class="font-sans text-sm text-on-surface-variant">
+								{' '}
+								· {entity._type === 'business' ? 'Business' : 'Organization'}
+							</span>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
+
+	<DocumentList items={property.documents ?? []} heading="Documents" />
+	<ArticleList
+		items={(property.quarterly ?? []).map((article) => ({
+			...article,
+			_type: 'quarterlyArticle',
+		}))}
+		heading="TEHS Quarterly articles"
+	/>
+	<ArticleList
+		items={(property.research ?? []).map((article) => ({
+			...article,
+			_type: 'researchArticle',
+		}))}
+		heading="Research articles"
+	/>
+</HubPage>

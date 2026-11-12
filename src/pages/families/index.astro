@@ -1,0 +1,78 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import {getFamilies, type FamilyListItem} from '../../lib/families'
+import {hrefFor} from '../../lib/href'
+
+function letterOf(family: FamilyListItem): string {
+	const title = (family.title ?? '').trim().replace(/^the\s+/i, '')
+	const raw = (title || '?').slice(0, 1).toUpperCase()
+	return /[A-Z]/.test(raw) ? raw : '#'
+}
+
+const families = await getFamilies()
+const grouped = new Map<string, FamilyListItem[]>()
+for (const family of families ?? []) {
+	const letter = letterOf(family)
+	const members = grouped.get(letter) ?? []
+	members.push(family)
+	grouped.set(letter, members)
+}
+const groups = [...grouped.entries()]
+---
+
+<Layout
+	title="Families"
+	description="Family lineages linked to people in the Tredyffrin Easttown historical catalog."
+>
+	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">Families</p>
+	<h1 class="mt-3 text-display-sm">Families &amp; lineages</h1>
+	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
+		Named family lines with brief historical background and links to people in the catalog.
+	</p>
+	{
+		groups.length ? (
+			<nav class="mt-6 flex flex-wrap gap-2 font-sans text-sm" aria-label="Alphabet">
+				{groups.map(([letter]) => (
+					<a href={`#letter-${letter}`} class="link-quiet text-primary">
+						{letter === '#' ? 'Other' : letter}
+					</a>
+				))}
+			</nav>
+		) : (
+			<p class="mt-8 font-sans text-on-surface-variant">No family lines are published yet.</p>
+		)
+	}
+	{
+		groups.map(([letter, members]) => (
+			<section class="mt-10">
+				<h2
+					id={`letter-${letter}`}
+					class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant"
+				>
+					{letter === '#' ? 'Other' : letter}
+				</h2>
+				<ul class="mt-3 list-none p-0">
+					{members.map((family) => (
+						<li class="border-b border-outline-variant/20 py-3">
+							<a
+								href={hrefFor({
+									_type: 'familyLine',
+									slug: family.slug,
+									_id: family._id,
+								})}
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+							>
+								{family.title}
+							</a>
+							<p class="font-sans text-sm text-on-surface-variant">
+								{family.personCount ?? 0}{' '}
+								{(family.personCount ?? 0) === 1 ? 'person' : 'people'}
+								{family.description ? ` · ${family.description}` : ''}
+							</p>
+						</li>
+					))}
+				</ul>
+			</section>
+		))
+	}
+</Layout>

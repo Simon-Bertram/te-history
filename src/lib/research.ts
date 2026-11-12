@@ -55,13 +55,29 @@ export async function getFeaturedResearch(): Promise<FeaturedResearchArticle[]> 
 	return (await sanityClient.fetch(FEATURED_RESEARCH_FALLBACK_QUERY)) ?? []
 }
 
-export async function getResearchArticles(townshipId?: string): Promise<ResearchListItem[]> {
-	if (!townshipId?.trim()) {
+export async function getResearchArticles(params?: {
+	townshipId?: string
+	q?: string
+}): Promise<ResearchListItem[]> {
+	const townshipId = params?.townshipId?.trim() ?? ''
+	const q = params?.q?.trim() ?? ''
+	if (!townshipId && !q) {
 		return (await sanityClient.fetch(RESEARCH_ARTICLES_QUERY)) ?? []
 	}
-	const groqParams = {townshipId: townshipId.trim()}
-	// @sanity-typegen-ignore — township filter is interpolated at runtime
-	const query = /* groq */ `*[_type == "researchArticle" && defined(slug.current) && $townshipId in townships[]._ref] | order(title asc){_id, title, "slug": slug.current}`
+
+	const filters = ['_type == "researchArticle"', 'defined(slug.current)']
+	const groqParams: Record<string, string> = {}
+	if (townshipId) {
+		filters.push('$townshipId in townships[]._ref')
+		groqParams.townshipId = townshipId
+	}
+	if (q) {
+		filters.push('title match $q')
+		groqParams.q = `*${q}*`
+	}
+	const filter = filters.join(' && ')
+	// @sanity-typegen-ignore — township and title filters are interpolated at runtime
+	const query = /* groq */ `*[${filter}] | order(title asc){_id, title, "slug": slug.current}`
 	return (await sanityClient.fetch(query, groqParams)) ?? []
 }
 

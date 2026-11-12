@@ -33,13 +33,11 @@ const thenAndNow = organization.thenAndNow ?? []
 	seeAllHref={`/search?q=${encodeURIComponent(name)}`}
 >
 	{
-		organization.description || years || organization._type === 'business' ? (
+		organization.description || years || organization._type ? (
 			<div slot="lede" class="mt-4 max-w-2xl">
-				{organization._type === 'business' ? (
-					<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
-						Business
-					</p>
-				) : null}
+				<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+					{organization._type === 'business' ? 'Business' : 'Organization'}
+				</p>
 				{years ? (
 					<p class="mt-2 font-sans text-on-surface-variant">{years}</p>
 				) : null}
@@ -55,11 +53,23 @@ const thenAndNow = organization.thenAndNow ?? []
 			<section class="mt-12">
 				<h2 class="text-2xl">Associated properties / sites</h2>
 				<ul class="mt-4 list-none p-0">
-					{properties.map((property) => (
-						<li class="border-b border-outline-variant/20 py-3 font-display text-xl">
-							{property.historicalName}
-						</li>
-					))}
+					{properties.map((property) => {
+						const href = hrefFor({
+							_type: 'property',
+							slug: property.slug,
+							_id: property._id,
+						})
+						return (
+							<li class="border-b border-outline-variant/20 py-3">
+								<a
+									href={href}
+									class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+								>
+									{property.historicalName}
+								</a>
+							</li>
+						)
+					})}
 				</ul>
 			</section>
 		) : null

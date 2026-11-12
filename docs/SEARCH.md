@@ -9,10 +9,13 @@ Collection and search pages are **URL-first** (`GET /search?q=`, `GET /images?to
 - Archive ID-shaped queries are sorted to the top of Images.
 - People hits exclude name-index stubs with no public incoming links (`HAS_PUBLIC_INCOMING` existence check, not a full reverse-link count).
 - Facets on `/images` and `/documents` run GROQ on the server (`prerender = false`): township (Tredyffrin/Easttown first), place (images), subject (fuzzy tags last), decade, photographer (images; case-insensitive string match, `photographer=unattributed` for missing/empty), and image sort. Identical facet URLs may be absorbed at the edge (`s-maxage` / `stale-while-revalidate`).
-- `/organizations` is also SSR (`prerender = false`) with URL-first `q` (name), `subject` (category `_id` on the entity), `letter` (A–Z / `#`), and `page`. It lists both `organization` and `business` documents.
+- `/organizations` is also SSR (`prerender = false`) with URL-first `q` (name), `kind` (`business` | `organization`), `subject` (category `_id` on the entity), `letter` (A–Z / `#`), and `page`. It lists both `organization` and `business` documents.
+- `/properties` is SSR with URL-first `q` (historical name), `type` (`propertyType`), `township`, `letter`, and `page`.
+- `/research` accepts URL-first `q` (title) and `township`.
+- `/families` is a static A–Z index of `familyLine` documents; detail pages list publicly linked people.
 - Photographer remains a free-text string on `historicalImage`. A later Studio migration may replace it with a `photographer` document reference; until then the public facet normalizes casing in the dropdown only.
-- Image, document, research, people, place, subject, and organization **detail** HTML is prerendered at build.
-- People `/people/:slug`, places `/places/:slug`, subjects `/subjects/:slug`, and organizations `/organizations/:slug` prefer `slug.current` and fall back to `_id`. Images and documents stay on `archiveId`.
+- Image, document, research, people, place, subject, organization, property, and family **detail** HTML is prerendered at build.
+- People `/people/:slug`, places `/places/:slug`, subjects `/subjects/:slug`, organizations `/organizations/:slug`, properties `/properties/:slug`, and families `/families/:slug` prefer `slug.current` and fall back to `_id`. Images and documents stay on `archiveId`.
 
 ## Pagefind
 

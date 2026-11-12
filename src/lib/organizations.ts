@@ -13,9 +13,17 @@ import {
 } from './groq'
 import {hubStaticPaths} from './href'
 import {ORGANIZATIONS_PAGE_SIZE} from './limits'
-import {organizationLetterFilter, parseOrganizationLetter} from './organizationLetter'
+import {
+	organizationLetterFilter,
+	parseOrganizationKind,
+	parseOrganizationLetter,
+} from './organizationLetter'
 
-export {parseOrganizationLetter} from './organizationLetter'
+export {
+	parseOrganizationKind,
+	parseOrganizationLetter,
+	type OrganizationKind,
+} from './organizationLetter'
 
 export type OrganizationsPage = ORGANIZATIONS_PAGE_QUERY_RESULT
 export type OrganizationListItem = OrganizationsPage['organizations'][number]
@@ -47,9 +55,14 @@ export async function getOrganizationsPage(params: {
 	q?: string
 	subject?: string
 	letter?: string
+	kind?: string
 	page: number
 }): Promise<OrganizationsPage> {
-	const filters = [ENTITY_TYPE_FILTER]
+	const kind = parseOrganizationKind(params.kind)
+	const typeFilter = kind
+		? `_type == "${kind}" && defined(name) && name != ""`
+		: ENTITY_TYPE_FILTER
+	const filters = [typeFilter]
 	const groqParams: Record<string, string | number> = {}
 	const letter = parseOrganizationLetter(params.letter)
 

@@ -24,6 +24,8 @@ const HREF_FOR: Record<string, HrefBuilder> = {
 	category: (doc) => slugPath('/subjects', doc),
 	organization: (doc) => slugPath('/organizations', doc),
 	business: (doc) => slugPath('/organizations', doc),
+	property: (doc) => slugPath('/properties', doc),
+	familyLine: (doc) => slugPath('/families', doc),
 }
 
 export function hrefFor(doc: CatalogRef, fallback = '/search'): string {
@@ -67,7 +69,7 @@ export function slugStaticPaths<T extends {slug?: string | null}, P>(
 /** Canonical slug path plus a 301 from `_id` when they differ. */
 export function hubStaticPaths<T extends {_id: string; slug?: string | null}, P>(
 	rows: T[] | null | undefined,
-	prefix: '/people' | '/places' | '/subjects' | '/organizations',
+	prefix: '/people' | '/places' | '/subjects' | '/organizations' | '/properties' | '/families',
 	propsOf: (row: T) => P,
 ): Array<{params: {slug: string}; props: P} | {params: {slug: string}; redirect: string}> {
 	return (rows ?? []).flatMap((row) => {

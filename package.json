@@ -17,22 +17,22 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/cloudflare": "^14.4.6",
+    "@astrojs/cloudflare": "^14.4.7",
     "@astrojs/sitemap": "^3.7.4",
-    "@iconify-json/lucide": "^1.2.151",
-    "@sanity/astro": "^3.6.0",
-    "@sanity/client": "^8.14.1",
+    "@iconify-json/lucide": "^1.2.154",
+    "@sanity/astro": "^3.6.1",
+    "@sanity/client": "^8.15.1",
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/typography": "^0.5.20",
-    "@tailwindcss/vite": "^4.3.4",
-    "astro": "7.4.7",
+    "@tailwindcss/vite": "^4.3.5",
+    "astro": "7.4.11",
     "astro-icon": "^1.2.0",
     "astro-portabletext": "^1.0.1",
-    "groq": "^6.22.0",
-    "sanity": "^6.22.0",
-    "tailwindcss": "^4.3.4",
+    "groq": "^6.23.0",
+    "sanity": "^6.23.0",
+    "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
-    "wrangler": "^4.158.0"
+    "wrangler": "^4.160.1"
   },
   "allowScripts": {
     "esbuild": true

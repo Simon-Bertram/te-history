@@ -51,6 +51,8 @@ Pages import readable names from lib, not raw `*_QUERY_RESULT` types.
 | `PlacesIndex`, `PlaceHub` | [`places.ts`](../src/lib/places.ts) |
 | `SubjectHubListItem`, `SubjectHub` | [`subjects.ts`](../src/lib/subjects.ts) |
 | `OrganizationsPage`, `OrganizationListItem`, `OrganizationHub` | [`organizations.ts`](../src/lib/organizations.ts) |
+| `PropertiesPage`, `PropertyListItem`, `PropertyHub` | [`properties.ts`](../src/lib/properties.ts) |
+| `FamilyListItem`, `FamilyHub` | [`families.ts`](../src/lib/families.ts) |
 | `DocumentsPage`, `DocumentDetail` | [`documents.ts`](../src/lib/documents.ts) |
 | `ImageDetail` | [`catalog.ts`](../src/lib/catalog.ts) |
 | `LatestQuarterlyIssue`, `QuarterlyIssueListItem`, `QuarterlyArticleDetail` | [`quarterly.ts`](../src/lib/quarterly.ts) |

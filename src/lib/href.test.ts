@@ -31,6 +31,12 @@ describe('hrefFor', () => {
 		expect(hrefFor({_type: 'business', slug: 'devon-inn', _id: 'b1'})).toBe(
 			'/organizations/devon-inn',
 		)
+		expect(hrefFor({_type: 'property', slug: 'glenhardie-farm', _id: 'pr1'})).toBe(
+			'/properties/glenhardie-farm',
+		)
+		expect(hrefFor({_type: 'familyLine', slug: 'bean-family', _id: 'f1'})).toBe(
+			'/families/bean-family',
+		)
 	})
 
 	test('falls back to _id when slug is missing', () => {
@@ -39,6 +45,8 @@ describe('hrefFor', () => {
 		expect(hrefFor({_type: 'category', _id: 'c1'})).toBe('/subjects/c1')
 		expect(hrefFor({_type: 'organization', _id: 'o1'})).toBe('/organizations/o1')
 		expect(hrefFor({_type: 'business', _id: 'b1'})).toBe('/organizations/b1')
+		expect(hrefFor({_type: 'property', _id: 'pr1'})).toBe('/properties/pr1')
+		expect(hrefFor({_type: 'familyLine', _id: 'f1'})).toBe('/families/f1')
 	})
 
 	test('falls back when the type is unknown or the key is missing', () => {

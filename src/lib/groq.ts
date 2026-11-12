@@ -164,12 +164,61 @@ export const ORGANIZATION_LIST_PROJECTION = /* groq */ `
 	"subjectCount": count(subjects)
 `
 
+export const PROPERTY_LIST_PROJECTION = /* groq */ `
+	_id, historicalName, propertyType, "slug": ${ENTITY_SLUG},
+	"yearBuilt": yearBuilt.year,
+	"locationName": location->name,
+	"townshipName": township->name
+`
+
+export const PROPERTY_HUB_PROJECTION = /* groq */ `
+	_id, historicalName, propertyType, evolutionNotes, modernAddress, "slug": ${ENTITY_SLUG},
+	"yearBuilt": yearBuilt.year,
+	"location": location->{_id, name, "slug": ${ENTITY_SLUG}},
+	"township": township->{_id, name, "slug": ${ENTITY_SLUG}},
+	"parentEstate": parentEstate->{_id, historicalName, "slug": ${ENTITY_SLUG}},
+	"notableResidents": notableResidents[]->{_id, firstName, lastName, "slug": ${ENTITY_SLUG}},
+	"relatedEntities": *[_type in ["organization", "business"] && references(^._id)] | order(name asc){
+		_id, _type, name, "slug": ${ENTITY_SLUG}
+	},
+	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
+	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	},
+	"documents": *[_type == "primarySource" && references(^._id)] | order(title asc)[0...${HUB_DOCUMENT_LIMIT}]{
+		${HUB_DOCUMENT_PROJECTION}
+	},
+	"quarterly": *[_type == "quarterlyArticle" && references(^._id)] | order(title asc)[0...${HUB_ARTICLE_LIMIT}]{
+		_id, title, "slug": slug.current
+	},
+	"research": *[_type == "researchArticle" && references(^._id)] | order(title asc)[0...${HUB_RESEARCH_LIMIT}]{
+		_id, title, "slug": slug.current
+	}
+`
+
+export const FAMILY_LIST_PROJECTION = /* groq */ `
+	_id, title, description, "slug": ${ENTITY_SLUG},
+	"personCount": count(*[_type == "person" && references(^._id) && ${HAS_PUBLIC_INCOMING}])
+`
+
+export const FAMILY_HUB_PROJECTION = /* groq */ `
+	_id, title, description, "slug": ${ENTITY_SLUG},
+	"people": *[_type == "person" && references(^._id) && ${HAS_PUBLIC_INCOMING}] | order(lastName asc, firstName asc){
+		_id, firstName, lastName, "slug": ${ENTITY_SLUG},
+		"imageCount": count(*[_type == "historicalImage" && references(^._id)])
+	},
+	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
+	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{
+		${ENTITY_IMAGE_PROJECTION}
+	}
+`
+
 export const ORGANIZATION_HUB_PROJECTION = /* groq */ `
 	_id, _type, name, description, "slug": ${ENTITY_SLUG},
 	"activeFrom": activeFrom.year,
 	"activeTo": activeTo.year,
 	"subjects": subjects[]->{_id, title, "slug": ${ENTITY_SLUG}},
-	"associatedProperties": associatedProperties[]->{_id, historicalName},
+	"associatedProperties": associatedProperties[]->{_id, historicalName, "slug": ${ENTITY_SLUG}},
 	"owners": owners[]->{_id, firstName, lastName, "slug": ${ENTITY_SLUG}},
 	"imageCount": count(*[_type == "historicalImage" && references(^._id)]),
 	"images": *[_type == "historicalImage" && references(^._id)] | order(dateTaken.year asc)[0...${ENTITY_IMAGE_STRIP}]{

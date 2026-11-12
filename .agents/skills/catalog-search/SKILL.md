@@ -9,6 +9,8 @@ paths:
   - "src/pages/people/**"
   - "src/pages/places/**"
   - "src/pages/organizations/**"
+  - "src/pages/properties/**"
+  - "src/pages/families/**"
   - "src/pages/research/**"
   - "src/pages/subjects/**"
   - "src/pages/quarterly/**"
@@ -21,7 +23,7 @@ paths:
 
 # Catalog and search
 
-Read [docs/SEARCH.md](../../../docs/SEARCH.md) before changing search or facets. Put GROQ in `src/lib/` by catalog type (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `organizations.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`). Pages import helpers; do not embed large queries in `.astro` files. Do not add a repository layer.
+Read [docs/SEARCH.md](../../../docs/SEARCH.md) before changing search or facets. Put GROQ in `src/lib/` by catalog type (`catalog.ts`, `documents.ts`, `people.ts`, `places.ts`, `organizations.ts`, `properties.ts`, `families.ts`, `quarterly.ts`, `research.ts`, `subjects.ts`, `search.ts`, `siteNavigation.ts`). Pages import helpers; do not embed large queries in `.astro` files. Do not add a repository layer.
 
 Fetch with `sanityClient` from `sanity:client`. Catalog routes keep `export const prerender = false`.
 
@@ -32,7 +34,9 @@ Filters are GET query params, not client cache libraries.
 - Search: `GET /search?q=` (header form posts here)
 - Images: `GET /images?q=&township=&location=&subject=&decade=&photographer=&sort=&page=&all=`
 - Documents: same facet pattern on `/documents` (no photographer)
-- Organizations: `GET /organizations?q=&subject=&letter=&page=` (`organization` + `business`)
+- Organizations: `GET /organizations?q=&kind=&subject=&letter=&page=` (`organization` + `business`)
+- Properties: `GET /properties?q=&type=&township=&letter=&page=`
+- Research: `GET /research?q=&township=`
 
 Do not add TanStack Query, SWR, or a React search island unless header typeahead starts issuing many overlapping client requests.
 
@@ -40,18 +44,20 @@ Do not add Pagefind until article, image, and document **detail** pages are stat
 
 ## GROQ patterns
 
-Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `DOCUMENTS_PAGE_SIZE`, `SEARCH_RESULT_LIMIT`, `ENTITY_IMAGE_STRIP`, `HOME_IMAGE_LIMIT`). Catalog hrefs: `hrefFor` in `href.ts`. Image and document facets: `buildFacetQuery` in `facets.ts`.
+Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `DOCUMENTS_PAGE_SIZE`, `ORGANIZATIONS_PAGE_SIZE`, `PROPERTIES_PAGE_SIZE`, `SEARCH_RESULT_LIMIT`, `ENTITY_IMAGE_STRIP`, `HOME_IMAGE_LIMIT`). Catalog hrefs: `hrefFor` in `href.ts`. Image and document facets: `buildFacetQuery` in `facets.ts`.
 
 | Type | Typical filters |
 | --- | --- |
 | `historicalImage` | `defined(imageFile.asset)`; facets via township/location/subject refs, `dateTaken.year`, and string `photographer` (`unattributed` sentinel for empty) |
 | `primarySource` | documents by `archiveId` |
 | `quarterlyIssue` / `quarterlyArticle` | issue order `volume desc, issueNumber desc` |
-| `researchArticle` | `defined(slug.current)` |
+| `researchArticle` | `defined(slug.current)`; optional title match and township |
 | `person` | public incoming links via `HAS_PUBLIC_INCOMING` (exclude name-index stubs) |
 | `location` / `township` | places; townships ordered with Tredyffrin then Easttown first |
 | `category` | subjects; demote fuzzy tags (`person`, `people`, `place`, `view`, `cultural`) |
-| `organization` / `business` | name match, `subjects[]._ref`, letter browse; both types under `/organizations` |
+| `organization` / `business` | name match, kind, `subjects[]._ref`, letter browse; both types under `/organizations` |
+| `property` | historical name, `propertyType`, township, letter browse under `/properties` |
+| `familyLine` | A–Z index under `/families`; detail lists publicly linked people |
 
 - Wildcard search: `title match $q` with `$q = '*${term}*'`
 - Archive-ID-shaped queries (`search.ts` `ARCHIVE_ID_PATTERN`): sort exact archive hits to the top of Images
@@ -66,6 +72,6 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `D
 | `/images`, `/images/[archiveId]` | `catalog.ts` |
 | `/documents`, `/documents/[archiveId]` | `documents.ts` |
 | `/search` | `searchCatalog` |
-| `/people`, `/places`, `/organizations`, `/research`, `/subjects`, `/quarterly`, `/quarterly/[slug]` | `people.ts`, `places.ts`, `organizations.ts`, `research.ts`, `subjects.ts`, `quarterly.ts` |
+| `/people`, `/places`, `/organizations`, `/properties`, `/families`, `/research`, `/subjects`, `/quarterly`, `/quarterly/[slug]` | `people.ts`, `places.ts`, `organizations.ts`, `properties.ts`, `families.ts`, `research.ts`, `subjects.ts`, `quarterly.ts` |
 
 Images: `urlFor` from `src/lib/imageUrl.ts`. Portable Text: `astro-portabletext` on research and document detail pages (`portable-text-serialization` skill for custom components).

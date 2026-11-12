@@ -5,6 +5,27 @@ import {getQuarterlyIssues} from '../../lib/quarterly'
 
 const issues = await getQuarterlyIssues()
 const initialQuery = Astro.url.searchParams.get('q') ?? ''
+
+type IssueRow = NonNullable<typeof issues>[number]
+
+const byYear = new Map<string, IssueRow[]>()
+for (const issue of issues ?? []) {
+	const year = issue.publicationDate?.year
+	const key = year != null ? String(year) : 'undated'
+	const members = byYear.get(key) ?? []
+	members.push(issue)
+	byYear.set(key, members)
+}
+
+const yearGroups = [...byYear.entries()].sort(([a], [b]) => {
+	if (a === 'undated') return 1
+	if (b === 'undated') return -1
+	return Number(b) - Number(a)
+})
+
+const yearNav = yearGroups
+	.map(([year]) => year)
+	.filter((year) => year !== 'undated')
 ---
 
 <Layout
@@ -47,6 +68,20 @@ const initialQuery = Astro.url.searchParams.get('q') ?? ''
 					]}
 				/>
 			</form>
+			{
+				yearNav.length ? (
+					<nav
+						class="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-sans text-sm"
+						aria-label="Jump to year"
+					>
+						{yearNav.map((year) => (
+							<a href={`#year-${year}`} class="link-quiet text-primary">
+								{year}
+							</a>
+						))}
+					</nav>
+				) : null
+			}
 			<p
 				id="quarterly-filter-status"
 				class="mt-2 font-sans text-sm text-on-surface-variant"
@@ -56,39 +91,50 @@ const initialQuery = Astro.url.searchParams.get('q') ?? ''
 
 		<div id="quarterly-index-list">
 			{
-				(issues ?? []).map((issue) => {
-					const articles = (issue.articles ?? []).map((article) => ({
-						...article,
-						_type: 'quarterlyArticle',
-					}))
-					const year = issue.publicationDate?.year
-					return (
-						<section
-							class="mt-10"
-							data-quarterly-issue
-							data-year={year != null ? String(year) : undefined}
-						>
-							<h2 class="text-2xl mt-6" data-quarterly-heading>
-								Volume {issue.volume}, Number {issue.issueNumber}
-								{issue.season ? (
-									<span class="font-sans text-lg text-on-surface-variant">
-										{' '}
-										· {issue.season}
-									</span>
-								) : null}
-								{year != null ? (
-									<span class="font-sans text-lg text-on-surface-variant">
-										{' '}
-										· {year}
-									</span>
-								) : null}
-							</h2>
-							<div class="mt-4">
-								<ArticleList items={articles} />
-							</div>
-						</section>
-					)
-				})
+				yearGroups.map(([year, yearIssues]) => (
+					<section
+						class="mt-10"
+						data-quarterly-year
+						id={year === 'undated' ? 'year-undated' : `year-${year}`}
+					>
+						<h2 class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">
+							{year === 'undated' ? 'Undated' : year}
+						</h2>
+						{yearIssues.map((issue) => {
+							const articles = (issue.articles ?? []).map((article) => ({
+								...article,
+								_type: 'quarterlyArticle',
+							}))
+							const issueYear = issue.publicationDate?.year
+							return (
+								<section
+									class="mt-6"
+									data-quarterly-issue
+									data-year={issueYear != null ? String(issueYear) : undefined}
+								>
+									<h3 class="text-2xl" data-quarterly-heading>
+										Volume {issue.volume}, Number {issue.issueNumber}
+										{issue.season ? (
+											<span class="font-sans text-lg text-on-surface-variant">
+												{' '}
+												· {issue.season}
+											</span>
+										) : null}
+										{issueYear != null ? (
+											<span class="font-sans text-lg text-on-surface-variant">
+												{' '}
+												· {issueYear}
+											</span>
+										) : null}
+									</h3>
+									<div class="mt-4">
+										<ArticleList items={articles} />
+									</div>
+								</section>
+							)
+						})}
+					</section>
+				))
 			}
 		</div>
 	</div>
@@ -99,6 +145,9 @@ const initialQuery = Astro.url.searchParams.get('q') ?? ''
 	const form = document.querySelector<HTMLFormElement>('#quarterly-filter-form')
 	const input = document.querySelector<HTMLInputElement>('#quarterly-filter')
 	const status = document.querySelector<HTMLElement>('#quarterly-filter-status')
+	const yearSections = root
+		? Array.from(root.querySelectorAll<HTMLElement>('[data-quarterly-year]'))
+		: []
 	const sections = root
 		? Array.from(root.querySelectorAll<HTMLElement>('[data-quarterly-issue]'))
 		: []
@@ -188,6 +237,13 @@ const initialQuery = Astro.url.searchParams.get('q') ?? ''
 				visibleVolumes += 1
 				visibleArticles += matchedInSection
 			}
+		}
+
+		for (const yearSection of yearSections) {
+			const hasVisibleIssue = Array.from(
+				yearSection.querySelectorAll<HTMLElement>('[data-quarterly-issue]'),
+			).some((issue) => !issue.hidden)
+			setHidden(yearSection, !hasVisibleIssue)
 		}
 
 		if (!status) return

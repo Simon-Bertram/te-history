@@ -2,9 +2,32 @@
 import Layout from '../../layouts/Layout.astro'
 import {hrefFor} from '../../lib/href'
 import {isFuzzySubject} from '../../lib/limits'
-import {getSubjectHubs} from '../../lib/subjects'
+import {getSubjectHubs, type SubjectHubListItem} from '../../lib/subjects'
 
-const subjects = await getSubjectHubs()
+function letterOf(subject: SubjectHubListItem): string {
+	const raw = (subject.title ?? '?').slice(0, 1).toUpperCase()
+	return /[A-Z]/.test(raw) ? raw : '#'
+}
+
+const subjects = (await getSubjectHubs() ?? [])
+	.slice()
+	.sort((a, b) => {
+		const aFuzzy = isFuzzySubject(a.title) ? 1 : 0
+		const bFuzzy = isFuzzySubject(b.title) ? 1 : 0
+		return aFuzzy - bFuzzy || (a.title ?? '').localeCompare(b.title ?? '')
+	})
+
+const concrete = subjects.filter((item) => !isFuzzySubject(item.title))
+const fuzzy = subjects.filter((item) => isFuzzySubject(item.title))
+
+const grouped = new Map<string, SubjectHubListItem[]>()
+for (const subject of concrete) {
+	const letter = letterOf(subject)
+	const members = grouped.get(letter) ?? []
+	members.push(subject)
+	grouped.set(letter, members)
+}
+const groups = [...grouped.entries()]
 ---
 
 <Layout
@@ -17,29 +40,76 @@ const subjects = await getSubjectHubs()
 		Concrete subjects such as churches, schools, railroads, inns, and farms. Fuzzy Person / Place /
 		View tags are listed last until they are curated.
 	</p>
-	<ul class="mt-8 list-none p-0">
-		{
-			(subjects ?? [])
-				.slice()
-				.sort((a, b) => {
-					const aFuzzy = isFuzzySubject(a.title) ? 1 : 0
-					const bFuzzy = isFuzzySubject(b.title) ? 1 : 0
-					return aFuzzy - bFuzzy || (a.title ?? '').localeCompare(b.title ?? '')
-				})
-				.map((item) => (
-					<li class="border-b border-outline-variant/20 py-4">
-						<a
-							href={hrefFor({_type: 'category', slug: item.slug, _id: item._id})}
-							class="link-quiet font-display text-xl text-on-surface hover:text-primary"
-						>
-							{item.title}
-						</a>
-						<p class="font-sans text-sm text-on-surface-variant">
-							{item.imageCount ?? 0} photographs
-							{item.description ? ` · ${item.description}` : ''}
-						</p>
-					</li>
-				))
-		}
-	</ul>
+	{
+		groups.length ? (
+			<nav class="mt-6 flex flex-wrap gap-2 font-sans text-sm" aria-label="Alphabet">
+				{groups.map(([letter]) => (
+					<a href={`#letter-${letter}`} class="link-quiet text-primary">
+						{letter === '#' ? 'Other' : letter}
+					</a>
+				))}
+				{fuzzy.length ? (
+					<a href="#fuzzy-subjects" class="link-quiet text-primary">
+						Other tags
+					</a>
+				) : null}
+			</nav>
+		) : null
+	}
+	{
+		groups.map(([letter, members]) => (
+			<section class="mt-10">
+				<h2
+					id={`letter-${letter}`}
+					class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant"
+				>
+					{letter === '#' ? 'Other' : letter}
+				</h2>
+				<ul class="mt-3 list-none p-0">
+					{members.map((item) => (
+						<li class="border-b border-outline-variant/20 py-4">
+							<a
+								href={hrefFor({_type: 'category', slug: item.slug, _id: item._id})}
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+							>
+								{item.title}
+							</a>
+							<p class="font-sans text-sm text-on-surface-variant">
+								{item.imageCount ?? 0} photographs
+								{item.description ? ` · ${item.description}` : ''}
+							</p>
+						</li>
+					))}
+				</ul>
+			</section>
+		))
+	}
+	{
+		fuzzy.length ? (
+			<section class="mt-10">
+				<h2
+					id="fuzzy-subjects"
+					class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant"
+				>
+					Other tags
+				</h2>
+				<ul class="mt-3 list-none p-0">
+					{fuzzy.map((item) => (
+						<li class="border-b border-outline-variant/20 py-4">
+							<a
+								href={hrefFor({_type: 'category', slug: item.slug, _id: item._id})}
+								class="link-quiet font-display text-xl text-on-surface hover:text-primary"
+							>
+								{item.title}
+							</a>
+							<p class="font-sans text-sm text-on-surface-variant">
+								{item.imageCount ?? 0} photographs
+								{item.description ? ` · ${item.description}` : ''}
+							</p>
+						</li>
+					))}
+				</ul>
+			</section>
+		) : null
+	}
 </Layout>

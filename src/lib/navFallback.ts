@@ -12,7 +12,9 @@ export const SITE_NAVIGATION_PRIMARY_LINKS: NavLink[] = [
 export const SITE_NAVIGATION_SECONDARY_LINKS: NavLink[] = [
 	{_key: 'nav-places', label: 'Places', href: '/places', kind: 'page'},
 	{_key: 'nav-people', label: 'People', href: '/people', kind: 'page'},
+	{_key: 'nav-families', label: 'Families', href: '/families', kind: 'page'},
 	{_key: 'nav-subjects', label: 'Subjects', href: '/subjects', kind: 'page'},
 	{_key: 'nav-organizations', label: 'Organizations', href: '/organizations', kind: 'page'},
+	{_key: 'nav-properties', label: 'Properties', href: '/properties', kind: 'page'},
 	{_key: 'nav-about', label: 'About', href: '/about', kind: 'page'},
 ]

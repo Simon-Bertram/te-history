@@ -12,6 +12,7 @@ import {hrefFor} from '../../lib/href'
 import {ORGANIZATIONS_PAGE_SIZE, parsePage, sortSubjectsDemoteFuzzy} from '../../lib/limits'
 import {
 	getOrganizationsPage,
+	parseOrganizationKind,
 	parseOrganizationLetter,
 } from '../../lib/organizations'
 import {setSsrCacheControl} from '../../lib/ssrCache'
@@ -21,12 +22,13 @@ setSsrCacheControl(Astro.response.headers)
 const params = Astro.url.searchParams
 const q = params.get('q') ?? ''
 const subject = params.get('subject') ?? ''
+const kind = parseOrganizationKind(params.get('kind') ?? undefined)
 const letter = parseOrganizationLetter(params.get('letter') ?? undefined)
 const page = parsePage(params.get('page') ?? undefined)
 
 const [subjectsRaw, result] = await Promise.all([
 	getSubjects(),
-	getOrganizationsPage({q, subject, letter, page}),
+	getOrganizationsPage({q, subject, kind, letter, page}),
 ])
 const subjects = sortSubjectsDemoteFuzzy(subjectsRaw ?? [])
 
@@ -37,8 +39,13 @@ const resultsSummary = formatCatalogResultsSummary({
 	total,
 	page,
 	pageSize: ORGANIZATIONS_PAGE_SIZE,
-	singular: 'organization',
-	plural: 'organizations',
+	singular: kind === 'business' ? 'business' : kind === 'organization' ? 'organization' : 'entry',
+	plural:
+		kind === 'business'
+			? 'businesses'
+			: kind === 'organization'
+				? 'organizations'
+				: 'organizations and businesses',
 	pageInSummary: showNavigation,
 })
 
@@ -54,6 +61,7 @@ function activeLetterHref(next: string) {
 	const nextParams = new URLSearchParams()
 	if (q.trim()) nextParams.set('q', q.trim())
 	if (subject.trim()) nextParams.set('subject', subject.trim())
+	if (kind) nextParams.set('kind', kind)
 	if (next !== letter) nextParams.set('letter', next)
 	const query = nextParams.toString()
 	return query ? `/organizations?${query}` : '/organizations'
@@ -75,6 +83,10 @@ function subjectMeta(item: {
 	const extra = (item.subjectCount ?? 0) > 1 ? ` +${(item.subjectCount ?? 0) - 1}` : ''
 	return `${title}${extra}`
 }
+
+function kindLabel(type: string | null | undefined) {
+	return type === 'business' ? 'Business' : 'Organization'
+}
 ---
 
 <Layout
@@ -86,17 +98,28 @@ function subjectMeta(item: {
 	</p>
 	<h1 class="mt-3 text-display-sm">Organizations</h1>
 	<p class="mt-4 max-w-2xl font-sans text-on-surface-variant">
-		Civic groups, institutions, and businesses. Search by name or browse by subject.
+		Civic groups, institutions, and commercial firms share this directory. Search by name, filter
+		by kind or subject, or jump by letter.
 	</p>
 
 	<form
-		class="mb-6 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2 lg:grid-cols-3"
+		class="mb-6 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2 lg:grid-cols-4"
 		action="/organizations"
 		method="get"
 	>
 		<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
 			Name
 			<input class={inputClass} type="search" name="q" value={q} />
+		</label>
+		<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+			Kind
+			<select class={inputClass} name="kind">
+				<option value="">All</option>
+				<option value="organization" selected={kind === 'organization'}>
+					Organizations
+				</option>
+				<option value="business" selected={kind === 'business'}>Businesses</option>
+			</select>
 		</label>
 		<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
 			Subject Category
@@ -165,7 +188,7 @@ function subjectMeta(item: {
 					const years = activeYears(item.activeFrom, item.activeTo)
 					const subjectLabel = subjectMeta(item)
 					const meta = [
-						item._type === 'business' ? 'Business' : null,
+						kindLabel(item._type),
 						years || null,
 						subjectLabel || null,
 					].filter(Boolean)
