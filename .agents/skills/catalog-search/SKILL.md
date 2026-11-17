@@ -15,6 +15,11 @@ paths:
   - "src/pages/subjects/**"
   - "src/pages/quarterly/**"
   - "src/components/FacetForm.astro"
+  - "src/components/CatalogActiveFilters.astro"
+  - "src/components/AlphabetFilterNav.astro"
+  - "src/components/ResearchFilters.astro"
+  - "src/components/OrganizationsFilters.astro"
+  - "src/components/PropertiesFilters.astro"
   - "src/components/Search.astro"
   - "src/components/Pagination.astro"
   - "src/components/ImageGrid.astro"
@@ -36,7 +41,7 @@ Filters are GET query params, not client cache libraries.
 - Documents: same facet pattern on `/documents` (no photographer)
 - Organizations: `GET /organizations?q=&kind=&subject=&letter=&page=` (`organization` + `business`)
 - Properties: `GET /properties?q=&type=&township=&letter=&page=`
-- Research: `GET /research?q=&township=`
+- Research: `GET /research?q=&township=&subject=`
 
 Do not add TanStack Query, SWR, or a React search island unless header typeahead starts issuing many overlapping client requests.
 
@@ -51,7 +56,7 @@ Reuse existing helpers and `src/lib/limits.ts` constants (`IMAGES_PAGE_SIZE`, `D
 | `historicalImage` | `defined(imageFile.asset)`; facets via township/location/subject refs, `dateTaken.year`, and string `photographer` (`unattributed` sentinel for empty) |
 | `primarySource` | documents by `archiveId` |
 | `quarterlyIssue` / `quarterlyArticle` | issue order `volume desc, issueNumber desc` |
-| `researchArticle` | `defined(slug.current)`; optional title match and township |
+| `researchArticle` | `defined(slug.current)`; optional title match, township, and `subjects[]._ref` |
 | `person` | public incoming links via `HAS_PUBLIC_INCOMING` (exclude name-index stubs) |
 | `location` / `township` | places; townships ordered with Tredyffrin then Easttown first |
 | `category` | subjects; demote fuzzy tags (`person`, `people`, `place`, `view`, `cultural`) |

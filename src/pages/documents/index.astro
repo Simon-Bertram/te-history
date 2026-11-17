@@ -1,6 +1,7 @@
 ---
 export const prerender = false
 
+import CatalogActiveFilters from '../../components/CatalogActiveFilters.astro'
 import CatalogResultsBar from '../../components/CatalogResultsBar.astro'
 import DocumentList from '../../components/DocumentList.astro'
 import FacetForm from '../../components/FacetForm.astro'
@@ -52,7 +53,7 @@ const activeFilters = [
 		? (subjects.find((item) => item._id === subject)?.title ?? 'Subject')
 		: null,
 	decade ? `${decade}s` : null,
-].filter(Boolean)
+].filter(Boolean) as string[]
 ---
 
 <Layout
@@ -69,14 +70,7 @@ const activeFilters = [
 
 	<FacetForm townships={townships} subjects={subjects} action="/documents" />
 
-	{
-		activeFilters.length ? (
-			<p class="mb-4 font-sans text-sm text-on-surface-variant">
-				Filtered by {activeFilters.join(' · ')}.{' '}
-				<a href="/documents">Clear filters</a>
-			</p>
-		) : null
-	}
+	<CatalogActiveFilters labels={activeFilters} clearHref="/documents" />
 
 	<CatalogResultsBar
 		summary={resultsSummary}

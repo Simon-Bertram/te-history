@@ -2,22 +2,36 @@
 export const prerender = false
 
 import ArticleList from '../../components/ArticleList.astro'
+import CatalogActiveFilters from '../../components/CatalogActiveFilters.astro'
+import ResearchFilters from '../../components/ResearchFilters.astro'
 import Layout from '../../layouts/Layout.astro'
-import {getTownships} from '../../lib/catalog'
+import {getSubjects, getTownships} from '../../lib/catalog'
+import {sortSubjectsDemoteFuzzy, sortTownshipsFirst} from '../../lib/limits'
 import {getResearchArticles} from '../../lib/research'
 import {setSsrCacheControl} from '../../lib/ssrCache'
 
 setSsrCacheControl(Astro.response.headers)
 
 const township = Astro.url.searchParams.get('township') ?? ''
+const subject = Astro.url.searchParams.get('subject') ?? ''
 const q = Astro.url.searchParams.get('q') ?? ''
-const [articles, townships] = await Promise.all([
-	getResearchArticles({townshipId: township, q}),
+const [articles, townshipsRaw, subjectsRaw] = await Promise.all([
+	getResearchArticles({townshipId: township, subjectId: subject, q}),
 	getTownships(),
+	getSubjects(),
 ])
-const inputClass =
-	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
-const hasFilters = Boolean(township.trim() || q.trim())
+const townships = sortTownshipsFirst(townshipsRaw ?? [])
+const subjects = sortSubjectsDemoteFuzzy(subjectsRaw ?? [])
+const hasFilters = Boolean(township.trim() || subject.trim() || q.trim())
+const activeFilters = [
+	q.trim() ? `“${q.trim()}”` : null,
+	township
+		? (townships.find((item) => item._id === township)?.name ?? 'Township')
+		: null,
+	subject
+		? (subjects.find((item) => item._id === subject)?.title ?? 'Subject')
+		: null,
+].filter(Boolean) as string[]
 ---
 
 <Layout
@@ -26,30 +40,8 @@ const hasFilters = Boolean(township.trim() || q.trim())
 >
 	<p class="font-sans text-sm tracking-[0.08em] uppercase text-on-surface-variant">Research</p>
 	<h1 class="mt-3 text-display-sm">Township history &amp; overviews</h1>
-	<form
-		class="mt-6 grid max-w-2xl gap-3 sm:grid-cols-[1fr_minmax(10rem,12rem)_auto] sm:items-end"
-		action="/research"
-		method="get"
-	>
-		<label class="flex min-w-0 flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
-			Title
-			<input class={inputClass} type="search" name="q" value={q} />
-		</label>
-		<label class="flex min-w-0 flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
-			Township
-			<select class={inputClass} name="township">
-				<option value="">All</option>
-				{(townships ?? []).map((item) => (
-					<option value={item._id} selected={township === item._id}>
-						{item.name}
-					</option>
-				))}
-			</select>
-		</label>
-		<button type="submit" class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary">
-			Filter
-		</button>
-	</form>
+	<ResearchFilters townships={townships} subjects={subjects} />
+	<CatalogActiveFilters class="mt-4" labels={activeFilters} clearHref="/research" />
 	{
 		(articles ?? []).length === 0 ? (
 			<p class="mt-8 font-sans text-on-surface-variant">

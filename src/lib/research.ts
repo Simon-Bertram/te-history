@@ -57,11 +57,13 @@ export async function getFeaturedResearch(): Promise<FeaturedResearchArticle[]> 
 
 export async function getResearchArticles(params?: {
 	townshipId?: string
+	subjectId?: string
 	q?: string
 }): Promise<ResearchListItem[]> {
 	const townshipId = params?.townshipId?.trim() ?? ''
+	const subjectId = params?.subjectId?.trim() ?? ''
 	const q = params?.q?.trim() ?? ''
-	if (!townshipId && !q) {
+	if (!townshipId && !subjectId && !q) {
 		return (await sanityClient.fetch(RESEARCH_ARTICLES_QUERY)) ?? []
 	}
 
@@ -71,12 +73,16 @@ export async function getResearchArticles(params?: {
 		filters.push('$townshipId in townships[]._ref')
 		groqParams.townshipId = townshipId
 	}
+	if (subjectId) {
+		filters.push('$subjectId in subjects[]._ref')
+		groqParams.subjectId = subjectId
+	}
 	if (q) {
 		filters.push('title match $q')
 		groqParams.q = `*${q}*`
 	}
 	const filter = filters.join(' && ')
-	// @sanity-typegen-ignore — township and title filters are interpolated at runtime
+	// @sanity-typegen-ignore — township, subject, and title filters are interpolated at runtime
 	const query = /* groq */ `*[${filter}] | order(title asc){_id, title, "slug": slug.current}`
 	return (await sanityClient.fetch(query, groqParams)) ?? []
 }

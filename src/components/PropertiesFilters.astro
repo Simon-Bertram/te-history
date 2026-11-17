@@ -1,0 +1,64 @@
+---
+import type {TownshipOption} from '../lib/catalog'
+import {PROPERTY_TYPES} from '../lib/properties'
+
+interface Props {
+	townships: TownshipOption[]
+	letter?: string
+}
+
+const {townships, letter = ''} = Astro.props
+const q = Astro.url.searchParams.get('q') ?? ''
+const type = Astro.url.searchParams.get('type') ?? ''
+const township = Astro.url.searchParams.get('township') ?? ''
+const inputClass =
+	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
+---
+
+<form
+	class="mb-6 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2 lg:grid-cols-4"
+	action="/properties"
+	method="get"
+>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Name
+		<input class={inputClass} type="search" name="q" value={q} />
+	</label>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Property type
+		<select class={inputClass} name="type">
+			<option value="">All</option>
+			{PROPERTY_TYPES.map((item) => (
+				<option value={item.value} selected={type === item.value}>
+					{item.label}
+				</option>
+			))}
+		</select>
+	</label>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Township
+		<select class={inputClass} name="township">
+			<option value="">All</option>
+			{townships.map((item) => (
+				<option value={item._id} selected={township === item._id}>
+					{item.name}
+				</option>
+			))}
+		</select>
+	</label>
+	{letter ? <input type="hidden" name="letter" value={letter} /> : null}
+	<div class="flex items-end gap-3">
+		<button
+			type="submit"
+			class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary"
+		>
+			Apply
+		</button>
+		<a
+			href="/properties"
+			class="link-quiet py-2 font-sans text-sm text-on-surface-variant hover:text-primary"
+		>
+			Clear filters
+		</a>
+	</div>
+</form>

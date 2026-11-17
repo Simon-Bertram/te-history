@@ -1,0 +1,63 @@
+---
+import type {SubjectOption} from '../lib/catalog'
+import type {OrganizationKind} from '../lib/organizations'
+
+interface Props {
+	subjects: SubjectOption[]
+	kind?: OrganizationKind | ''
+	letter?: string
+}
+
+const {subjects, kind, letter = ''} = Astro.props
+const q = Astro.url.searchParams.get('q') ?? ''
+const subject = Astro.url.searchParams.get('subject') ?? ''
+const inputClass =
+	'rounded-sm bg-surface-container-lowest px-3 py-2 font-sans text-sm border-0 border-b border-outline-variant/40 focus:border-primary focus:outline-none'
+---
+
+<form
+	class="mb-6 grid gap-4 bg-surface-container-low p-6 sm:grid-cols-2 lg:grid-cols-4"
+	action="/organizations"
+	method="get"
+>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Name
+		<input class={inputClass} type="search" name="q" value={q} />
+	</label>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Kind
+		<select class={inputClass} name="kind">
+			<option value="">All</option>
+			<option value="organization" selected={kind === 'organization'}>
+				Organizations
+			</option>
+			<option value="business" selected={kind === 'business'}>Businesses</option>
+		</select>
+	</label>
+	<label class="flex flex-col gap-1 font-sans text-xs tracking-[0.04em] text-on-surface-variant">
+		Subject Category
+		<select class={inputClass} name="subject">
+			<option value="">All</option>
+			{subjects.map((item) => (
+				<option value={item._id} selected={subject === item._id}>
+					{item.title}
+				</option>
+			))}
+		</select>
+	</label>
+	{letter ? <input type="hidden" name="letter" value={letter} /> : null}
+	<div class="flex items-end gap-3">
+		<button
+			type="submit"
+			class="rounded-sm bg-primary px-4 py-2 font-sans text-sm text-on-primary"
+		>
+			Apply
+		</button>
+		<a
+			href="/organizations"
+			class="link-quiet py-2 font-sans text-sm text-on-surface-variant hover:text-primary"
+		>
+			Clear filters
+		</a>
+	</div>
+</form>

@@ -1,6 +1,7 @@
 ---
 export const prerender = false
 
+import CatalogActiveFilters from '../../components/CatalogActiveFilters.astro'
 import CatalogResultsBar from '../../components/CatalogResultsBar.astro'
 import FacetForm from '../../components/FacetForm.astro'
 import ImageGrid from '../../components/ImageGrid.astro'
@@ -17,6 +18,7 @@ import {
 	catalogPageCount,
 	formatDisplayingRangeSummary,
 } from '../../lib/catalogResults'
+import {UNATTRIBUTED_PHOTOGRAPHER} from '../../lib/facets'
 import {IMAGES_PAGE_SIZE, parsePage} from '../../lib/limits'
 import {setSsrCacheControl} from '../../lib/ssrCache'
 
@@ -61,6 +63,30 @@ const resultsSummary = hasFilters
 			plural: 'photographs',
 		})
 	: `Displaying featured photos (${images.length.toLocaleString('en-US')})`
+
+const sortLabel =
+	sort === 'date-asc' ? 'Date, oldest' : sort === 'title' ? 'Title' : null
+const photographerLabel = photographer
+	? photographer === UNATTRIBUTED_PHOTOGRAPHER
+		? 'Unattributed'
+		: photographer
+	: null
+const activeFilters = [
+	q.trim() ? `“${q.trim()}”` : null,
+	township
+		? ((townships ?? []).find((item) => item._id === township)?.name ?? 'Township')
+		: null,
+	location
+		? ((locations ?? []).find((item) => item._id === location)?.name ?? 'Place')
+		: null,
+	subject
+		? ((subjects ?? []).find((item) => item._id === subject)?.title ?? 'Subject')
+		: null,
+	decade ? `${decade}s` : null,
+	photographerLabel,
+	hasCustomSort ? sortLabel : null,
+	all ? 'Full catalog' : null,
+].filter(Boolean) as string[]
 ---
 
 <Layout
@@ -85,6 +111,8 @@ const resultsSummary = hasFilters
 		showPhotographer
 		showSort
 	/>
+
+	<CatalogActiveFilters labels={activeFilters} clearHref="/images" />
 
 	<CatalogResultsBar
 		summary={resultsSummary}

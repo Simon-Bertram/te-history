@@ -1,0 +1,42 @@
+---
+interface Props {
+	basePath: string
+	letter?: string
+	preserveParams?: Record<string, string>
+}
+
+const {basePath, letter = '', preserveParams = {}} = Astro.props
+
+const LETTERS = [
+	...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+	'#',
+] as const
+
+function hrefForLetter(next: string) {
+	const nextParams = new URLSearchParams()
+	for (const [key, value] of Object.entries(preserveParams)) {
+		if (value.trim()) nextParams.set(key, value.trim())
+	}
+	if (next !== letter) nextParams.set('letter', next)
+	const query = nextParams.toString()
+	return query ? `${basePath}?${query}` : basePath
+}
+---
+
+<nav class="mb-8 flex flex-wrap gap-2 font-sans text-sm" aria-label="Alphabet">
+	{LETTERS.map((item) => {
+		const active = letter === item
+		return (
+			<a
+				href={hrefForLetter(item)}
+				class:list={[
+					'link-quiet',
+					active ? 'text-primary underline' : 'text-on-surface-variant hover:text-primary',
+				]}
+				aria-current={active ? 'true' : undefined}
+			>
+				{item === '#' ? 'Other' : item}
+			</a>
+		)
+	})}
+</nav>

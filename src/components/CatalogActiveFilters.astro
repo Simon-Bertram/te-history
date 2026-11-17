@@ -1,0 +1,18 @@
+---
+interface Props {
+	labels: string[]
+	clearHref: string
+	class?: string
+}
+
+const {labels, clearHref, class: className} = Astro.props
+---
+
+{
+	labels.length ? (
+		<p class:list={['mb-4 font-sans text-sm text-on-surface-variant', className]}>
+			Filtered by {labels.join(' · ')}.{' '}
+			<a href={clearHref}>Clear filters</a>
+		</p>
+	) : null
+}
